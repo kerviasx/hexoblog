@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto+Sans+SC:300,300italic,400,400italic,700,700italic|Noto+Serif+SC:300,300italic,400,400italic,700,700italic|Roboto+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="基本介绍 学习工具：https:&#x2F;&#x2F;www.lanzous.com&#x2F;i5vpdsh 在线学习工具：https:&#x2F;&#x2F;tool.chinaz.com&#x2F;regex&#x2F; 正则表达式功能：匹配符合某种条件的文本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="正则表达式基本语法">
+<meta property="og:url" content="https://blog.kervias.com/posts/2623405f/index.html">
+<meta property="og:site_name" content="kervias">
+<meta property="og:description" content="基本介绍 学习工具：https:&#x2F;&#x2F;www.lanzous.com&#x2F;i5vpdsh 在线学习工具：https:&#x2F;&#x2F;tool.chinaz.com&#x2F;regex&#x2F; 正则表达式功能：匹配符合某种条件的文本">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/01/20/sVWFfigTPGu1BIa.png">
+<meta property="og:image" content="https://i.loli.net/2020/01/20/XTKwcNd13blnSvh.png">
+<meta property="article:published_time" content="2019-08-30T03:14:52.000Z">
+<meta property="article:modified_time" content="2020-05-20T13:47:20.410Z">
+<meta property="article:author" content="kervias">
+<meta property="article:tag" content="正则表达式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/01/20/sVWFfigTPGu1BIa.png">
+
+
+<link rel="canonical" href="https://blog.kervias.com/posts/2623405f/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>正则表达式基本语法 | kervias</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="kervias" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">kervias</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">负重前行</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-留言板">
+
+    <a href="/messageboard/" rel="section"><i class="fa fa-comment-dots fa-fw"></i>留言板</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">基本介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%9501-%E5%9F%BA%E6%9C%AC%E5%AD%97%E7%AC%A6"><span class="nav-number">2.</span> <span class="nav-text">语法01 - 基本字符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%9502-%E9%87%8F%E8%AF%8D"><span class="nav-number">3.</span> <span class="nav-text">语法02 - 量词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%9503-%E5%AD%97%E7%AC%A6%E8%BE%B9%E7%95%8C"><span class="nav-number">4.</span> <span class="nav-text">语法03 - 字符边界</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%9504-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">语法04 - 正则表达式的匹配模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%9505-%E9%80%89%E6%8B%A9%E7%AC%A6%E5%92%8C%E5%88%86%E7%BB%84"><span class="nav-number">6.</span> <span class="nav-text">语法05 - 选择符和分组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%9506-%E5%8F%8D%E5%90%91%E5%BC%95%E7%94%A8"><span class="nav-number">7.</span> <span class="nav-text">语法06 - 反向引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%9507-%E9%A2%84%E6%90%9C%E7%B4%A2%EF%BC%88%E9%9B%B6%E5%AE%BD%E6%96%AD%E8%A8%80%EF%BC%89"><span class="nav-number">8.</span> <span class="nav-text">语法07 - 预搜索（零宽断言）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%84%E5%BD%95"><span class="nav-number">9.</span> <span class="nav-text">附录</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="kervias"
+      src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+  <p class="site-author-name" itemprop="name">kervias</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/kerviasx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;kerviasx" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cxz.kervia@gmail.com" title="E-Mail → mailto:cxz.kervia@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.kervias.com/" title="http:&#x2F;&#x2F;www.kervias.com" rel="noopener" target="_blank">Halo站</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.cnblogs.com/kervia/" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kervia&#x2F;" rel="noopener" target="_blank">博客园</a>
+        </li>
+    </ul>
+  </div>
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/kerviasx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/2623405f/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+      <meta itemprop="name" content="kervias">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kervias">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          正则表达式基本语法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-08-30 11:14:52" itemprop="dateCreated datePublished" datetime="2019-08-30T11:14:52+08:00">2019-08-30</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-05-20 21:47:20" itemprop="dateModified" datetime="2020-05-20T21:47:20+08:00">2020-05-20</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%88%AC%E8%99%AB/" itemprop="url" rel="index"><span itemprop="name">爬虫</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><ol>
+<li>学习工具：<a target="_blank" rel="noopener" href="https://www.lanzous.com/i5vpdsh">https://www.lanzous.com/i5vpdsh</a></li>
+<li>在线学习工具：<a target="_blank" rel="noopener" href="https://tool.chinaz.com/regex/">https://tool.chinaz.com/regex/</a></li>
+<li>正则表达式功能：匹配符合某种条件的文本<a id="more"></a>
+
+
+</li>
+</ol>
+<h3 id="语法01-基本字符"><a href="#语法01-基本字符" class="headerlink" title="语法01 - 基本字符"></a>语法01 - 基本字符</h3><ol>
+<li><p>普通字符</p>
+</li>
+<li><p>转义字符</p>
+<pre>
+\t, \\, \n, \|, \^, \+, \*, \?, \(, \), \[, \], \{, \}
+</pre>
+</li>
+<li><p>标准字符集合(大写表示取补集)</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="center">name</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">\d</td>
+<td align="center">匹配1个数字</td>
+</tr>
+<tr>
+<td align="center">\w</td>
+<td align="center">匹配1个字母或数字或下划线</td>
+</tr>
+<tr>
+<td align="center">\s</td>
+<td align="center">匹配1个空格或制表符或换行符</td>
+</tr>
+<tr>
+<td align="center">.</td>
+<td align="center">匹配任意1个字符(换行符除外)</td>
+</tr>
+<tr>
+<td align="center">[\s\S]</td>
+<td align="center">匹配任意1个字符</td>
+</tr>
+</tbody></table>
+<ol start="4">
+<li>自定义字符</li>
+</ol>
+<blockquote>
+<p>[]: 方括号可以匹配括号内任意一个字符</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">name</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">ab5@</td>
+<td align="center">a、b、c或@</td>
+</tr>
+<tr>
+<td align="center">[&#94;abc]</td>
+<td align="center">除abc之外的任意字符（包括换行符）</td>
+</tr>
+<tr>
+<td align="center">[f-k]</td>
+<td align="center">f-k中的任意字符</td>
+</tr>
+<tr>
+<td align="center">[&#94;a-g0-3]</td>
+<td align="center">除a-g和0-3之外的任意字符（包括换行符）</td>
+</tr>
+</tbody></table>
+<ul>
+<li>正则表达式中的特殊符号，被包含到中括号中，就会失去特殊意义，除了^,-之外</li>
+<li>标准字符集合，除小数点外，如果被包含于中括号，自定义字符集合将会包含该合，如：<ul>
+<li>[\d.\-+] : 数字 小数点 + -</li>
+</ul>
+</li>
+</ul>
+<h3 id="语法02-量词"><a href="#语法02-量词" class="headerlink" title="语法02 - 量词"></a>语法02 - 量词</h3><blockquote>
+<p>修饰匹配字数的特殊符号</p>
+</blockquote>
+<ul>
+<li>贪婪模式： 尽可能多的匹配字符</li>
+<li>非贪婪模式：尽可能少的匹配字符</li>
+<li>在量词修饰后面<strong>添加问号</strong>，表明非贪婪模式</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">name</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">{n}</td>
+<td align="center">表达式重复n次</td>
+</tr>
+<tr>
+<td align="center">{m,n}</td>
+<td align="center">表达式至少重复m次，最多重复n次</td>
+</tr>
+<tr>
+<td align="center">{m, }</td>
+<td align="center">表达式至少重复m次</td>
+</tr>
+<tr>
+<td align="center">？</td>
+<td align="center">表达式出现0次或1次，相当于{0,1}</td>
+</tr>
+<tr>
+<td align="center">+</td>
+<td align="center">表达式至少出现1次，相当于{1,}</td>
+</tr>
+<tr>
+<td align="center">*</td>
+<td align="center">表达式出现任意次或不出现，相当于{0,}</td>
+</tr>
+</tbody></table>
+<p><strong>注</strong>:  没有最多重复n次，即没有{,n}这种写法</p>
+<h3 id="语法03-字符边界"><a href="#语法03-字符边界" class="headerlink" title="语法03 - 字符边界"></a>语法03 - 字符边界</h3><blockquote>
+<p>匹配的是符合某种条件的位置，是零宽的</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">name</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">^</td>
+<td align="center">与字符串开始的位置匹配</td>
+</tr>
+<tr>
+<td align="center">$</td>
+<td align="center">与字符串结束的地方匹配</td>
+</tr>
+<tr>
+<td align="center">\b</td>
+<td align="center">匹配一个单词边界，\b位置前面的字符和后面的字符不全是\w</td>
+</tr>
+</tbody></table>
+<p>例：:memo: \b</p>
+<p><img src="https://i.loli.net/2020/01/20/sVWFfigTPGu1BIa.png"></p>
+<h3 id="语法04-正则表达式的匹配模式"><a href="#语法04-正则表达式的匹配模式" class="headerlink" title="语法04 - 正则表达式的匹配模式"></a>语法04 - 正则表达式的匹配模式</h3><ul>
+<li>IGNORECASE 忽略大小写<ul>
+<li>匹配时忽略大小写</li>
+<li>默认情况下，正则表达式是要区分大小写的</li>
+</ul>
+</li>
+<li>SINGLINE 单行模式<ul>
+<li>整个文本看作一个字符串，只有一个开头，一个结尾。</li>
+<li>该模式下，小数点”.”可以匹配包含换行符（\n）在内的任意字符。</li>
+</ul>
+</li>
+<li>MULTILINE多行模式<ul>
+<li>每行都是一个字符串，都有开头和结尾。</li>
+<li>在指定了 MULTILINE之后，如果仅需要匹配单行模式下的字符串开始和结束位置，可以使用\A和\Z</li>
+</ul>
+</li>
+</ul>
+<h3 id="语法05-选择符和分组"><a href="#语法05-选择符和分组" class="headerlink" title="语法05 - 选择符和分组"></a>语法05 - 选择符和分组</h3><table>
+<thead>
+<tr>
+<th align="center">expression</th>
+<th align="center">name</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">&#124;</td>
+<td align="center">分支结构</td>
+<td align="center">左右两边表达式之间”或”关系，匹配左边或者右边分支结构</td>
+</tr>
+<tr>
+<td align="center">()</td>
+<td align="center">捕获组</td>
+<td align="center">（1）在被修饰匹配次数的时候，括号中的表达式可以作为整体被修饰哺获组<br/>（2）取匹配结果的时候，括号中的表达式匹配到的内容可以被单独得到<br/>（3）每一对括号会分配一个编号，使用()的捕获根据左括号的顺序从1开始自动编号。捕获元素编号为零的第一个捕获是由整个正则表达式模式匹配的文本</td>
+</tr>
+<tr>
+<td align="center">(?:expression)</td>
+<td align="center">非捕获组</td>
+<td align="center">一些表达式中，不得不使用（），但又不需要保存（）中子表达式四配的内容，这时可以用非捕获组来抵消使用（）带来的副作用。</td>
+</tr>
+</tbody></table>
+<h3 id="语法06-反向引用"><a href="#语法06-反向引用" class="headerlink" title="语法06 - 反向引用"></a>语法06 - 反向引用</h3><ul>
+<li><p>每一对()会分配一个编号，使用()的捕获根据左括号的顺序从1开始自动编号。</p>
+</li>
+<li><p>通过反向引用，可以对分组已捕获的字符串进行引用</p>
+</li>
+</ul>
+<h3 id="语法07-预搜索（零宽断言）"><a href="#语法07-预搜索（零宽断言）" class="headerlink" title="语法07 - 预搜索（零宽断言）"></a>语法07 - 预搜索（零宽断言）</h3><blockquote>
+<ol>
+<li>只进行子表达式的匹配，匹配内容不计入最终的匹配结果，是零宽度</li>
+<li>这个位置应该符合某个条件。判断当前位置的前后字符，是否符合指定的条件，但不匹配前后的字符。是<strong>对位置的匹配</strong>。</li>
+<li>正则表达式匹配过程中，如果子表达式配到的是字符内容，而非位置，并被保存到最终的匹配结果中，那么就试为这个子表达式是占有字符的；如果子表达式匹配的仅仅是位置，或者配的内春并不保存到最终的匹配结果中，那么就认为这个子表达式是零宽度的。占有字符还是零宽度，是针对匹配的内容是否保存到最终的匹配结果中而言的。</li>
+</ol>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">name</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">(?=exp)</td>
+<td align="center">断言此位置的后面能匹配表达式exp</td>
+</tr>
+<tr>
+<td align="center">(?&lt;=exp)</td>
+<td align="center">断言此位置的前面能匹配表达式exp</td>
+</tr>
+<tr>
+<td align="center">(?!exp)</td>
+<td align="center">断言此位置的后面不能匹配表达式exp</td>
+</tr>
+<tr>
+<td align="center">(?&lt;!exp)</td>
+<td align="center">断言此位置的前面不能匹配表达式exp</td>
+</tr>
+</tbody></table>
+<p>例：</p>
+<p><img src="https://i.loli.net/2020/01/20/XTKwcNd13blnSvh.png"></p>
+<h3 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://www.lanzous.com/i5vpdsh">正则表达式工具</a></li>
+<li><a target="_blank" rel="noopener" href="http://tool.chinaz.com/regex/">正则表达式在线工具</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/fozero/p/7868687.html">常用正则表达式</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+      
+
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>kervias
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.kervias.com/posts/2623405f/" title="正则表达式基本语法">https://blog.kervias.com/posts/2623405f/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag"><i class="fa fa-tag"></i> 正则表达式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/ae561650/" rel="prev" title="hexo本地项目迁移(更换文件夹)">
+                  <i class="fa fa-chevron-left"></i> hexo本地项目迁移(更换文件夹)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/6b450c9b/" rel="next" title="WebDriver下载地址">
+                  WebDriver下载地址 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-utterances">utterances</a></li>
+            <li class="tab"><a href="#comment-disqus">disqus</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane utterances" id="comment-utterances">
+              
+  <div class="comments">
+    <div id="utterances-container"></div>
+  </div>
+  
+            </div>
+            <div class="tab-pane disqus" id="comment-disqus">
+              
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kervias</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.kervias.com/posts/2623405f/";
+    this.page.identifier = "posts/2623405f/";
+    this.page.title = "正则表达式基本语法";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpskerviascom.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+<script>
+NexT.utils.loadComments('#utterances-container', () => {
+  const script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', "kerviasx/blog-ustterance-comments");
+  script.setAttribute('issue-term', "title");
+  script.setAttribute('theme', "github-light");
+  script.crossOrigin = 'anonymous';
+  script.async = true;
+  document.querySelector('#utterances-container').appendChild(script);
+});
+</script>
+
+</body>
+</html>

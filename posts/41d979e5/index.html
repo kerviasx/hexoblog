@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto+Sans+SC:300,300italic,400,400italic,700,700italic|Noto+Serif+SC:300,300italic,400,400italic,700,700italic|Roboto+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="为啥 TopK 这么受欢迎呢？究其原因，还是因为它不仅在AI领域广泛应用，比如 max pooling，mAP 计算等；还涵盖了算法专业的很多必备知识，比如快速排序，二分查找，分治减治，大小顶堆等；一些适当的变换，还可以考察应聘者的思维灵活度。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TopK问题多解法">
+<meta property="og:url" content="https://blog.kervias.com/posts/41d979e5/index.html">
+<meta property="og:site_name" content="kervias">
+<meta property="og:description" content="为啥 TopK 这么受欢迎呢？究其原因，还是因为它不仅在AI领域广泛应用，比如 max pooling，mAP 计算等；还涵盖了算法专业的很多必备知识，比如快速排序，二分查找，分治减治，大小顶堆等；一些适当的变换，还可以考察应聘者的思维灵活度。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205904.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205916.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205935.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205949.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410210005.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410210032.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410210052.png">
+<meta property="article:published_time" content="2019-09-07T06:56:00.000Z">
+<meta property="article:modified_time" content="2020-05-09T09:12:00.237Z">
+<meta property="article:author" content="kervias">
+<meta property="article:tag" content="topk">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205904.png">
+
+
+<link rel="canonical" href="https://blog.kervias.com/posts/41d979e5/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>TopK问题多解法 | kervias</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="kervias" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">kervias</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">负重前行</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-留言板">
+
+    <a href="/messageboard/" rel="section"><i class="fa fa-comment-dots fa-fw"></i>留言板</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%92%E5%BA%8F"><span class="nav-number">1.</span> <span class="nav-text">排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E6%8E%92%E5%BA%8F"><span class="nav-number">2.</span> <span class="nav-text">局部排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A0%86"><span class="nav-number">3.</span> <span class="nav-text">堆</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E9%80%89%E6%8B%A9"><span class="nav-number">4.</span> <span class="nav-text">随机选择</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E5%A4%87%E7%9F%A5%E8%AF%86"><span class="nav-number">4.1.</span> <span class="nav-text">预备知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E5%85%A5%E6%AD%A3%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">进入正题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E9%80%89%E6%8B%A9-1"><span class="nav-number">4.3.</span> <span class="nav-text">随机选择</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="kervias"
+      src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+  <p class="site-author-name" itemprop="name">kervias</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/kerviasx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;kerviasx" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cxz.kervia@gmail.com" title="E-Mail → mailto:cxz.kervia@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.kervias.com/" title="http:&#x2F;&#x2F;www.kervias.com" rel="noopener" target="_blank">Halo站</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.cnblogs.com/kervia/" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kervia&#x2F;" rel="noopener" target="_blank">博客园</a>
+        </li>
+    </ul>
+  </div>
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/kerviasx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/41d979e5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+      <meta itemprop="name" content="kervias">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kervias">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          TopK问题多解法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-09-07 14:56:00" itemprop="dateCreated datePublished" datetime="2019-09-07T14:56:00+08:00">2019-09-07</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-05-09 17:12:00" itemprop="dateModified" datetime="2020-05-09T17:12:00+08:00">2020-05-09</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">算法</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>为啥 TopK 这么受欢迎呢？究其原因，还是因为它不仅在AI领域广泛应用，比如 max pooling，mAP 计算等；还涵盖了算法专业的很多必备知识，比如快速排序，二分查找，分治减治，大小顶堆等；一些适当的变换，还可以考察应聘者的思维灵活度。</p>
+</blockquote>
+<a id="more"></a>
+
+<p>参考博客：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/76734219">https://zhuanlan.zhihu.com/p/76734219</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/z50L2O08e2u4afToR9A/article/details/82837278">https://blog.csdn.net/z50L2O08e2u4afToR9A/article/details/82837278</a></li>
+</ul>
+<blockquote>
+<p><strong>问题描述：</strong><br>从 arr[1, n] 这 n 个数中，找出最大的k个数，这就是经典的TopK问题。<br><strong>例</strong>：<br>从 arr[1, 12]={5,3,7,1,8,2,9,4,7,2,6,6}  这 n=12 个数中，找出最大的 k=5 个。</p>
+</blockquote>
+<br/>
+
+<h1 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205904.png"></p>
+<p>排序是最容易想到的方法，<font color="red">将n个数排序之后，取出最大的k个，即为所得。</font></p>
+<p><strong>伪代码</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sort(arr, <span class="number">1</span>, n);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> arr[<span class="number">1</span>, k];</span><br></pre></td></tr></table></figure>
+
+<p><strong>时间复杂度：</strong>O(n*log(n))</p>
+<p><strong>分析</strong>：</p>
+<p>明明只需要 TopK ，却将全局都排序了，这也是这个方法复杂度非常高的原因。那能不能不全局排序，而只局部排序呢？这就引出了第二个优化方法。</p>
+<br/>
+
+<br/>
+
+<h1 id="局部排序"><a href="#局部排序" class="headerlink" title="局部排序"></a>局部排序</h1><p>不再全局排序，只对最大的k个排序。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205916.png"></p>
+<p>冒泡是一个很常见的排序方法，<font color="red">每冒一个泡，找出最大值，冒 k 个泡，就得到 TopK 。</font></p>
+<p><strong>伪代码</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(i=<span class="number">1</span> to k)&#123;</span><br><span class="line">         bubble_find_max(arr,i);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> arr[<span class="number">1</span>, k];</span><br></pre></td></tr></table></figure>
+
+<p><strong>时间复杂度</strong>：<code>O(n*k)</code></p>
+<p><strong>分析</strong>：</p>
+<p>冒泡，将全局排序优化为了局部排序，非 TopK 的元素是不需要排序的，节省了计算资源。不少朋友会想到，需求是 TopK ，是不是这最大的k个元素也不需要排序呢？这就引出了第三个优化方法。</p>
+<br/>
+
+<br/>
+
+<h1 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h1><p><strong>思路：</strong>只找到 TopK , 不排序 TopK</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205935.png"></p>
+<p>先用前k个元素生成一个小顶堆，<font color="red">这个小顶堆用于存储，当前最大的k个元素。</font></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410205949.png"></p>
+<p>接着，从第k+1个元素开始扫描，和堆顶（堆中最小的元素）比较，<font color="red">如果被扫描的元素大于堆顶，则替换堆顶的元素</font>，并调整堆，以保证堆内的k个元素，总是当前最大的k个元素。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410210005.png"></p>
+<p>直到，扫描完所有n-k个元素，最终堆中的k个元素，就是猥琐求的TopK。</p>
+<br />
+
+<p><strong>伪代码</strong>：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">heap[k] = make_heap(arr[1, k]);</span><br><span class="line"></span><br><span class="line">for(i=k+1 to n)&#123;</span><br><span class="line"></span><br><span class="line">         adjust_heap(heep[k],arr[i]);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">return heap[k];</span><br></pre></td></tr></table></figure>
+<p><strong>时间复杂度：</strong>O(n*lg(k))</p>
+<blockquote>
+<p><em>画外音：n个元素扫一遍，假设运气很差，每次都入堆调整，调整时间复杂度为堆的高度，即lg(k)，故整体时间复杂度是n\</em>lg(k)。*</p>
+</blockquote>
+<p><strong>分析</strong>：堆，将冒泡的TopK排序优化为了TopK不排序，节省了计算资源。堆，是求TopK的经典算法，那还有没有更快的方案呢？</p>
+<p><br/><br/></p>
+<h1 id="随机选择"><a href="#随机选择" class="headerlink" title="随机选择"></a>随机选择</h1><blockquote>
+<p>随机选择算在是《算法导论》中一个经典的算法，其时间复杂度为O(n)，是一个线性复杂度的方法。</p>
+</blockquote>
+<h2 id="预备知识"><a href="#预备知识" class="headerlink" title="预备知识"></a>预备知识</h2><ul>
+<li>快速排序</li>
+<li>分治法</li>
+<li>减治法</li>
+</ul>
+<figure class="highlight c++"><figcaption><span>快速排序伪代码</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span>[]arr, <span class="keyword">int</span> low, inthigh)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">         <span class="keyword">if</span>(low== high) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">         <span class="keyword">int</span> i = partition(arr, low, high);</span><br><span class="line"></span><br><span class="line">         quick_sort(arr, low, i<span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">         quick_sort(arr, i+<span class="number">1</span>, high);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>快速排序核心思想是分治法，i = partition(arr, low, high);</p>
+<br/>
+
+<p><strong>分治法(Divide&amp;Conquer)**：把一个大的问题，转化为若干个子问题（Divide），<font color="red">每个子问题“都”解决，大的问题便随之解决（Conquer）。</font>这里的关键词是</strong>“都”**。从伪代码里可以看到，快速排序递归时，先通过partition把数组分隔为两个部分，两个部分“都”要再次递归。<br><br></p>
+<p>分治法有一个特例，叫减治法。<br><br></p>
+<p><strong>减治法(Reduce&amp;Conquer)**，把一个大的问题，转化为若干个子问题（Reduce），<font color="red">这些子问题中“只”解决一个，大的问题便随之解决（Conquer）。</font>这里的关键词是</strong>“只”**。</p>
+<blockquote>
+<p>二分查找就是使用减治法，一个大的问题，可以用一个mid元素，分成左半区，右半区两个子问题。而左右两个子问题，只需要解决其中一个，递归一次，就能够解决二分查找全局的问题。</p>
+</blockquote>
+<p>通过分治法与减治法的描述，可以发现，<font color="red">分治法的复杂度一般来说是大于减治法的</font>：</p>
+<p>快速排序：O(n*lg(n))</p>
+<p>二分查找：O(lg(n))</p>
+<h2 id="进入正题"><a href="#进入正题" class="headerlink" title="进入正题"></a>进入正题</h2><p>话题收回来，快速排序的核心是：</p>
+<p>i = partition(arr, low, high);</p>
+<br>
+这个partition是干嘛的呢？
+
+<p>顾名思义，partition会把整体分为两个部分。</p>
+<p>更具体的，会用数组arr中的一个元素（默认是第一个元素t=arr[low]）为划分依据，将数据arr[low, high]划分成左右两个子数组：</p>
+<ul>
+<li><p>左半部分，都比t大</p>
+</li>
+<li><p>右半部分，都比t小</p>
+</li>
+<li><p>中间位置i是划分元素</p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410210032.png"></p>
+<p>以上述TopK的数组为例，先用第一个元素t=arr[low]为划分依据，扫描一遍数组，把数组分成了两个半区：</p>
+<ul>
+<li><p>左半区比t大</p>
+</li>
+<li><p>右半区比t小</p>
+</li>
+<li><p>中间是t</p>
+</li>
+</ul>
+<p>partition返回的是t最终的位置i。</p>
+<h2 id="随机选择-1"><a href="#随机选择-1" class="headerlink" title="随机选择"></a>随机选择</h2><ul>
+<li>partition和TopK问题有什么关系呢？</li>
+</ul>
+<p>TopK是希望求出arr[1,n]中最大的k个数，那如果找到了<font color="red">第k大的数</font>，做一次partition，不就一次性找到最大的k个数了么？</p>
+<font size=4px>
+<br>
+问题变成了arr[1, n]中找到第k大的数。
+<br>
+
+<p>再回过头来看看第一次partition，划分之后：</p>
+<p>i = partition(arr, 1, n);</p>
+<ul>
+<li><p>如果i大于k，则说明arr[i]左边的元素都大于k，于是只递归arr[1, i-1]里第k大的元素即可；</p>
+</li>
+<li><p>如果i小于k，则说明说明第k大的元素在arr[i]的右边，于是只递归arr[i+1, n]里第k-i大的元素即可；</p>
+</font>
+
+</li>
+</ul>
+<figure class="highlight c++"><figcaption><span>随机选择算法伪代码</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">RS</span><span class="params">(arr, low, high, k)</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(low== high) <span class="keyword">return</span> arr[low];</span><br><span class="line">  i= partition(arr, low, high);</span><br><span class="line">  temp= i-low; <span class="comment">//数组前半部分元素个数</span></span><br><span class="line">  <span class="keyword">if</span>(temp&gt;=k)</span><br><span class="line">      <span class="keyword">return</span> RS(arr, low, i<span class="number">-1</span>, k); <span class="comment">//求前半部分第k大</span></span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">      <span class="keyword">return</span> RS(arr, i+<span class="number">1</span>, high, k-i); <span class="comment">//求后半部分第k-i大</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410210052.png"></p>
+<p>这是一个典型的减治算法，递归内的两个分支，最终只会执行一个，它的时间复杂度是O(n)。</p>
+<br>
+再次强调一下：
+
+<ul>
+<li><strong>分治法</strong>: 大问题分解为小问题，小问题都要递归各个分支，例如：快速排序</li>
+<li><strong>减治法</strong>: 大问题分解为小问题，小问题只要递归一个分支，例如：二分查找，随机选择</li>
+</ul>
+<p>通过随机选择（randomized_select），找到arr[1, n]中第k大的数，再进行一次partition，就能得到TopK的结果。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>TopK，不难；其思路优化过程，不简单：</p>
+<ul>
+<li><p><strong>全局排序</strong>，O(n*lg(n))</p>
+</li>
+<li><p><strong>局部排序</strong>，只排序TopK个数，O(n*k)</p>
+</li>
+<li><p><strong>堆</strong>，TopK个数也不排序了，O(n*lg(k))</p>
+</li>
+<li><p><strong>分治法</strong>，每个分支“都要”递归，例如：快速排序，O(n*lg(n))</p>
+</li>
+<li><p><strong>减治法</strong>，“只要”递归一个分支，例如：二分查找O(lg(n))，随机选择O(n)</p>
+</li>
+<li><p>TopK的另一个解法：<strong>随机选择</strong>+partition</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>kervias
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.kervias.com/posts/41d979e5/" title="TopK问题多解法">https://blog.kervias.com/posts/41d979e5/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/topk/" rel="tag"><i class="fa fa-tag"></i> topk</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/45daaf11/" rel="prev" title="环形链表">
+                  <i class="fa fa-chevron-left"></i> 环形链表
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/6898a3ea/" rel="next" title="服务器禁止被ping">
+                  服务器禁止被ping <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-utterances">utterances</a></li>
+            <li class="tab"><a href="#comment-disqus">disqus</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane utterances" id="comment-utterances">
+              
+  <div class="comments">
+    <div id="utterances-container"></div>
+  </div>
+  
+            </div>
+            <div class="tab-pane disqus" id="comment-disqus">
+              
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kervias</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.kervias.com/posts/41d979e5/";
+    this.page.identifier = "posts/41d979e5/";
+    this.page.title = "TopK问题多解法";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpskerviascom.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+<script>
+NexT.utils.loadComments('#utterances-container', () => {
+  const script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', "kerviasx/blog-ustterance-comments");
+  script.setAttribute('issue-term', "title");
+  script.setAttribute('theme', "github-light");
+  script.crossOrigin = 'anonymous';
+  script.async = true;
+  document.querySelector('#utterances-container').appendChild(script);
+});
+</script>
+
+</body>
+</html>

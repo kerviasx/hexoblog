@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto+Sans+SC:300,300italic,400,400italic,700,700italic|Noto+Serif+SC:300,300italic,400,400italic,700,700italic|Roboto+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="转载自腾讯云">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xshell密钥登录服务器的配置过程">
+<meta property="og:url" content="https://blog.kervias.com/posts/344ac519/index.html">
+<meta property="og:site_name" content="kervias">
+<meta property="og:description" content="转载自腾讯云">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/01/22/U4MdoACLrsPlbEK.png">
+<meta property="og:image" content="https://i.loli.net/2020/01/22/69OG1hfvgUXNuI8.png">
+<meta property="og:image" content="https://i.loli.net/2020/01/22/VBXkQlmLEa15s7U.png">
+<meta property="og:image" content="https://i.loli.net/2020/01/22/23ExRXnYfwijz8g.png">
+<meta property="og:image" content="https://i.loli.net/2020/01/22/wyuNMzCJmIpt1ES.png">
+<meta property="article:published_time" content="2020-01-22T08:36:05.000Z">
+<meta property="article:modified_time" content="2020-07-27T02:52:06.340Z">
+<meta property="article:author" content="kervias">
+<meta property="article:tag" content="安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/01/22/U4MdoACLrsPlbEK.png">
+
+
+<link rel="canonical" href="https://blog.kervias.com/posts/344ac519/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>xshell密钥登录服务器的配置过程 | kervias</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="kervias" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">kervias</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">负重前行</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-留言板">
+
+    <a href="/messageboard/" rel="section"><i class="fa fa-comment-dots fa-fw"></i>留言板</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%94%9F%E6%88%90%E5%AF%86%E9%92%A5"><span class="nav-number">1.</span> <span class="nav-text">一、生成密钥</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8A%E4%BC%A0%E5%85%AC%E9%92%A5%E5%88%B0-VPS-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">二、上传公钥到 VPS 服务器</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="kervias"
+      src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+  <p class="site-author-name" itemprop="name">kervias</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/kerviasx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;kerviasx" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cxz.kervia@gmail.com" title="E-Mail → mailto:cxz.kervia@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.kervias.com/" title="http:&#x2F;&#x2F;www.kervias.com" rel="noopener" target="_blank">Halo站</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.cnblogs.com/kervia/" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kervia&#x2F;" rel="noopener" target="_blank">博客园</a>
+        </li>
+    </ul>
+  </div>
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/kerviasx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/344ac519/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+      <meta itemprop="name" content="kervias">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kervias">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          xshell密钥登录服务器的配置过程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-01-22 16:36:05" itemprop="dateCreated datePublished" datetime="2020-01-22T16:36:05+08:00">2020-01-22</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-07-27 10:52:06" itemprop="dateModified" datetime="2020-07-27T10:52:06+08:00">2020-07-27</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <ul>
+<li>转载自<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1142509">腾讯云</a><a id="more"></a>
+</li>
+</ul>
+<hr>
+<p>我们使用 Linux 服务器不管做网站、项目、服务都需要一个安全性的概念，而默认是使用密码来登录的，普通的项目也就够用了。不过现在网络上鱼龙混杂，各路黑客无时无刻不在撸服务器，用各种软件扫描网络上的弱口令、端口等，为了提高 Linux 服务器的安全我们有必要在 SSH 登录界面设置密钥，提高破解难度，也就相对提高了服务器安全性。</p>
+<p>一般我们用 SSH 软件登录服务器的时候都是用 root 账号和密码进行连接，其实这样是不安全的，使用 SSH key 和密码同时登录，这样才不会被轻易破解，也就提高了服务器 SSH 登录安全性。本文我们介绍 SSH key 密钥登录 Linux 服务器的配置过程，平时多使用 Xshell SSH 登录，相对来说它的操作界面更友好一些。</p>
+<h1 id="一、生成密钥"><a href="#一、生成密钥" class="headerlink" title="一、生成密钥"></a>一、生成密钥</h1><p>1、点击 Xshell 的工具-新建用户密钥生成向导，开始生成密钥。</p>
+<p><img src="https://i.loli.net/2020/01/22/U4MdoACLrsPlbEK.png"></p>
+<p>2、弹出页面的密钥类型和密钥长度默认不要修改，点击下一步，看到程序生成 2048 位 RSA 密钥，点击下一步，输入密钥名称和登录密码。密钥名称随便起一个，密码是用来和密钥一起双重加密的，哪怕密钥被盗了，没有密码还是无法 SSH 登陆到服务器上。</p>
+<p><img src="https://i.loli.net/2020/01/22/69OG1hfvgUXNuI8.png"></p>
+<p>3、点击下一步，把密钥另存为文件保存到本地电脑。这个是公钥。</p>
+<p><img src="https://i.loli.net/2020/01/22/VBXkQlmLEa15s7U.png"></p>
+<p>另外在 Xshell 的工具&gt;&gt;用户密钥管理者里面能够看到对应的私钥，私钥最好另存到本地电脑和邮箱中，这点很重要。</p>
+<h1 id="二、上传公钥到-VPS-服务器"><a href="#二、上传公钥到-VPS-服务器" class="headerlink" title="二、上传公钥到 VPS 服务器"></a>二、上传公钥到 VPS 服务器</h1><p>1、建立文件夹和文件。创建一个.ssh 目录，这个目录具有隐藏属性。命令如下：</p>
+<figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span></span><br><span class="line"><span class="built_in">mkdir</span> .ssh</span><br></pre></td></tr></table></figure>
+<p>用 sftp 软件连接到 VPS 服务器上，把上面保存的公钥上传到.ssh 目录中，重命名为 authorized_keys。</p>
+<p>2、设置权限。命令如下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">chmod</span> <span class="number">700</span> .ssh</span><br><span class="line"></span><br><span class="line"><span class="attribute">chmod</span> <span class="number">600</span> .ssh/authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>3、编辑 sshd_config 配置文件。命令如下：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi <span class="regexp">/etc/</span>ssh/sshd_config</span><br></pre></td></tr></table></figure>
+
+<p>去掉#RSAAuthentication yes    #PubkeyAuthentication yes    #AuthorizedKeysFile .ssh/authorized_keys 前面的#，含义分别是开启 RSA 密钥验证，公钥验证功能，设置公钥验证文件的路径。</p>
+<p>把 PasswordAuthentication yes 替换为 PasswordAuthentication no，禁止使用密码登录。</p>
+<p>改完后如下图所示就对了。</p>
+<p><img src="https://i.loli.net/2020/01/22/23ExRXnYfwijz8g.png"></p>
+<p>4、重启 sshd 服务。命令如下：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">service sshd restart</span></span><br></pre></td></tr></table></figure>
+<p>5、用密钥连接 VPS 服务器</p>
+<p>打开 Xshell 进入连接&gt;&gt;用户身份验证，选择 Public Key，用户密钥选择已经建立好的私钥，输入上面你自己设置的私钥密码。点击连接就可以实现密钥登陆 VPS 服务器了。</p>
+<p><img src="https://i.loli.net/2020/01/22/wyuNMzCJmIpt1ES.png"></p>
+<p>为了验证密钥是否生效，接下来我把登陆方法改成 Password 再试，就无法登陆并跳转到密钥登陆界面，说明这时候原来的密码登陆已经失效了，再输入密钥的密码登陆成功。</p>
+<p>老魏在配置密钥过程中遇到了“所选的用户密钥未在远程主机上注册”的情况导致密钥登陆失败，是因为一开始用命令创建 authorized_keys 并保存密钥，网络上很多文章都是用这个方法，但在我这里就不好使。后来改用本地 SFTP 上传密钥的方式解决了这个问题。别人的东西不一定适合你的具体情况，老魏写的教程是亲自测试一下才知道是怎么回事，才能发表出来给大家参考。</p>
+<p>最后总结：</p>
+<p>1、为了提高网站、项目、服务器的安全性可以考虑使用密钥登陆方法，也可以不设置密钥密码，这时候只用密钥就可以登录服务器了（用密码是双重加密，即使别人搞到了密钥也无法登陆）。</p>
+<p>2、私钥一定要另存到本地电脑和邮箱中，因为换一台电脑没有私钥（或者私钥丢失）就无法 SSH 登陆服务器了。</p>
+<p>3、SSH 密钥登陆服务器的方法确实能够提高 SSH 连接的安全性，建议大家考虑一下这个方法。</p>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\posts\191dc2a0\" rel="bookmark">CentOS 7安装fail2ban+Firewall防止SSH爆破与CC攻击</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\posts\26caa900\" rel="bookmark">Linux服务查看SSH登录失败日志</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\posts\6898a3ea\" rel="bookmark">服务器禁止被ping</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>kervias
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.kervias.com/posts/344ac519/" title="xshell密钥登录服务器的配置过程">https://blog.kervias.com/posts/344ac519/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%AE%89%E5%85%A8/" rel="tag"><i class="fa fa-tag"></i> 安全</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/f2aea09c/" rel="prev" title="Halo博客修改密码">
+                  <i class="fa fa-chevron-left"></i> Halo博客修改密码
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/d392dh/" rel="next" title="Caddy安装和常用命令">
+                  Caddy安装和常用命令 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-utterances">utterances</a></li>
+            <li class="tab"><a href="#comment-disqus">disqus</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane utterances" id="comment-utterances">
+              
+  <div class="comments">
+    <div id="utterances-container"></div>
+  </div>
+  
+            </div>
+            <div class="tab-pane disqus" id="comment-disqus">
+              
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kervias</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.kervias.com/posts/344ac519/";
+    this.page.identifier = "posts/344ac519/";
+    this.page.title = "xshell密钥登录服务器的配置过程";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpskerviascom.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+<script>
+NexT.utils.loadComments('#utterances-container', () => {
+  const script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', "kerviasx/blog-ustterance-comments");
+  script.setAttribute('issue-term', "title");
+  script.setAttribute('theme', "github-light");
+  script.crossOrigin = 'anonymous';
+  script.async = true;
+  document.querySelector('#utterances-container').appendChild(script);
+});
+</script>
+
+</body>
+</html>

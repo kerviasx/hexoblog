@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto+Sans+SC:300,300italic,400,400italic,700,700italic|Noto+Serif+SC:300,300italic,400,400italic,700,700italic|Roboto+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="记录一下Scrapy框架的Downloader Middleware、Spider Middleware、Pipeline三个部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Scrapy框架学习(1)">
+<meta property="og:url" content="https://blog.kervias.com/posts/dfewf3/index.html">
+<meta property="og:site_name" content="kervias">
+<meta property="og:description" content="记录一下Scrapy框架的Downloader Middleware、Spider Middleware、Pipeline三个部分。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-09-05T12:43:39.000Z">
+<meta property="article:modified_time" content="2020-05-06T14:02:15.578Z">
+<meta property="article:author" content="kervias">
+<meta property="article:tag" content="Scrapy">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.kervias.com/posts/dfewf3/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>Scrapy框架学习(1) | kervias</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="kervias" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">kervias</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">负重前行</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-留言板">
+
+    <a href="/messageboard/" rel="section"><i class="fa fa-comment-dots fa-fw"></i>留言板</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Downloader-Middleware-%E2%80%93-%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">Downloader Middleware – 下载中间件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BD%9C%E7%94%A8%E6%97%B6%E6%9C%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1. 作用时期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="nav-number">1.2.</span> <span class="nav-text">2. 使用说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">3.  核心方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spider-Middleware-%E2%80%93-%E7%88%AC%E8%99%AB%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">Spider Middleware  – 爬虫中间件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BD%9C%E7%94%A8%E6%97%B6%E6%9C%9F-1"><span class="nav-number">2.1.</span> <span class="nav-text">1. 作用时期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E-1"><span class="nav-number">2.2.</span> <span class="nav-text">2. 使用说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95-1"><span class="nav-number">2.3.</span> <span class="nav-text">3.  核心方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Item-Pipeline"><span class="nav-number">3.</span> <span class="nav-text">Item Pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95"><span class="nav-number">3.1.</span> <span class="nav-text">1. 核心方法</span></a></li></ol></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="kervias"
+      src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+  <p class="site-author-name" itemprop="name">kervias</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/kerviasx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;kerviasx" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cxz.kervia@gmail.com" title="E-Mail → mailto:cxz.kervia@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.kervias.com/" title="http:&#x2F;&#x2F;www.kervias.com" rel="noopener" target="_blank">Halo站</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.cnblogs.com/kervia/" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kervia&#x2F;" rel="noopener" target="_blank">博客园</a>
+        </li>
+    </ul>
+  </div>
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/kerviasx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/dfewf3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+      <meta itemprop="name" content="kervias">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kervias">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Scrapy框架学习(1)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-09-05 20:43:39" itemprop="dateCreated datePublished" datetime="2019-09-05T20:43:39+08:00">2019-09-05</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-05-06 22:02:15" itemprop="dateModified" datetime="2020-05-06T22:02:15+08:00">2020-05-06</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%88%AC%E8%99%AB/" itemprop="url" rel="index"><span itemprop="name">爬虫</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>记录一下Scrapy框架的Downloader Middleware、Spider Middleware、Pipeline三个部分。</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="Downloader-Middleware-–-下载中间件"><a href="#Downloader-Middleware-–-下载中间件" class="headerlink" title="Downloader Middleware – 下载中间件"></a>Downloader Middleware – 下载中间件</h3><h4 id="1-作用时期"><a href="#1-作用时期" class="headerlink" title="1. 作用时期"></a>1. 作用时期</h4><blockquote>
+<p>（1） 在scheduler 调度出队列的 Request 发送给Downloader下载之前， 也就是我们可以在Request执行下载之前对其进行修改。</p>
+</blockquote>
+<blockquote>
+<p>（2）在下载后生成Response发送给Spider之前，也就是我们可以在生成Response被Spider解析之前对其进行修改。</p>
+</blockquote>
+<p><strong>注</strong></p>
+<p>下载中间件的功能十分强大，可以设置User-agent，处理重定向，设置代理，失败重试，设置cookies等。</p>
+<h4 id="2-使用说明"><a href="#2-使用说明" class="headerlink" title="2. 使用说明"></a>2. 使用说明</h4><blockquote>
+<p>Scrapy框架已经提供了许多的Downloader Middleware，包含失败重试，自动重定向等功能，均被继承到字典变量DOWNLOADER_MIDDLEWARE_BASE中。键值越小离引擎更近，键值越大越靠近Downloader。<br>如果用户需要自定义下载中间件，就要在Scrapy提供的另一个变量DOWNLOADER_MIDDLEWARE中声明，还可以禁用DOWNLOADER_MIDDLEWARE_BASE中的下载中间件。</p>
+</blockquote>
+<h4 id="3-核心方法"><a href="#3-核心方法" class="headerlink" title="3.  核心方法"></a>3.  核心方法</h4><p>​    在实现一个下载中间件时，我们只要至少实现下列三种方法中的的一个：</p>
+<ul>
+<li><p>process_request(request, spider)</p>
+</li>
+<li><p>process_response(request, response, spider)</p>
+</li>
+<li><p>process_exception(request, exception, spider)</p>
+</li>
+</ul>
+<h3 id="Spider-Middleware-–-爬虫中间件"><a href="#Spider-Middleware-–-爬虫中间件" class="headerlink" title="Spider Middleware  – 爬虫中间件"></a>Spider Middleware  – 爬虫中间件</h3><h4 id="1-作用时期-1"><a href="#1-作用时期-1" class="headerlink" title="1. 作用时期"></a>1. 作用时期</h4><p>（1）我们可以在Downloader生成的Response发送给Spider之前，也就是在Response发送给Spider之前对Response进行处理。</p>
+<p>（2）我们可以在Spider生成的Request发送给Scheduler之前，也就是在Request发送给Scheduler之前对Request进行处理。</p>
+<p>（3）我们可以在Spider生成的Item发送给Item Pipeline之前，也就是在Item发送给Item Pipeline之前对Item进行处理。</p>
+<h4 id="2-使用说明-1"><a href="#2-使用说明-1" class="headerlink" title="2. 使用说明"></a>2. 使用说明</h4><blockquote>
+<p>Scrapy已经提供了许多的Spider Middleware, 它们被<strong>SPIDER_MIDDLEWARES_BASE</strong>这个变量所定义。</p>
+</blockquote>
+<figure class="highlight python"><figcaption><span>该变量的内容如下</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SPIDER_MIDDLEWARES_BASE = </span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&#x27;scrapy.spidermiddlewares.httperror.HttpErrorMiddleware&#x27;</span>: <span class="number">50</span>,</span><br><span class="line">    <span class="string">&#x27;scrapy.spidermiddlewares.offsite.OffsiteMiddleware&#x27;</span>: <span class="number">500</span>,</span><br><span class="line">    <span class="string">&#x27;scrapy.spidermiddlewares.referer.RefererMiddleware&#x27;</span>: <span class="number">700</span>,</span><br><span class="line">    <span class="string">&#x27;scrapy.spidermiddlewares.urllength.UrlLengthMiddleware&#x27;</span>: <span class="number">800</span>,</span><br><span class="line">    <span class="string">&#x27;scrapy.spidermiddlewares.depth.DepthMiddleware&#x27;</span>: <span class="number">900</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>同Downloader Middleware一样，Spider Middleware首先加入到SPIDER_MIDDLEWARES设置中，该设置最终和SPIDER_MIDDLEWARES_BASE定义的Spider Middleware合并。然后根据键值的大小进行优先级排序。键值越小越靠近引擎，键值越大越靠近Spider。</p>
+<h4 id="3-核心方法-1"><a href="#3-核心方法-1" class="headerlink" title="3.  核心方法"></a>3.  核心方法</h4><blockquote>
+<p>Scrapy内置的Spider Middleware为Scrapy提供了基础的功能。如果我们要自定义Spider Middleware，需要实现指定的方法即可。</p>
+</blockquote>
+<p>​    只要实现下列其中的一个方法就可以定义一个Spider Middleware：</p>
+<ul>
+<li>process_spider_input(response, spider)</li>
+<li>process_spider_output(response, result, spider)</li>
+<li>process_spider_exception(response, exception, spider)</li>
+<li>process_start_requests(start_requests, spider)</li>
+</ul>
+<ol>
+<li><p>process_spider_input(response, spider)</p>
+<blockquote>
+<p>当Response被Spider Middleware处理时，process_spider_input()方法被调用。</p>
+</blockquote>
+<p>参数：</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="center">parameter</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">response</td>
+<td align="center">Response对象，即被处理的Response</td>
+</tr>
+<tr>
+<td align="center">spider</td>
+<td align="center">Spider对象，即该Response对应的Spider</td>
+</tr>
+</tbody></table>
+<p>   返回值：</p>
+<table>
+<thead>
+<tr>
+<th align="center">return</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">None</td>
+<td align="center">Scrapy将会继续处理该Response, 调用所有其他的Spider Middleware，直到Spider处理该Response</td>
+</tr>
+<tr>
+<td align="center">抛出异常</td>
+<td align="center">Scrapy将不会调用任何其他Spider Middleware的process_spider_input()方法，而调用Request的errback()方法。errback的输出将会被重新输出到中间件中，使用process_spider_output()方法处理，当其抛出异常时则调用process_spider_excetion()方法处理。</td>
+</tr>
+</tbody></table>
+<ol start="2">
+<li>process_spider_output(response, result, spider)<blockquote>
+<p>当Spider处理Response返回结果时, process_spider_output()方法会被调用。</p>
+</blockquote>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="center">parameter</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">response</td>
+<td align="center">是Response对象，即生成该输出的Response</td>
+</tr>
+<tr>
+<td align="center">result</td>
+<td align="center">包含Request或Item对象的可迭代对象，即Spider返回的结果</td>
+</tr>
+<tr>
+<td align="center">spider</td>
+<td align="center">是Spider对象，即其结果对应的Spider</td>
+</tr>
+</tbody></table>
+<p>   process_spider_output()必须<strong>返回</strong>包含Request或Item对象的可迭代对象。</p>
+<ol start="3">
+<li><p>process_spider_excption(response, exception, spider)</p>
+<blockquote>
+<p>当Spider或Spider Middleware的process_spider_input()方法抛出异常时，process_spider_exception()方法被调用。</p>
+</blockquote>
+<p>参数：</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="center">parameter</th>
+<th align="center">type</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">response</td>
+<td align="center">Response对象</td>
+<td align="center">异常被抛出时被处理的Response</td>
+</tr>
+<tr>
+<td align="center">exception</td>
+<td align="center">Exception对象</td>
+<td align="center">被抛出的异常</td>
+</tr>
+<tr>
+<td align="center">spider</td>
+<td align="center">Spider对象</td>
+<td align="center">抛出该异常的Spider</td>
+</tr>
+</tbody></table>
+<p>   返回值：</p>
+<table>
+<thead>
+<tr>
+<th align="center">return</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">None</td>
+<td align="center">Scrapy将继续处理该异常，调用其他的Spider Middleware中的process_spider_exception(), 直到所有的Spider Middleware都被调用。</td>
+</tr>
+<tr>
+<td align="center">Item对象的可迭代对象</td>
+<td align="center">其他Spider Middleware的process_spider_output()方法被调用，其他的process_spider_exception()不会被调用</td>
+</tr>
+</tbody></table>
+<ol start="4">
+<li><p>process_start_requests(start_requests, spider)</p>
+<blockquote>
+<p>process_start_requests()方法以Spider启动的Request为参数被调用，执行过程中类似于process_spider_output()，只不过它没有相关联的Response，并且必须返回Request。</p>
+</blockquote>
+<p>参数：</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="center">parameter</th>
+<th align="center">type</th>
+<th>function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">start_requests</td>
+<td align="center">包含Request的可迭代对象</td>
+<td>Start Requests</td>
+</tr>
+<tr>
+<td align="center">spider</td>
+<td align="center">Spider对象</td>
+<td>Start Requests所属的Spider</td>
+</tr>
+</tbody></table>
+<p>   返回：<br>    必须但会另一个包含Request对象的可迭代对象。</p>
+<h3 id="Item-Pipeline"><a href="#Item-Pipeline" class="headerlink" title="Item Pipeline"></a>Item Pipeline</h3><blockquote>
+<p>主要功能包含以下四点：</p>
+<ol>
+<li>清洗HTML数据。</li>
+<li>验证爬取数据，检查爬取字段。</li>
+<li>查重并丢弃重复内容</li>
+<li>将爬取的结果保存到数据库</li>
+</ol>
+</blockquote>
+<h4 id="1-核心方法"><a href="#1-核心方法" class="headerlink" title="1. 核心方法"></a>1. 核心方法</h4><blockquote>
+<p>我们可以自定义Item Pipeline, 只需要实现指定的方法，其中必须要实现的一个方法是：</p>
+<p>process_item(item, spider)</p>
+</blockquote>
+<p>另外还有几个比较实用的方法</p>
+<ul>
+<li>open_spider(spider)</li>
+<li>close_spider(spider)</li>
+<li>from_crawler(cls, crawler)</li>
+</ul>
+<ol>
+<li><p style="color:red">process_item(item, spider)<p>
+&emsp;process_item()方法是必须实现的方法，被定义的Item Pipeline会默认调用这个方法对Item进行处理。
+
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">parameter</th>
+<th align="center">type</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">item</td>
+<td align="center">Item对象</td>
+<td align="center">被处理的Item</td>
+</tr>
+<tr>
+<td align="center">spider</td>
+<td align="center">Spider对象</td>
+<td align="center">生成该Item的Spider</td>
+</tr>
+</tbody></table>
+<p><strong>返回值</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">return</th>
+<th align="center">function</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Item</td>
+<td align="center">此Item会被低优先级的Item Pipeline的process_item()方法处理，直到所有的方法被调用完毕</td>
+</tr>
+<tr>
+<td align="center">DropItem对象</td>
+<td align="center">此Item会被丢弃，不再进行处理</td>
+</tr>
+</tbody></table>
+</li>
+<li><p style="color:red">open_spider(self, spider)<p>
+&emsp;open_spider()方法是在Spider开启的时候被自动调用的。这里我们可以做一些初始化操作，如开启数据库连接等。其中，参数spider就是被开启的Spider对象。
+</li>
+<li><p style="color:red">close_spider(spider)<p>
+
+<p> &emsp;close_spider()方法是在Spider关闭的时候自动调用的。这里我们可以做一些收尾操作，如关闭数据库连接等。其中参数spider就是被关闭的Spider对象。</p>
+</li>
+<li><p style="color:red">from_crawler(cls, crawler)<p>
+
+<p> &emsp;<br>from_crawler()方法是一个类方法，用@classmethod标识，是一种依赖注入的方式。它的参数是crawler，通过crawler对象，我们可以拿到Scrapy的所有核心组件，如<strong>全局配置文件</strong>的每个信息，然后创建一个Pipeline实例。参数cls就是Class, 最后返回一个Class实例。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+      
+
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>kervias
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.kervias.com/posts/dfewf3/" title="Scrapy框架学习(1)">https://blog.kervias.com/posts/dfewf3/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Scrapy/" rel="tag"><i class="fa fa-tag"></i> Scrapy</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/92cd9797/" rel="prev" title="MySQL常用命令">
+                  <i class="fa fa-chevron-left"></i> MySQL常用命令
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/45daaf11/" rel="next" title="环形链表">
+                  环形链表 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-utterances">utterances</a></li>
+            <li class="tab"><a href="#comment-disqus">disqus</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane utterances" id="comment-utterances">
+              
+  <div class="comments">
+    <div id="utterances-container"></div>
+  </div>
+  
+            </div>
+            <div class="tab-pane disqus" id="comment-disqus">
+              
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kervias</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.kervias.com/posts/dfewf3/";
+    this.page.identifier = "posts/dfewf3/";
+    this.page.title = "Scrapy框架学习(1)";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpskerviascom.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+<script>
+NexT.utils.loadComments('#utterances-container', () => {
+  const script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', "kerviasx/blog-ustterance-comments");
+  script.setAttribute('issue-term', "title");
+  script.setAttribute('theme', "github-light");
+  script.crossOrigin = 'anonymous';
+  script.async = true;
+  document.querySelector('#utterances-container').appendChild(script);
+});
+</script>
+
+</body>
+</html>

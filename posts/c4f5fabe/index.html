@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto+Sans+SC:300,300italic,400,400italic,700,700italic|Noto+Serif+SC:300,300italic,400,400italic,700,700italic|Roboto+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="继续学习《unix网络编程卷2: 进程间通信》，本篇主要记录第一章简介的相关内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="unix网络编程2-IPC-1-简介">
+<meta property="og:url" content="https://blog.kervias.com/posts/c4f5fabe/index.html">
+<meta property="og:site_name" content="kervias">
+<meta property="og:description" content="继续学习《unix网络编程卷2: 进程间通信》，本篇主要记录第一章简介的相关内容。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-06/20200731210646.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731212829.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731215043.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731215227.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731221230.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731221326.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731222252.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731222354.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731223454.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731223326.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731225213.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731225254.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731225138.png">
+<meta property="article:published_time" content="2020-07-31T12:38:32.000Z">
+<meta property="article:modified_time" content="2020-08-20T15:55:45.681Z">
+<meta property="article:author" content="kervias">
+<meta property="article:tag" content="unix">
+<meta property="article:tag" content="IPC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-06/20200731210646.png">
+
+
+<link rel="canonical" href="https://blog.kervias.com/posts/c4f5fabe/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>unix网络编程2-IPC-1-简介 | kervias</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="kervias" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">kervias</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">负重前行</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-留言板">
+
+    <a href="/messageboard/" rel="section"><i class="fa fa-comment-dots fa-fw"></i>留言板</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-1-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">1.1 概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-2-%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E4%B8%8E%E4%BF%A1%E6%81%AF%E5%85%B1%E4%BA%AB"><span class="nav-number">2.</span> <span class="nav-text">1.2 进程、线程与信息共享</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-3-IPC%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%8C%81%E7%BB%AD%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">1.3 IPC对象的持续性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-4-%E5%90%8D%E5%AD%97%E7%A9%BA%E9%97%B4-name-spaces"><span class="nav-number">4.</span> <span class="nav-text">1.4 名字空间(name spaces)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-5-fork%E3%80%81exec%E5%92%8C-exit%E5%AF%B9IPC%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">5.</span> <span class="nav-text">1.5 fork、exec和_exit对IPC对象的影响</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-6-%E5%87%BA%E9%94%99%E5%A4%84%E7%90%86%EF%BC%9A%E5%8C%85%E8%A3%B9%E5%87%BD%E6%95%B0"><span class="nav-number">6.</span> <span class="nav-text">1.6 出错处理：包裹函数</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="kervias"
+      src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+  <p class="site-author-name" itemprop="name">kervias</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/kerviasx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;kerviasx" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cxz.kervia@gmail.com" title="E-Mail → mailto:cxz.kervia@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.kervias.com/" title="http:&#x2F;&#x2F;www.kervias.com" rel="noopener" target="_blank">Halo站</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.cnblogs.com/kervia/" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kervia&#x2F;" rel="noopener" target="_blank">博客园</a>
+        </li>
+    </ul>
+  </div>
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/kerviasx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/c4f5fabe/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+      <meta itemprop="name" content="kervias">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kervias">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          unix网络编程2-IPC-1-简介
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-07-31 20:38:32" itemprop="dateCreated datePublished" datetime="2020-07-31T20:38:32+08:00">2020-07-31</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-08-20 23:55:45" itemprop="dateModified" datetime="2020-08-20T23:55:45+08:00">2020-08-20</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/unix%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B2/" itemprop="url" rel="index"><span itemprop="name">unix网络编程2</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>继续学习《unix网络编程卷2: 进程间通信》，本篇主要记录第一章简介的相关内容。</p>
+<a id="more"></a>
+
+<h1 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1 概述"></a>1.1 概述</h1><p>在unix操作系统的历史中，消息传递经历了如下几个阶段。</p>
+<ul>
+<li><p>管道</p>
+<p>管道是第一个广泛使用的IPC形式，<em>既可在程序中使用，也可以在shell中使用</em>。管道的问题在于它们只能在<strong>具有共同祖先（指父子进程关系）的进程间使用</strong>，不过该问题已随<em>有名管道</em>即FIFO的引入解决了。</p>
+</li>
+<li><p>System V 消息队列</p>
+<p>它可以用在同一主机上有亲缘关系或无亲缘关系的进程之间。</p>
+<div class="note info"><p><em>有亲缘关系</em> 意味着进程具有共同的祖先，这些有亲缘关系的进程是从祖先进程经过一次或多次fork派生来的。考虑到IPC，<font color="red">父进程可以在调用fork前建立某种形式的IPC(如管道或消息队列)，因为它知道随后派生的两个子进程将穿越(across) fork继承该IPC对象</font>。</p>
+<p>从理论上说，所有Unix进程与init进程都有亲缘关系，它是在系统自举(reboot)时启动所有初始化进程的祖先进程。</p>
+<p>从实践上说，进程的亲缘关系开始于一个登录shell(称为一个会话)以及由该shell派生的所有进程。</p>
+</div>
+</li>
+<li><p>Posix消息队列</p>
+<p>它可以用在同一主机上有亲缘关系或无亲缘关系的进程之间。</p>
+</li>
+<li><p>远程过程调用（RPC）</p>
+<p>它是从一个系统（客户主机）上某个程序调用另一个系统（服务器主机）上某个函数的一种方法，是<em>作为显式网络编程</em> 的一种替换方法开发的。</p>
+<p>既然客户和服务器之间通常传递一些信息（被调用的函数的参数和返回值），而且RPC可以用在同一主机上的客户和服务器之间，因此可以认为RPC是另一种形式的消息传递。</p>
+</li>
+</ul>
+<br>
+
+<p>unix系统中各种同步形式的演变如下：</p>
+<ul>
+<li>记录上锁（record locking）</li>
+<li>System V 信号量</li>
+<li>Posix 信号量</li>
+<li>互斥锁（mutex）和条件变量</li>
+<li>读写锁（read-write lock）</li>
+</ul>
+<h1 id="1-2-进程、线程与信息共享"><a href="#1-2-进程、线程与信息共享" class="headerlink" title="1.2 进程、线程与信息共享"></a>1.2 进程、线程与信息共享</h1><p>下图介绍了Unix进程间共享信息的三种方式。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-06/20200731210646.png"></p>
+<ol>
+<li><strong>左边的两个进程共享的信息在文件系统中某个文件中。为访问这些信息</strong>，<strong>每个进程都需要穿越内核</strong>（例如read、write、lseek等）。当一个文件有待更新时，某种形式的同步是必要的，这样既可保护多个写入者，防止相互串扰，也可以保护一个或多个读出者，防止写入者的干扰。</li>
+<li><strong>中间的两个进程共享驻留于内核中的某些信息</strong>。管道是这种共享类型的一个例子，System V 消息队列和System V信号量也是。现在访问共享信息的每次操作涉及对内核的一次系统调用。</li>
+<li><strong>右边的两个进程有一个双方都能访问的共享内存区</strong>。每个进程一旦设置好该共享内存区，就能根本不涉及内核而访问其中的数据，共享该内存区的进程需要某种形式的<strong>同步</strong>。</li>
+</ol>
+<p><strong>注</strong>：上面为了简述只写了两个进程，技术上支持任意数目的进程。</p>
+<div class="note info"><p>从IPC角度看，一个给定的进程内所有线程共享相同的全局变量（即共享内存区的概念对这种模型来说是内在的）。然而我们必须关注的是各个线程之间对全局数据的同步访问，同步尽管不是一种明确的IPC形式，但它却是伴随许多形式的IPC使用，以控制对某些共享数据的访问。</p>
+<p>本书主要讲述进程间的IPC和线程间的IPC。假设一个线程环境：如果管道为空，调用线程就阻塞在它的read调用上，直到某个线程往该管道写入数据。在支持线程的系统上，只有对空管道调用read的那个线程阻塞，同一进程中的其余线程才可以继续执行。向该空管道写数据的工作既可以由同一进程中的另一个线程去做，也可以由另一个进程中的某个线程去做。</p>
+</div>
+
+<h1 id="1-3-IPC对象的持续性"><a href="#1-3-IPC对象的持续性" class="headerlink" title="1.3 IPC对象的持续性"></a>1.3 IPC对象的持续性</h1><p>任意类型的IPC对象的**持续性(persistence)**：该类型的一个对象一直存在多长时间。</p>
+<p>下图展示了三种类型的持续性：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731212829.png"></p>
+<ol>
+<li><p>随进程持续的(process-persistent)</p>
+<p>IPC对象一直存在到打开该对象的最后一个进程关闭该对象为止。例如管道和IFIO就是这种对象。</p>
+</li>
+<li><p>随内核持续的(kernel-persistent)</p>
+<p>IPC对象一直存在到内核重新自举(reboot)或显示删除该对象为止。例如System V的消息队列、信号量和共享内存区就是此类对象。<font color="deepskyblue">Posix的消息队列、信号量和共享内存区必须至少是随内核持续的，但也可以是随文件系统持续的</font></p>
+</li>
+<li><p>随文件系统持续的(filesystem-persistent)</p>
+<p>IPC对象一直存在到显示删除该对象为止。即使内核重新自举了，该对象还是保持其值。Posix消息队列、信号量和共享内存区如果是使用映射文件实现的（非必需条件），那么他们就是filesystem-persistent的。</p>
+</li>
+</ol>
+<p>在定义一个IPC对象的持续性时我们必须小心，因为它并不总是像看起来的那样。</p>
+<div class="tabs" id="例"><ul class="nav-tabs"><li class="tab active"><a href="#例-1">例 1</a></li><li class="tab"><a href="#例-2">例 2</a></li></ul><div class="tab-content"><div class="tab-pane active" id="例-1"><p>管道内的数据是在内核中维护的，但管道具备的是随进程的持续性而不是随内核的持续性，最后一个将某个管道打开着用于读进程关闭该管道后，内核将丢弃所有的数据并删除数据。</p></div><div class="tab-pane" id="例-2"><p>尽量FIFO在文件系统中有名字，它们也只是具备随进程的持续性，因为最后一个将某个FIFO打开着的进程关闭该FIFO后，FIFO中的数据都被丢弃。</p></div></div></div>
+
+<p>下图展示了本书中讲述的各种IPC对象的持续性。</p>
+<div class="tabs" id="tab1"><ul class="nav-tabs"><li class="tab"><a href="#tab1-1">图1</a></li><li class="tab active"><a href="#tab1-2">图2</a></li></ul><div class="tab-content"><div class="tab-pane" id="tab1-1"><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731215043.png"></p></div><div class="tab-pane active" id="tab1-2"><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731215227.png"></p></div></div></div>
+
+<p>虽然列表中没有任何类型的IPC具备随文件系统的持续性，但是之前说过三种类型的posix IPC可能会具备该持续性，这取决于它们的实现。</p>
+<p>显然向一个文件写入数据提供了随文件系统的持续性，但这通常不作为一种IPC形式的调用。<strong>多数形式的IPC并没有在系统重新自举后继续存在的打算，因为进程不可能跨越重新自举继续存活</strong>。</p>
+<p>对于一种给定形式的IPC，要求它具备文件系统的持续性可能会使其性能降低，而IPC的一个设计目标是高性能。</p>
+<h1 id="1-4-名字空间-name-spaces"><a href="#1-4-名字空间-name-spaces" class="headerlink" title="1.4 名字空间(name spaces)"></a>1.4 名字空间(name spaces)</h1><p>当<strong>两个或多个无亲缘关系</strong>的进程使用某种类型的IPC对象来彼此交换信息时，该IPC对象必须有一个某种形式的名字(name)或标识符(identifier)，这样其中一个进程（往往是服务器）可以创建该IPC对象，其余进程则可以指定同一个IPC对象。</p>
+<p>管道没有名字（因此不能用于无亲缘关系的进程间），但是FIFO有一个在文件系统中的Unix路径名作为其标识符（因此可以用于无亲缘关系的进程间）。</p>
+<p>对于一种给定的IPC类型，其可能的名字的集合称为它的<strong>名字空间</strong>。</p>
+<p>名字空间非常重要，因为对于除普通管道外的所有形式的IPC来说，名字是客户与服务器彼此连接以交换消息的手段。</p>
+<p>下图给出了各种形式IPC的名字空间。</p>
+<div class="tabs" id="tabs2"><ul class="nav-tabs"><li class="tab"><a href="#tabs2-1">图1</a></li><li class="tab active"><a href="#tabs2-2">图2</a></li></ul><div class="tab-content"><div class="tab-pane" id="tabs2-1"><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731221230.png"></p></div><div class="tab-pane active" id="tabs2-2"><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731221326.png"></p></div></div></div>
+
+
+
+<p>尽管posix.1标准化了信号量，它们仍然是可选的特性。每种特性有<strong>强制</strong>，<strong>未定义</strong>，<strong>可选</strong>三种选择，如下图所示，对于可选的特性，指出了每种特性受支持是(通常在&lt;unistd.h&gt;头文件中)定义的常值的名字，例如_POSIX_THREAD。</p>
+<div class="tabs" id="tabs3"><ul class="nav-tabs"><li class="tab active"><a href="#tabs3-1">图1</a></li><li class="tab"><a href="#tabs3-2">图2</a></li></ul><div class="tab-content"><div class="tab-pane active" id="tabs3-1"><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731222252.png"></p></div><div class="tab-pane" id="tabs3-2"><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731222354.png"></p></div></div></div>
+
+
+
+<h1 id="1-5-fork、exec和-exit对IPC对象的影响"><a href="#1-5-fork、exec和-exit对IPC对象的影响" class="headerlink" title="1.5 fork、exec和_exit对IPC对象的影响"></a>1.5 fork、exec和_exit对IPC对象的影响</h1><p>我们需要理解<code>fork</code>、<code>exec</code>和 <code>_exit</code>函数对于所讨论的各种形式的IPC对象的影响，_exit使用exit调用的一个函数。</p>
+<div class="tabs" id="tabs5"><ul class="nav-tabs"><li class="tab"><a href="#tabs5-1">图1</a></li><li class="tab active"><a href="#tabs5-2">图2</a></li></ul><div class="tab-content"><div class="tab-pane" id="tabs5-1"><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731223454.png"></p></div><div class="tab-pane active" id="tabs5-2"><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731223326.png"></p></div></div></div>
+
+
+
+<h1 id="1-6-出错处理：包裹函数"><a href="#1-6-出错处理：包裹函数" class="headerlink" title="1.6 出错处理：包裹函数"></a>1.6 出错处理：包裹函数</h1><p>包裹函数包装了实际调用的函数，运行实际调用的函数并检测其返回值，遇到错误时终止进程，在一定程度上减少了代码量。本书命名约定是将第一个字母改为大写字母。如:</p>
+<figure class="highlight c"><figcaption><span>lib/wrapunix.c</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">Sem_post(<span class="keyword">sem_t</span> *sem)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (sem_post(sem) == <span class="number">-1</span>)</span><br><span class="line">        err_sys(<span class="string">&quot;sem_post error&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731225213.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731225254.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-07/20200731225138.png"></p>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\posts\f9ac59e8\" rel="bookmark">unix网络编程2-IPC-2-Posix IPC</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>kervias
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.kervias.com/posts/c4f5fabe/" title="unix网络编程2-IPC-1-简介">https://blog.kervias.com/posts/c4f5fabe/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/unix/" rel="tag"><i class="fa fa-tag"></i> unix</a>
+              <a href="/tags/IPC/" rel="tag"><i class="fa fa-tag"></i> IPC</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/3b3b119c/" rel="prev" title="unix网络编程2-IPC-0-前言">
+                  <i class="fa fa-chevron-left"></i> unix网络编程2-IPC-0-前言
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/f9ac59e8/" rel="next" title="unix网络编程2-IPC-2-Posix IPC">
+                  unix网络编程2-IPC-2-Posix IPC <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-utterances">utterances</a></li>
+            <li class="tab"><a href="#comment-disqus">disqus</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane utterances" id="comment-utterances">
+              
+  <div class="comments">
+    <div id="utterances-container"></div>
+  </div>
+  
+            </div>
+            <div class="tab-pane disqus" id="comment-disqus">
+              
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kervias</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.kervias.com/posts/c4f5fabe/";
+    this.page.identifier = "posts/c4f5fabe/";
+    this.page.title = "unix网络编程2-IPC-1-简介";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpskerviascom.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+<script>
+NexT.utils.loadComments('#utterances-container', () => {
+  const script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', "kerviasx/blog-ustterance-comments");
+  script.setAttribute('issue-term', "title");
+  script.setAttribute('theme', "github-light");
+  script.crossOrigin = 'anonymous';
+  script.async = true;
+  document.querySelector('#utterances-container').appendChild(script);
+});
+</script>
+
+</body>
+</html>

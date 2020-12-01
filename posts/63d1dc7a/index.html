@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto+Sans+SC:300,300italic,400,400italic,700,700italic|Noto+Serif+SC:300,300italic,400,400italic,700,700italic|Roboto+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="本篇文章记录docker部署typecho的过程，并将typecho容器和mysql容器进行链接。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker部署typecho+mysql">
+<meta property="og:url" content="https://blog.kervias.com/posts/63d1dc7a/index.html">
+<meta property="og:site_name" content="kervias">
+<meta property="og:description" content="本篇文章记录docker部署typecho的过程，并将typecho容器和mysql容器进行链接。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-05/20200521234412.png">
+<meta property="article:published_time" content="2020-05-21T12:57:22.000Z">
+<meta property="article:modified_time" content="2020-07-26T16:36:23.238Z">
+<meta property="article:author" content="kervias">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="typecho">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-05/20200521234412.png">
+
+
+<link rel="canonical" href="https://blog.kervias.com/posts/63d1dc7a/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>docker部署typecho+mysql | kervias</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="kervias" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">kervias</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">负重前行</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-留言板">
+
+    <a href="/messageboard/" rel="section"><i class="fa fa-comment-dots fa-fw"></i>留言板</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%83%A8%E7%BD%B2mysql%E5%AE%B9%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">一、部署mysql容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2typecho%E5%AE%B9%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">二、部署typecho容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8D%9A%E5%AE%A2%E8%BF%81%E7%A7%BB"><span class="nav-number">3.</span> <span class="nav-text">三、博客迁移</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%87%E4%BB%BD%E7%AB%99%E7%82%B9%E7%9B%AE%E5%BD%95"><span class="nav-number">3.1.</span> <span class="nav-text">备份站点目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%87%E4%BB%BD%E6%95%B0%E6%8D%AE%E5%BA%93%E5%86%85%E5%AE%B9"><span class="nav-number">3.2.</span> <span class="nav-text">备份数据库内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%81%A2%E5%A4%8D%E7%AB%99%E7%82%B9%E7%9B%AE%E5%BD%95%E5%86%85%E5%AE%B9"><span class="nav-number">3.3.</span> <span class="nav-text">恢复站点目录内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%81%A2%E5%A4%8D%E6%95%B0%E6%8D%AE%E5%BA%93%E5%86%85%E5%AE%B9"><span class="nav-number">3.4.</span> <span class="nav-text">恢复数据库内容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81typecho%E6%9B%B4%E6%8D%A2%E5%9F%9F%E5%90%8D"><span class="nav-number">4.</span> <span class="nav-text">四、typecho更换域名</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="kervias"
+      src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+  <p class="site-author-name" itemprop="name">kervias</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/kerviasx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;kerviasx" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cxz.kervia@gmail.com" title="E-Mail → mailto:cxz.kervia@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.kervias.com/" title="http:&#x2F;&#x2F;www.kervias.com" rel="noopener" target="_blank">Halo站</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.cnblogs.com/kervia/" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kervia&#x2F;" rel="noopener" target="_blank">博客园</a>
+        </li>
+    </ul>
+  </div>
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/kerviasx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/63d1dc7a/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+      <meta itemprop="name" content="kervias">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kervias">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          docker部署typecho+mysql
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-05-21 20:57:22" itemprop="dateCreated datePublished" datetime="2020-05-21T20:57:22+08:00">2020-05-21</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-07-27 00:36:23" itemprop="dateModified" datetime="2020-07-27T00:36:23+08:00">2020-07-27</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>本篇文章记录docker部署typecho的过程，并将typecho容器和mysql容器进行链接。</p>
+<a id="more"></a>
+<h2 id="一、部署mysql容器"><a href="#一、部署mysql容器" class="headerlink" title="一、部署mysql容器"></a>一、部署mysql容器</h2><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="builtin-name">run</span> <span class="attribute">--name</span>=mysql -d -p 10812:3306  -v /mysql:/var/lib/mysql -e <span class="attribute">MYSQL_ROOT_PASSWORD</span>=password mysql:5.7</span><br></pre></td></tr></table></figure>
+
+<p>主要参数说明：</p>
+<ul>
+<li><code>--name=mysql</code>: 容器名</li>
+<li><code>-p 10812:3306</code>: 将主机的10812端口映射到mysql容器的3306端口</li>
+<li><code>-v /mysql:/var/lib/mysql</code>: 将容器的/var/lib/mysql文件夹与主机的/mysql文件夹建立映射关系</li>
+<li><code>-e MYSQL_ROOT_PASSWORD=password</code>: 设置MYSQL数据库的root用户密码为<code>password</code>，此处按需填写自己的密码</li>
+</ul>
+<br>
+
+<blockquote>
+<p>接下来的步骤是创建typecho数据库</p>
+</blockquote>
+<p>再输入以下命令进入mysql容器命令行窗口.</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -<span class="keyword">it</span> mysql bash</span><br></pre></td></tr></table></figure>
+
+<p>输入以下命令进入mysql命令行模式</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">mysql -u root -p</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来输入之前设置的root密码。</p>
+<p>此时已经进入了mysql命令行模式，输入以下命令创建typecho数据库。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">database</span> typecho;</span><br></pre></td></tr></table></figure>
+
+<p>设置完毕后，输入exit退出Mysql命令行，再输入exit退出容器命令行，回到主机命令行。</p>
+<h2 id="二、部署typecho容器"><a href="#二、部署typecho容器" class="headerlink" title="二、部署typecho容器"></a>二、部署typecho容器</h2><p>这里使用的镜像为<code>80x86/typecho</code>。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="builtin-name">run</span> -d <span class="attribute">--name</span>=typecho --restart always --mount <span class="attribute">type</span>=tmpfs,destination=/tmp -v /srv/http/typecho:/data --link mysql:db -e <span class="attribute">PHP_TZ</span>=Asia/Shanghai -e <span class="attribute">PHP_MAX_EXECUTION_TIME</span>=600 -p 90:80 80x86/typecho:latest</span><br></pre></td></tr></table></figure>
+
+<p>主要参数说明：</p>
+<ul>
+<li><p><code>-v /srv/http/typecho:/data</code>: 将容器的/data文件夹与主机的/srv/http/typecho文件夹建立映射关系</p>
+<p>此时在主机上的typecho站点目录为/srv/http/typecho。</p>
+</li>
+<li><p><code>-p 90:80</code>: 将主机的90端口映射到容器的80端口</p>
+</li>
+<li><p><code>--link mysql:db</code>: 将mysql容器与typecho容器链接。</p>
+</li>
+</ul>
+<br>
+
+<blockquote>
+<p>至此，两个容器已经创建完成，接下来访问站点进行typecho初始化的过程</p>
+</blockquote>
+<p>注：如果服务器开启了防火墙，需要先将90端口打开(因为上述操作已经将主机的90端口映射到容器的80端口)，假设此时服务器ip为222.222.222.222。</p>
+<p>访问地址 <a target="_blank" rel="noopener" href="http://222.222.222.222:90/">http://222.222.222.222:90</a>, 即可进入typecho安装页面。</p>
+<p>如果选择mysql数据库引擎，填写的数据库地址应为<code>db</code>，注意是<code>db</code>！，端口依然是3306。</p>
+<p>因为–link mysql:db这个参数将mysql容器地址映射为typecho容器中的db。如果你进入typecho容器中，使用ping db命令发现db地址为一个内网ip，两个容器在同一个局域网内。</p>
+<h2 id="三、博客迁移"><a href="#三、博客迁移" class="headerlink" title="三、博客迁移"></a>三、博客迁移</h2><p>数据库备份主要包含两个部分，一个是typecho站点目录，另一个是数据库内容。</p>
+<h3 id="备份站点目录"><a href="#备份站点目录" class="headerlink" title="备份站点目录"></a>备份站点目录</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zip -r typecho.zip <span class="regexp">/srv/</span>http/typecho</span><br></pre></td></tr></table></figure>
+
+<p>备份后生成了一个typecho压缩包。</p>
+<h3 id="备份数据库内容"><a href="#备份数据库内容" class="headerlink" title="备份数据库内容"></a>备份数据库内容</h3><p>依次输入以下命令：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker exec -<span class="keyword">it</span> mysql bash  <span class="comment"># 进入mysql容器命令行</span></span><br><span class="line">mysqldump -u root -p typecho &gt; sqlfile.sql <span class="comment"># 将typecho数据库内容被分为sql文件</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<blockquote>
+<p>完成以上步骤就做好了备份，分别为typecho.zip文件和sqlfile.sql文件。</p>
+<p>下面介绍如何恢复数据，假设我们按照前文部署typecho流程进行迁移。</p>
+</blockquote>
+<p>首先按照按照流程部署一下mysql容器和typecho容器，注意此时不要初始化typecho站点。</p>
+<h3 id="恢复站点目录内容"><a href="#恢复站点目录内容" class="headerlink" title="恢复站点目录内容"></a>恢复站点目录内容</h3><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入/srv/http/typecho目录</span></span><br><span class="line"><span class="keyword">cd</span> <span class="string">/srv/http/typecho</span></span><br><span class="line"><span class="comment"># 将typecho文件上传到该目录后，解压文件</span></span><br><span class="line">unzip typecho.zip</span><br><span class="line"><span class="keyword">ls</span> <span class="comment">#查看解压是否正确，正常显示的是typecho站点目录，如果显示了typecho文件夹，注意将文件夹内容移出来。</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="恢复数据库内容"><a href="#恢复数据库内容" class="headerlink" title="恢复数据库内容"></a>恢复数据库内容</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cd /mysql <span class="comment">#进入文件夹后，将sqlfile.sql上传到该文件夹</span></span><br><span class="line">docker exec -it mysql bash <span class="comment">#进入容器</span></span><br><span class="line">mysql -u root -p <span class="comment"># 登录数据库并输入密码</span></span><br><span class="line">create database typecho; <span class="comment">#创建数据库</span></span><br><span class="line"><span class="keyword">exit</span> <span class="comment">#退出mysql操作</span></span><br><span class="line">cd <span class="regexp">/var/</span>lib/mysql</span><br><span class="line">mysql -u root -p typecho &lt; sqlfile.sql <span class="comment">#将数据库内容导入</span></span><br><span class="line"><span class="keyword">exit</span> <span class="comment">#退出</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p><strong>注</strong>：如果修改了之前数据库的密码，需要修改typecho站点目录下的<code>config.inc.php</code>文件。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-05/20200521234412.png"></p>
+<p>修改上面的密码。</p>
+<h2 id="四、typecho更换域名"><a href="#四、typecho更换域名" class="headerlink" title="四、typecho更换域名"></a>四、typecho更换域名</h2><p>第一步需要登录mysql。</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker exec -<span class="keyword">it</span> mysql bash <span class="comment">#进入容器</span></span><br><span class="line">mysql -u root -p typecho <span class="comment">#输入密码，登录mysql的typecho数据库</span></span><br></pre></td></tr></table></figure>
+
+<p>执行以下命令，操作数据库内容。</p>
+<p>注意：以下 SQL 语句使用默认表前缀 <code>typecho_</code>，操作数据库前建议备份。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改网站设置里的域名：</span></span><br><span class="line"><span class="keyword">UPDATE</span> typecho_options <span class="keyword">SET</span> <span class="keyword">value</span> = <span class="string">&#x27;https://blog.kervia.ml&#x27;</span> <span class="keyword">WHERE</span> typecho_options.name = <span class="string">&#x27;siteUrl&#x27;</span> <span class="keyword">AND</span> typecho_options.user =<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 替换文章的域名</span></span><br><span class="line"><span class="keyword">UPDATE</span> typecho_contents <span class="keyword">SET</span> <span class="built_in">text</span> = <span class="keyword">REPLACE</span>(<span class="built_in">text</span>,<span class="string">&#x27;https;&#x27;</span>,<span class="string">&#x27;新域名&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将管理员的个人网站进行替换</span></span><br><span class="line"><span class="keyword">UPDATE</span> typecho_users <span class="keyword">SET</span> <span class="keyword">url</span> = <span class="keyword">REPLACE</span>(<span class="keyword">url</span>,<span class="string">&#x27;原域名&#x27;</span>,<span class="string">&#x27;新域名&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment"># 替换评论中的域名</span></span><br><span class="line"><span class="keyword">UPDATE</span> typecho_comments <span class="keyword">SET</span> <span class="string">`url`</span> = <span class="keyword">REPLACE</span>(<span class="string">`url`</span>,<span class="string">&#x27;原域名&#x27;</span>,<span class="string">&#x27;新域名&#x27;</span>);</span><br><span class="line"><span class="keyword">UPDATE</span> typecho_comments<span class="string">`SET `</span><span class="built_in">text</span><span class="string">` = REPLACE(`</span><span class="built_in">text</span><span class="string">`,&#x27;原域名&#x27;,&#x27;新域名&#x27;);</span></span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+      
+
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>kervias
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.kervias.com/posts/63d1dc7a/" title="docker部署typecho+mysql">https://blog.kervias.com/posts/63d1dc7a/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/docker/" rel="tag"><i class="fa fa-tag"></i> docker</a>
+              <a href="/tags/typecho/" rel="tag"><i class="fa fa-tag"></i> typecho</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/dj8392A/" rel="prev" title="npm命令总结">
+                  <i class="fa fa-chevron-left"></i> npm命令总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/a50980cb/" rel="next" title="crontab定时任务发邮件的问题">
+                  crontab定时任务发邮件的问题 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-utterances">utterances</a></li>
+            <li class="tab"><a href="#comment-disqus">disqus</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane utterances" id="comment-utterances">
+              
+  <div class="comments">
+    <div id="utterances-container"></div>
+  </div>
+  
+            </div>
+            <div class="tab-pane disqus" id="comment-disqus">
+              
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kervias</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.kervias.com/posts/63d1dc7a/";
+    this.page.identifier = "posts/63d1dc7a/";
+    this.page.title = "docker部署typecho+mysql";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpskerviascom.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+<script>
+NexT.utils.loadComments('#utterances-container', () => {
+  const script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', "kerviasx/blog-ustterance-comments");
+  script.setAttribute('issue-term', "title");
+  script.setAttribute('theme', "github-light");
+  script.crossOrigin = 'anonymous';
+  script.async = true;
+  document.querySelector('#utterances-container').appendChild(script);
+});
+</script>
+
+</body>
+</html>

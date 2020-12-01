@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto+Sans+SC:300,300italic,400,400italic,700,700italic|Noto+Serif+SC:300,300italic,400,400italic,700,700italic|Roboto+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="linux学习03：用户及权限管理内容转载自实验楼：https:&#x2F;&#x2F;www.shiyanlou.com&#x2F;courses&#x2F;1&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux学习03 - 用户及权限管理">
+<meta property="og:url" content="https://blog.kervias.com/posts/68370406/index.html">
+<meta property="og:site_name" content="kervias">
+<meta property="og:description" content="linux学习03：用户及权限管理内容转载自实验楼：https:&#x2F;&#x2F;www.shiyanlou.com&#x2F;courses&#x2F;1&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-1.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-2.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-3.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-4.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-5.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-6.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-7.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-8.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-9.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-10.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-11.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-12.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-13.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-14.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-15.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-16.png">
+<meta property="article:published_time" content="2019-10-19T04:16:00.000Z">
+<meta property="article:modified_time" content="2020-05-08T12:13:55.302Z">
+<meta property="article:author" content="kervias">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-1.png">
+
+
+<link rel="canonical" href="https://blog.kervias.com/posts/68370406/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>linux学习03 - 用户及权限管理 | kervias</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="kervias" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">kervias</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">负重前行</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-留言板">
+
+    <a href="/messageboard/" rel="section"><i class="fa fa-comment-dots fa-fw"></i>留言板</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%94%A8%E6%88%B7"><span class="nav-number">1.</span> <span class="nav-text">查看用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7"><span class="nav-number">2.</span> <span class="nav-text">创建用户</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#su%EF%BC%8Csu-%E4%B8%8E-sudo"><span class="nav-number">2.1.</span> <span class="nav-text">su，su- 与 sudo</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%BB%84"><span class="nav-number">3.</span> <span class="nav-text">用户组</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8-groups-%E5%91%BD%E4%BB%A4"><span class="nav-number">3.1.</span> <span class="nav-text">方法一：使用 groups 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E6%9F%A5%E7%9C%8B-etc-group-%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">方法二：查看 &#x2F;etc&#x2F;group 文件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#etc-group-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%AF%B4%E6%98%8E"><span class="nav-number">3.2.1.</span> <span class="nav-text">&#x2F;etc&#x2F;group 文件格式说明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B0%86%E5%85%B6%E5%AE%83%E7%94%A8%E6%88%B7%E5%8A%A0%E5%85%A5-sudo-%E7%94%A8%E6%88%B7%E7%BB%84"><span class="nav-number">3.2.2.</span> <span class="nav-text">将其它用户加入 sudo 用户组</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E7%94%A8%E6%88%B7"><span class="nav-number">4.</span> <span class="nav-text">删除用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90"><span class="nav-number">5.</span> <span class="nav-text">linux文件权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E6%9B%B4%E6%96%87%E4%BB%B6%E6%89%80%E6%9C%89%E8%80%85"><span class="nav-number">6.</span> <span class="nav-text">变更文件所有者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90"><span class="nav-number">7.</span> <span class="nav-text">修改文件权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#adduser-%E5%92%8C-useradd-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">8.</span> <span class="nav-text">adduser 和 useradd 的区别是什么？</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="kervias"
+      src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+  <p class="site-author-name" itemprop="name">kervias</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/kerviasx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;kerviasx" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cxz.kervia@gmail.com" title="E-Mail → mailto:cxz.kervia@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://www.kervias.com/" title="http:&#x2F;&#x2F;www.kervias.com" rel="noopener" target="_blank">Halo站</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.cnblogs.com/kervia/" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kervia&#x2F;" rel="noopener" target="_blank">博客园</a>
+        </li>
+    </ul>
+  </div>
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/kerviasx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/68370406/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+      <meta itemprop="name" content="kervias">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kervias">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          linux学习03 - 用户及权限管理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-10-19 12:16:00" itemprop="dateCreated datePublished" datetime="2019-10-19T12:16:00+08:00">2019-10-19</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-05-08 20:13:55" itemprop="dateModified" datetime="2020-05-08T20:13:55+08:00">2020-05-08</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>linux学习03：用户及权限管理<br>内容转载自实验楼：<a target="_blank" rel="noopener" href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="查看用户"><a href="#查看用户" class="headerlink" title="查看用户"></a>查看用户</h3><p>请打开终端，输入命令：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>who am i</span><br><span class="line"></span><br><span class="line">或者</span><br><span class="line"></span><br><span class="line"><span class="variable">$ </span>who mom likes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-1.png"></p>
+<p> 输出的第一列表示打开当前伪终端的用户的用户名（要查看当前登录用户的用户名，去掉空格直接使用 <code>whoami</code> 即可），第二列的 <code>pts/0</code> 中 <code>pts</code> 表示伪终端，所谓伪是相对于 <code>/dev/tty</code> 设备而言的，还记得上一节讲终端时的那七个使用 <code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F7]</code> 进行切换的 <code>/dev/tty</code> 设备么,这是“真终端”，伪终端就是当你在图形用户界面使用 <code>/dev/tty7</code> 时每打开一个终端就会产生一个伪终端， <code>pts/0</code> 后面那个数字就表示打开的伪终端序号，你可以尝试再打开一个终端，然后在里面输入 <code>who am i</code> ，看第二列是不是就变成 <code>pts/1</code> 了，第三列则表示当前伪终端的启动时间。</p>
+<p><code>who</code> 命令其它常用参数</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-a</code></td>
+<td>打印能打印的全部</td>
+</tr>
+<tr>
+<td><code>-d</code></td>
+<td>打印死掉的进程</td>
+</tr>
+<tr>
+<td><code>-m</code></td>
+<td>同<code>am i</code>,<code>mom likes</code></td>
+</tr>
+<tr>
+<td><code>-q</code></td>
+<td>打印当前登录用户数及用户名</td>
+</tr>
+<tr>
+<td><code>-u</code></td>
+<td>打印当前登录用户登录信息</td>
+</tr>
+<tr>
+<td><code>-r</code></td>
+<td>打印运行等级</td>
+</tr>
+</tbody></table>
+<h3 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h3><p>在 Linux 系统里， <code>root</code> 账户拥有整个系统至高无上的权利，比如 新建/添加 用户。</p>
+<blockquote>
+<p>root 权限，系统权限的一种，与 SYSTEM 权限可以理解成一个概念，但高于 Administrator 权限，root 是 Linux 和 UNIX 系统中的超级管理员用户帐户，该帐户拥有整个系统至高无上的权力，所有对象他都可以操作，所以很多黑客在入侵系统的时候，都要把权限提升到 root 权限，用 Windows 的方法理解也就是将自己的非法帐户添加到 Administrators 用户组。更比如安卓操作系统中（基于 Linux 内核）获得 root 权限之后就意味着已经获得了手机的最高权限，这时候你可以对手机中的任何文件（包括系统文件）执行所有增、删、改、查的操作。</p>
+</blockquote>
+<p>我们一般登录系统时都是以普通账户的身份登录的，要创建用户需要 root 权限，这里就要用到 <code>sudo</code> 这个命令了。不过使用这个命令有两个大前提，一是你要知道当前登录用户的密码，二是当前用户必须在 <code>sudo</code> 用户组。shiyanlou 用户也属于 sudo 用户组（稍后会介绍如何查看和添加用户组）。</p>
+<h4 id="su，su-与-sudo"><a href="#su，su-与-sudo" class="headerlink" title="su，su- 与 sudo"></a>su，su- 与 sudo</h4><p><strong>需要注意 Linux 环境下输入密码是不会显示的。</strong></p>
+<p><code>su &lt;user&gt;</code> 可以切换到用户 user，执行时需要输入目标用户的密码，<code>sudo &lt;cmd&gt;</code> 可以以特权级别运行 cmd 命令，需要当前用户属于 sudo 组，且需要输入当前用户的密码。<code>su - &lt;user&gt;</code> 命令也是切换用户，<font color="red">同时环境变量也会跟着改变成目标用户的环境变量。</font></p>
+<p>现在我们新建一个叫 lilei 的用户：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>sudo adduser lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>实验楼的环境目前设置为 shiyanlou 用户执行 sudo 不需要输入密码，通常此处需要按照提示输入 shiyanlou 密码（<strong>Linux 下密码输入是不显示任何内容的</strong>），shiyanlou 用户密码可以通过 <code>sudo passwd shiyanlou</code> 命令进行设置。然后是给 lilei 用户设置密码，后面的选项的一些内容你可以选择直接回车使用默认值：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-2.png"></p>
+<p>这个命令不但可以添加用户到系统，同时也会默认为新用户创建 home 目录：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="keyword">ls</span> <span class="string">/home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在你已经创建好一个用户，并且你可以使用你创建的用户登录了，使用如下命令切换登录用户：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>su -l lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>输入刚刚设置的 lilei 的密码，然后输入如下命令并查看输出：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> who am i</span><br><span class="line"><span class="variable">$</span> whoami</span><br><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>退出当前用户跟退出终端一样可以使用 <code>exit</code> 命令或者使用快捷键 <code>Ctrl+d</code>。</p>
+<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>在 Linux 里面每个用户都有一个归属（用户组），用户组简单地理解就是一组用户的集合，它们共享一些资源和权限，同时拥有私有资源，就跟家的形式差不多，你的兄弟姐妹（不同的用户）属于同一个家（用户组），你们可以共同拥有这个家（共享资源），爸妈对待你们都一样（共享权限），你偶尔写写日记，其他人未经允许不能查看（私有资源和权限）。当然一个用户是可以属于多个用户组的，正如你既属于家庭，又属于学校或公司。</p>
+<p>在 Linux 里面如何知道自己属于哪些用户组呢？</p>
+<h4 id="方法一：使用-groups-命令"><a href="#方法一：使用-groups-命令" class="headerlink" title="方法一：使用 groups 命令"></a>方法一：使用 groups 命令</h4><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>groups shiyanlou</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-3.png"></p>
+<p>其中冒号之前表示用户，后面表示该用户所属的用户组。这里可以看到 shiyanlou 用户属于 shiyanlou 用户组，<strong>每次新建用户如果不指定用户组的话，默认会自动创建一个与用户名相同的用户组</strong>（差不多就相当于家长的意思，或者说是老总）。默认情况下在 sudo 用户组里的可以使用 sudo 命令获得 root 权限。shiyanlou 用户也可以使用 sudo 命令，为什么这里没有显示在 sudo 用户组里呢？可以查看下 <code>/etc/sudoers.d/shiyanlou</code> 文件，我们在 <code>/etc/sudoers.d</code> 目录下创建了这个文件，从而给 shiyanlou 用户赋予了 sudo 权限：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-4.png"></p>
+<h4 id="方法二：查看-etc-group-文件"><a href="#方法二：查看-etc-group-文件" class="headerlink" title="方法二：查看 /etc/group 文件"></a>方法二：查看 <code>/etc/group</code> 文件</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> /etc/<span class="built_in">group</span> | <span class="built_in">sort</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>cat</code> 命令用于读取指定文件的内容并打印到终端输出，后面会详细讲它的使用。 <code>| sort</code> 表示将读取的文本进行一个字典排序再输出，然后你将看到如下一堆输出，你可以在最下面看到 shiyanlou 的用户组信息：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-5.png"></p>
+<p>没找到，没关系，你可以使用命令过滤掉一些你不想看到的结果：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/<span class="keyword">group</span> <span class="title">| grep</span> -E <span class="string">&quot;shiyanlou&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-6.png"></p>
+<h5 id="etc-group-文件格式说明"><a href="#etc-group-文件格式说明" class="headerlink" title="/etc/group 文件格式说明"></a><code>/etc/group</code> 文件格式说明</h5><p>/etc/group 的内容包括用户组（Group）、用户组口令、GID 及该用户组所包含的用户（User），每个用户组一条记录。格式如下：</p>
+<blockquote>
+<p>group_name:password:GID:user_list</p>
+</blockquote>
+<p>你看到上面的 password 字段为一个 <code>x</code> 并不是说密码就是它，只是表示密码不可见而已。</p>
+<p>这里需要注意，如果用户的 GID 等于用户组的 GID，那么最后一个字段 <code>user_list</code> 就是空的，比如 shiyanlou 用户，在 <code>/etc/group</code> 中的 shiyanlou 用户组后面是不会显示的。lilei 用户，在 <code>/etc/group</code> 中的 lilei 用户组后面是不会显示的。</p>
+<h5 id="将其它用户加入-sudo-用户组"><a href="#将其它用户加入-sudo-用户组" class="headerlink" title="将其它用户加入 sudo 用户组"></a>将其它用户加入 sudo 用户组</h5><p>默认情况下新创建的用户是不具有 root 权限的，也不在 sudo 用户组，可以让其加入 sudo 用户组从而获取 root 权限：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> su <span class="literal">-l</span> lilei</span><br><span class="line"><span class="variable">$</span> sudo <span class="built_in">ls</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>会提示 lilei 不在 sudoers 文件中，意思就是 lilei 不在 sudo 用户组中，至于 sudoers 文件（/etc/sudoers）你现在最好不要动它，操作不慎会导致比较麻烦的后果。</p>
+<p>使用 <code>usermod</code> 命令可以为用户添加用户组，同样使用该命令你必需有 root 权限，你可以直接使用 root 用户为其它用户添加用户组，或者用其它已经在 sudo 用户组的用户使用 sudo 命令获取权限来执行该命令。</p>
+<p>这里我用 shiyanlou 用户执行 sudo 命令将 lilei 添加到 sudo 用户组，让它也可以使用 sudo 命令获得 root 权限：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>su shiyanlou  <span class="comment"># 注意 Linux 上输入密码是不会显示的</span></span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"><span class="variable">$ </span>sudo usermod -G sudo lilei</span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后你再切换回 lilei 用户，现在就可以使用 sudo 获取 root 权限了。</p>
+<h3 id="删除用户"><a href="#删除用户" class="headerlink" title="删除用户"></a>删除用户</h3><p>删除用户是很简单的事：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo deluser lilei --<span class="built_in">remove</span>-<span class="built_in">home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-7.png"></p>
+<h3 id="linux文件权限"><a href="#linux文件权限" class="headerlink" title="linux文件权限"></a>linux文件权限</h3><p>文件权限就是文件的访问控制权限，即哪些用户和组群可以访问文件以及可以执行什么样的操作。</p>
+<p>Unix/Linux系统是一个典型的多用户系统，不同的用户处于不同的地位，对文件和目录有不同的访问权限。为了保护系统的安全性，Unix/Linux系统除了对用户权限作了严格的界定外，还在用户身份认证、访问控制、传输安全、文件读写权限等方面作了周密的控制。</p>
+<p>在 Unix/Linux中的每一个文件或目录都包含有访问权限，这些访问权限决定了谁能访问和如何访问这些文件和目录。</p>
+<hr>
+
+<p>我们之前已经很多次用到<code>ls</code>命令了，如你所见，我们用它来列出并显示当前目录下的文件，当然这是在不带任何参数的情况下，它能做的当然不止这么多，现在我们就要用它来查看文件权限。</p>
+<p>使用较长格式列出文件：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-l</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-8.png"></p>
+<p>你可能除了知道最后面那一项是文件名之外，其它项就不太清楚了，那么到底是什么意思呢：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-9.png"></p>
+<p>可能你还是不太明白，比如第一项文件类型和权限那一堆东西具体指什么，链接又是什么，何为最后修改时间，下面一一道来：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-10.png"></p>
+<ul>
+<li>  文件类型</li>
+</ul>
+<blockquote>
+<p>关于文件类型，这里有一点你必需时刻牢记 <strong>Linux 里面一切皆文件</strong>，正因为这一点才有了设备文件（ <code>/dev</code> 目录下有各种设备文件，大都跟具体的硬件设备相关）这一说。 <code>socket</code>：网络套接字，具体是什么，感兴趣的用户可以自己去了解或期待实验楼的后续相关课程。<code>pipe</code> 管道，这个东西很重要，我们以后将会讨论到，这里你先知道有它的存在即可。<code>软链接文件</code>：链接文件是分为两种的，另一种当然是“硬链接”（硬链接不常用，具体内容不作为本课程讨论重点，而软链接等同于 Windows 上的快捷方式,你记住这一点就够了）。</p>
+</blockquote>
+<ul>
+<li>  文件权限</li>
+</ul>
+<blockquote>
+<p>读权限，表示你可以使用 <code>cat &lt;file name&gt;</code> 之类的命令来读取某个文件的内容；写权限，表示你可以编辑和修改某个文件； 执行权限，通常指可以运行的二进制程序文件或者脚本文件，如同 Windows 上的 <code>exe</code> 后缀的文件，不过 Linux 上不是通过文件后缀名来区分文件的类型。你需要注意的一点是，<strong>一个目录同时具有读权限和执行权限才可以打开并查看内部文件，而一个目录要有写权限才允许在其中创建其它文件</strong>，这是因为目录文件实际保存着该目录里面的文件的列表等信息。</p>
+</blockquote>
+<p>所有者权限，这一点相信你应该明白了，至于所属用户组权限，是指你所在的用户组中的所有其它用户对于该文件的权限，比如，你有一个 iPad，那么这个用户组权限就决定了你的兄弟姐妹有没有权限使用它破坏它和占有它。</p>
+<ul>
+<li>  链接数</li>
+</ul>
+<blockquote>
+<p>链接到该文件所在的 inode 结点的文件名数目（关于这个概念涉及到 Linux 文件系统的相关概念知识，不在本课程的讨论范围，感兴趣的用户可以自己去了解）。</p>
+</blockquote>
+<ul>
+<li>  文件大小</li>
+</ul>
+<blockquote>
+<p>以 inode 结点大小为单位来表示的文件大小，你可以给 ls 加上 <code>-lh</code> 参数来更直观的查看文件的大小。</p>
+</blockquote>
+<p>明白了文件权限的一些概念，我们顺带补充一下关于 <code>ls</code> 命令的一些其它常用的用法：</p>
+<ul>
+<li>  显示除了 <code>.</code>（当前目录）和 <code>..</code>（上一级目录）之外的所有文件，包括隐藏文件（Linux 下以 <code>.</code> 开头的文件为隐藏文件）。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-A</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-11.png"></p>
+<p>当然，你可以同时使用 <code>-A</code> 和 <code>-l</code> 参数：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-Al</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看某一个目录的完整属性，而不是显示目录里面的文件属性：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-dl</span> &lt;目录名&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>  显示所有文件大小，并以普通人类能看懂的方式呈现：</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-AsSh</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中小 s 为显示文件大小，大 S 为按文件大小排序，若需要知道如何按其它方式排序，请使用“man”命令查询。</p>
+<h3 id="变更文件所有者"><a href="#变更文件所有者" class="headerlink" title="变更文件所有者"></a>变更文件所有者</h3><blockquote>
+<p>若前面已经执行删除lilei用户的命令，这里重新创建一下。</p>
+</blockquote>
+<p>假设目前是 lilei 用户登录，新建一个文件，命名为 “ iphone6 ”：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注意当前的用户必须是 lilei</span></span><br><span class="line"><span class="comment"># 如果是 shiyanlou 用户需要切换到 lilei（如果之前已经删除需要重新创建下）</span></span><br><span class="line"><span class="variable">$</span> su lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> touch iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可见文件所有者是 lilei ：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-12.png"></p>
+<p>现在，换回到 shiyanlou 用户身份，使用以下命令变更文件所有者为 shiyanlou ：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 需要切换到 shiyanlou 用户执行以下操作</span></span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> iphone6</span><br><span class="line"><span class="variable">$</span> sudo chown shiyanlou iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在查看，发现 文件所有者成功修改为 shiyanlou ：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-13.png"></p>
+<h3 id="修改文件权限"><a href="#修改文件权限" class="headerlink" title="修改文件权限"></a>修改文件权限</h3><p>如果你有一个自己的文件不想被其他用户读、写、执行，那么就需要对文件的权限做修改，这里有两种方式：</p>
+<ul>
+<li>  方式一：二进制数字表示</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-14.png"></p>
+<p>每个文件的三组权限（拥有者，所属用户组，其他用户，<strong>记住这个顺序是一定的</strong>）对应一个 “ rwx “，也就是一个 “ 7 ” ，所以如果我要将文件“ iphone6 ”的权限改为只有我自己可以用那么就这样：</p>
+<p>为了演示，我先在文件里加点内容：</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo <span class="string">&quot;echo <span class="subst">\&quot;</span>hello shiyanlou<span class="subst">\&quot;</span>&quot;</span> &gt; iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后修改权限：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod <span class="number">600</span> iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在，其他用户已经不能读这个“ iphone6 ”文件了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-15.png"></p>
+<ul>
+<li>  方式二：加减赋值操作</li>
+</ul>
+<p>完成上述相同的效果，你可以：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod go-rw iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/34-16.png"></p>
+<p><code>g</code>、<code>o</code> 还有 <code>u</code> 分别表示 group、others 和 user，<code>+</code> 和 <code>-</code> 分别表示增加和去掉相应的权限。</p>
+<h3 id="adduser-和-useradd-的区别是什么？"><a href="#adduser-和-useradd-的区别是什么？" class="headerlink" title="adduser 和 useradd 的区别是什么？"></a><code>adduser</code> 和 <code>useradd</code> 的区别是什么？</h3><p>答：useradd 只创建用户，创建完了用 passwd lilei 去设置新用户的密码。adduser 会创建用户，创建目录，创建密码（提示你设置），做这一系列的操作。其实 useradd、userdel 这类操作更像是一种命令，执行完了就返回。而 adduser 更像是一种程序，需要你输入、确定等一系列操作。</p>
+<p>Linux 还有一些关于隐藏权限和特殊权限的内容，想全面了解 Linux 权限管理这部分内容的用户可以通过其它方式学习。</p>
+
+    </div>
+
+    
+    
+    
+      
+
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>kervias
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.kervias.com/posts/68370406/" title="linux学习03 - 用户及权限管理">https://blog.kervias.com/posts/68370406/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/fcb10b52/" rel="prev" title="linux学习02 - 基本概念和操作">
+                  <i class="fa fa-chevron-left"></i> linux学习02 - 基本概念和操作
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/caf6d338/" rel="next" title="linux学习04 - linux目录结构及文件基本操作">
+                  linux学习04 - linux目录结构及文件基本操作 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-utterances">utterances</a></li>
+            <li class="tab"><a href="#comment-disqus">disqus</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane utterances" id="comment-utterances">
+              
+  <div class="comments">
+    <div id="utterances-container"></div>
+  </div>
+  
+            </div>
+            <div class="tab-pane disqus" id="comment-disqus">
+              
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kervias</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.kervias.com/posts/68370406/";
+    this.page.identifier = "posts/68370406/";
+    this.page.title = "linux学习03 - 用户及权限管理";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpskerviascom.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+<script>
+NexT.utils.loadComments('#utterances-container', () => {
+  const script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', "kerviasx/blog-ustterance-comments");
+  script.setAttribute('issue-term', "title");
+  script.setAttribute('theme', "github-light");
+  script.crossOrigin = 'anonymous';
+  script.async = true;
+  document.querySelector('#utterances-container').appendChild(script);
+});
+</script>
+
+</body>
+</html>
