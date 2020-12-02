@@ -30,15 +30,15 @@
 <meta property="og:site_name" content="kervias">
 <meta property="og:description" content="提醒: 如果没看教程1,可能完成不了本篇文章的内容这里我们在git上进行命令操作 一. 本地博客创建首先我们需要在win10上建立一个新的文件夹, 这里我新建文件夹为blog02.进入该文件夹, 右键选择 git bash here">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410204651.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410204732.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204651.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204732.png">
 <meta property="article:published_time" content="2019-08-07T14:00:24.000Z">
-<meta property="article:modified_time" content="2020-05-06T09:19:54.249Z">
+<meta property="article:modified_time" content="2020-12-02T02:06:06.639Z">
 <meta property="article:author" content="kervias">
 <meta property="article:tag" content="博客">
 <meta property="article:tag" content="hexo">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410204651.png">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204651.png">
 
 
 <link rel="canonical" href="https://blog.kervias.com/posts/44280/">
@@ -343,7 +343,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-05-06 17:19:54" itemprop="dateModified" datetime="2020-05-06T17:19:54+08:00">2020-05-06</time>
+        <time title="修改时间：2020-12-02 10:06:06" itemprop="dateModified" datetime="2020-12-02T10:06:06+08:00">2020-12-02</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -379,10 +379,10 @@
 <p>命令结束之后, 博客就创建成功了!是不是很简单?</p>
 <h3 id="2-本地打开博客"><a href="#2-本地打开博客" class="headerlink" title="2.本地打开博客"></a>2.本地打开博客</h3><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hexo s</span></span><br></pre></td></tr></table></figure>
 <p>该命令会自动在本地localhost:4000创建博客, 达到预览效果</p>
-<p>在浏览器地址栏输入localhost:4000访问<br>如图:<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410204651.png"></p>
+<p>在浏览器地址栏输入localhost:4000访问<br>如图:<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204651.png"></p>
 <h3 id="3-关闭博客"><a href="#3-关闭博客" class="headerlink" title="3. 关闭博客"></a>3. 关闭博客</h3><p>直接在git下按下ctrl+c就行.</p>
 <h2 id="二-将博客部署到github"><a href="#二-将博客部署到github" class="headerlink" title="二. 将博客部署到github"></a>二. 将博客部署到github</h2><p>注意: 需要事先配置好git信息,比如公钥等等</p>
-<h3 id="1-修改项目文件-config-yml"><a href="#1-修改项目文件-config-yml" class="headerlink" title="1. 修改项目文件_config.yml"></a>1. 修改项目文件_config.yml</h3><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/20200410204732.png"><br>图中type是采用git类型;<br>repo就是个人之前创建的repository地址<br>branch是指推送到哪个分支,这里选择master</p>
+<h3 id="1-修改项目文件-config-yml"><a href="#1-修改项目文件-config-yml" class="headerlink" title="1. 修改项目文件_config.yml"></a>1. 修改项目文件_config.yml</h3><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204732.png"><br>图中type是采用git类型;<br>repo就是个人之前创建的repository地址<br>branch是指推送到哪个分支,这里选择master</p>
 <h3 id="2-部署到github"><a href="#2-部署到github" class="headerlink" title="2. 部署到github"></a>2. 部署到github</h3><p>在git中输入以下命令</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hexo clean</span></span><br><span class="line"><span class="attribute">hexo g</span></span><br><span class="line"><span class="attribute">hexo d</span></span><br></pre></td></tr></table></figure>
 <p>这样我们的项目就成功部署到github上面了!<br>如果你的github用户名为username, 浏览器访问username.github.io,就可以看到部署的项目</p>

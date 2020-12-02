@@ -30,17 +30,17 @@
 <meta property="og:site_name" content="kervias">
 <meta property="og:description" content="国外服务器文件上传和下载有时很慢，本地与服务器直接传输文件效率很低，这里通过将国外云盘作为中转的方式包含很多优点。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401105136.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401105448.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401105741.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401110051.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401110457.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401111343.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105448.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105741.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110051.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110457.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401111343.png">
 <meta property="article:published_time" content="2020-04-01T03:15:57.000Z">
-<meta property="article:modified_time" content="2020-07-26T16:13:19.380Z">
+<meta property="article:modified_time" content="2020-12-02T02:06:06.625Z">
 <meta property="article:author" content="kervias">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401105136.png">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png">
 
 
 <link rel="canonical" href="https://blog.kervias.com/posts/45226759/">
@@ -345,7 +345,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-07-27 00:13:19" itemprop="dateModified" datetime="2020-07-27T00:13:19+08:00">2020-07-27</time>
+        <time title="修改时间：2020-12-02 10:06:06" itemprop="dateModified" datetime="2020-12-02T10:06:06+08:00">2020-12-02</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -392,15 +392,15 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rclone config</span><br></pre></td></tr></table></figure>
 
 <p>如下图，name为最后挂载的盘名。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401105136.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png"></p>
 <p>如下图，可以看到可以选择各种网盘进行挂载，这里选择第13个<code>google drive</code>(具体序号需联系实际)</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401105448.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105448.png"></p>
 <p>如下图，配置<code>权限</code>等功能，主要看英文介绍，图中空白处直接按确认选择默认</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401105741.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105741.png"></p>
 <p>如下图，将链接复制到浏览器打开，获取<code>认证码</code>。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401110051.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110051.png"></p>
 <p>选择Team Drive的编号，最后退出</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401110457.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110457.png"></p>
 <h2 id="挂载云盘"><a href="#挂载云盘" class="headerlink" title="挂载云盘"></a>挂载云盘</h2><ul>
 <li><p>在服务器创建目录，用于目录映射</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir /root/Gdrive</span><br></pre></td></tr></table></figure>
@@ -414,7 +414,7 @@
 </ol>
 </li>
 <li><p>查看挂载是否成功</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-03/20200401111343.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401111343.png"></p>
 <p>成功就如上图所示。</p>
 </li>
 <li><p>文件上传和下载</p>
