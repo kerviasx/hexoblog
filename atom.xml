@@ -1090,29 +1090,6 @@
     </item>
     
     <item>
-      <title>爬虫遇到时间为1522030006？</title>
-      <link>https://blog.kervias.com/posts/b09d1232/</link>
-      <guid>https://blog.kervias.com/posts/b09d1232/</guid>
-      <pubDate>Sun, 08 Sep 2019 09:35:08 GMT</pubDate>
-      
-      <description>&lt;blockquote&gt;
-&lt;p&gt;最近爬虫遇到时间为1522030006，心中甚是疑问，最终发现这是时间戳。&lt;/p&gt;
-&lt;/blockquote&gt;</description>
-      
-      
-      
-      <content:encoded><![CDATA[<blockquote><p>最近爬虫遇到时间为1522030006，心中甚是疑问，最终发现这是时间戳。</p></blockquote><a id="more"></a><p>经过一番查询，发现这种表示时间的方式叫做<strong>时间戳</strong><br><br><br>对于Python来说，可以使用time库将时间进行转换</p><figure class="highlight python"><figcaption><span>时间戳转化为时间</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">timestamp = <span class="built_in">int</span>(<span class="string">&#x27;1522030006&#x27;</span>)</span><br><span class="line">time_local = time.localtime(timestamp)</span><br><span class="line">dt = time.strftime(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>,time_local)</span><br><span class="line">print(<span class="string">&#x27;时间: &#x27;</span>+dt)</span><br></pre></td></tr></table></figure><p><strong>附：</strong><br><a href="http://www.beijing-time.org/shijianchuo/">在线时间戳转换工具</a></p>]]></content:encoded>
-      
-      
-      <category domain="https://blog.kervias.com/categories/%E6%8A%80%E5%B7%A7/">技巧</category>
-      
-      
-      
-      <comments>https://blog.kervias.com/posts/b09d1232/#disqus_thread</comments>
-      
-    </item>
-    
-    <item>
       <title>服务器禁止被ping</title>
       <link>https://blog.kervias.com/posts/6898a3ea/</link>
       <guid>https://blog.kervias.com/posts/6898a3ea/</guid>
