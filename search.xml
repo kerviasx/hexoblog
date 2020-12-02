@@ -160,6 +160,41 @@
       </categories>
   </entry>
   <entry>
+    <title>Github+Hexo win10搭建个人博客教程(1) - 配置相关环境</title>
+    <url>/posts/45982/</url>
+    <content><![CDATA[<blockquote>
+<p> 本文是搭建hexo博客的第一部分, 主要记录一下自己的搭建过程, 这里讲一下相关环境的安装和配置.</p>
+</blockquote>
+<p>参考教程: <a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a><br>参考视频: <a href="https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868">https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868</a></p>
+<a id="more"></a>
+
+<h2 id="一-安装nodejs和git"><a href="#一-安装nodejs和git" class="headerlink" title="一. 安装nodejs和git"></a>一. 安装nodejs和git</h2><p>直接进官网下载安装</p>
+<p>安装完毕之后, 最后需要给nodejs添加环境变量, 譬如我的: D:\ASoftPro\Nodejs\</p>
+<p>打开cmd管理员<br>输入npm -v 查看版本<br>输入node -v 查看版本<br>我这里的安装环境是:</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">nodejs</span>: v<span class="number">10</span>.<span class="number">16</span>.<span class="number">1</span></span><br><span class="line"><span class="attribute">npm</span>:<span class="number">6</span>.<span class="number">9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="二-安装hexo"><a href="#二-安装hexo" class="headerlink" title="二. 安装hexo"></a>二. 安装hexo</h2><h3 id="1-安装淘宝镜像-因为直接访问国外比较慢"><a href="#1-安装淘宝镜像-因为直接访问国外比较慢" class="headerlink" title="1. 安装淘宝镜像,因为直接访问国外比较慢"></a>1. 安装淘宝镜像,因为直接访问国外比较慢</h3><p>安装镜像</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https:<span class="regexp">//</span>registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
+<p>查看版本</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">cnpm -v</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204534.png"></p>
+<h3 id="2-安装hexo"><a href="#2-安装hexo" class="headerlink" title="2. 安装hexo"></a>2. 安装hexo</h3><p>安装hexo和hexo中的git</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">cnpm <span class="keyword">install</span> -g hexo</span><br><span class="line">cnpm <span class="keyword">install</span> -g hexo-cli</span><br><span class="line">cnpm <span class="keyword">install</span> <span class="comment">--save hexo-deployer-git</span></span><br></pre></td></tr></table></figure>
+<p>查看版本</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo -v</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204547.png"></p>
+<h2 id="三-配置github"><a href="#三-配置github" class="headerlink" title="三. 配置github"></a>三. 配置github</h2><p><a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a></p>
+<h2 id="四-配置git"><a href="#四-配置git" class="headerlink" title="四. 配置git"></a>四. 配置git</h2><p>直接网上找教程,配置公钥等等</p>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>博客</tag>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Cron表达式</title>
     <url>/posts/6a1ed024/</url>
     <content><![CDATA[<blockquote>
@@ -289,41 +324,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Github+Hexo win10搭建个人博客教程(1) - 配置相关环境</title>
-    <url>/posts/45982/</url>
-    <content><![CDATA[<blockquote>
-<p> 本文是搭建hexo博客的第一部分, 主要记录一下自己的搭建过程, 这里讲一下相关环境的安装和配置.</p>
-</blockquote>
-<p>参考教程: <a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a><br>参考视频: <a href="https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868">https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868</a></p>
-<a id="more"></a>
-
-<h2 id="一-安装nodejs和git"><a href="#一-安装nodejs和git" class="headerlink" title="一. 安装nodejs和git"></a>一. 安装nodejs和git</h2><p>直接进官网下载安装</p>
-<p>安装完毕之后, 最后需要给nodejs添加环境变量, 譬如我的: D:\ASoftPro\Nodejs\</p>
-<p>打开cmd管理员<br>输入npm -v 查看版本<br>输入node -v 查看版本<br>我这里的安装环境是:</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">nodejs</span>: v<span class="number">10</span>.<span class="number">16</span>.<span class="number">1</span></span><br><span class="line"><span class="attribute">npm</span>:<span class="number">6</span>.<span class="number">9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="二-安装hexo"><a href="#二-安装hexo" class="headerlink" title="二. 安装hexo"></a>二. 安装hexo</h2><h3 id="1-安装淘宝镜像-因为直接访问国外比较慢"><a href="#1-安装淘宝镜像-因为直接访问国外比较慢" class="headerlink" title="1. 安装淘宝镜像,因为直接访问国外比较慢"></a>1. 安装淘宝镜像,因为直接访问国外比较慢</h3><p>安装镜像</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https:<span class="regexp">//</span>registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
-<p>查看版本</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">cnpm -v</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204534.png"></p>
-<h3 id="2-安装hexo"><a href="#2-安装hexo" class="headerlink" title="2. 安装hexo"></a>2. 安装hexo</h3><p>安装hexo和hexo中的git</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">cnpm <span class="keyword">install</span> -g hexo</span><br><span class="line">cnpm <span class="keyword">install</span> -g hexo-cli</span><br><span class="line">cnpm <span class="keyword">install</span> <span class="comment">--save hexo-deployer-git</span></span><br></pre></td></tr></table></figure>
-<p>查看版本</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo -v</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204547.png"></p>
-<h2 id="三-配置github"><a href="#三-配置github" class="headerlink" title="三. 配置github"></a>三. 配置github</h2><p><a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a></p>
-<h2 id="四-配置git"><a href="#四-配置git" class="headerlink" title="四. 配置git"></a>四. 配置git</h2><p>直接网上找教程,配置公钥等等</p>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>博客</tag>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Github+Hexo win10搭建个人博客教程(2) - 本地搭建博客并部署到github</title>
     <url>/posts/44280/</url>
     <content><![CDATA[<p><strong>提醒</strong>: 如果没看教程1,可能完成不了本篇文章的内容<br>这里我们在git上进行命令操作</p>
@@ -420,6 +420,56 @@
       </tags>
   </entry>
   <entry>
+    <title>Halo博客H2数据库查询</title>
+    <url>/posts/2d3051dc/</url>
+    <content><![CDATA[<blockquote>
+<p>记录一下Halo博客中如何操作H2数据库。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="0-Halo博客数据库文件路径"><a href="#0-Halo博客数据库文件路径" class="headerlink" title="0. Halo博客数据库文件路径"></a>0. Halo博客数据库文件路径</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162738.png"></p>
+<h1 id="1-使用Halo提供的h2-console"><a href="#1-使用Halo提供的h2-console" class="headerlink" title="1. 使用Halo提供的h2-console"></a>1. 使用Halo提供的h2-console</h1><h2 id="1-1-打开h2-console功能"><a href="#1-1-打开h2-console功能" class="headerlink" title="1.1 打开h2-console功能"></a>1.1 打开h2-console功能</h2><pre><code> 修改Halo博客的配置文件(~/.halo/application.yaml)，具体如下图</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162751.png"></p>
+<pre>
+1. 将false改为true
+2. 设置完毕后重启容器
+</pre>
+<h2 id="1-2-访问网址"><a href="#1-2-访问网址" class="headerlink" title="1.2 访问网址"></a>1.2 访问网址</h2><pre><code> 网址：博客域名/h2-console</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162807.png"></p>
+<p>需要注意一下<code>JDBC URL</code>的填写，用户名和密码在配置文件中已有说明</p>
+<h2 id="1-3-测试"><a href="#1-3-测试" class="headerlink" title="1.3 测试"></a>1.3 测试</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> MENUS </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162838.png"></p>
+<h1 id="2-在本地主机上使用数据库可视化工具"><a href="#2-在本地主机上使用数据库可视化工具" class="headerlink" title="2. 在本地主机上使用数据库可视化工具"></a>2. 在本地主机上使用数据库可视化工具</h1><blockquote>
+<p>在使用jdbc驱动版本选择时有坑，下面本人提供了一个版本，测试可用</p>
+</blockquote>
+<h2 id="2-1-工具介绍"><a href="#2-1-工具介绍" class="headerlink" title="2.1 工具介绍"></a>2.1 工具介绍</h2><pre><code>DBeaver 6.3.3(网址：https://dbeaver.io/)</code></pre>
+<h2 id="2-2-jdbc驱动jar包"><a href="#2-2-jdbc驱动jar包" class="headerlink" title="2.2 jdbc驱动jar包"></a>2.2 jdbc驱动jar包</h2><pre><code>下载下来，后面需要用到</code></pre>
+<p>/upload/2020/1/h2-2019-03-13-d5148978df7745808925f6f2ec3671b8.zip</p>
+<h2 id="2-3-创建数据库连接"><a href="#2-3-创建数据库连接" class="headerlink" title="2.3 创建数据库连接"></a>2.3 创建数据库连接</h2><ul>
+<li>新建数据库连接</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162902.png"></p>
+<ul>
+<li><p>选择H2 embedded<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162924.png"></p>
+</li>
+<li><p>选择db文件<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162943.png"></p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163001.png"></p>
+<p><strong>注意将后面的.mv.db删除掉</strong><br>用户名和密码就是配置文件中的H2用户名和密码</p>
+<h2 id="2-6-编辑驱动设置"><a href="#2-6-编辑驱动设置" class="headerlink" title="2.6 编辑驱动设置"></a>2.6 编辑驱动设置</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163038.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163114.png"></p>
+<h2 id="2-5-连接"><a href="#2-5-连接" class="headerlink" title="2.5 连接"></a>2.5 连接</h2><p>创建连接完毕后，连接数据库<br>可以看出Public中的存在的表<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163139.png"></p>
+<h2 id="2-6-测试"><a href="#2-6-测试" class="headerlink" title="2.6 测试"></a>2.6 测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163152.png"></p>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>halo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Halo博客修改密码</title>
     <url>/posts/f2aea09c/</url>
     <content><![CDATA[<blockquote>
@@ -471,56 +521,6 @@ docker部署</code></pre>
 <li>修改配置文件中H2数据库密码, 并关闭h2-console功能（修改true为false）</li>
 <li>启动docker的halo容器服务<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">stop</span> HALO_ID <span class="comment">//启动halo服务</span></span><br></pre></td></tr></table></figure></li>
 </ul>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>halo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Halo博客H2数据库查询</title>
-    <url>/posts/2d3051dc/</url>
-    <content><![CDATA[<blockquote>
-<p>记录一下Halo博客中如何操作H2数据库。</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="0-Halo博客数据库文件路径"><a href="#0-Halo博客数据库文件路径" class="headerlink" title="0. Halo博客数据库文件路径"></a>0. Halo博客数据库文件路径</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162738.png"></p>
-<h1 id="1-使用Halo提供的h2-console"><a href="#1-使用Halo提供的h2-console" class="headerlink" title="1. 使用Halo提供的h2-console"></a>1. 使用Halo提供的h2-console</h1><h2 id="1-1-打开h2-console功能"><a href="#1-1-打开h2-console功能" class="headerlink" title="1.1 打开h2-console功能"></a>1.1 打开h2-console功能</h2><pre><code> 修改Halo博客的配置文件(~/.halo/application.yaml)，具体如下图</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162751.png"></p>
-<pre>
-1. 将false改为true
-2. 设置完毕后重启容器
-</pre>
-<h2 id="1-2-访问网址"><a href="#1-2-访问网址" class="headerlink" title="1.2 访问网址"></a>1.2 访问网址</h2><pre><code> 网址：博客域名/h2-console</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162807.png"></p>
-<p>需要注意一下<code>JDBC URL</code>的填写，用户名和密码在配置文件中已有说明</p>
-<h2 id="1-3-测试"><a href="#1-3-测试" class="headerlink" title="1.3 测试"></a>1.3 测试</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> MENUS </span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162838.png"></p>
-<h1 id="2-在本地主机上使用数据库可视化工具"><a href="#2-在本地主机上使用数据库可视化工具" class="headerlink" title="2. 在本地主机上使用数据库可视化工具"></a>2. 在本地主机上使用数据库可视化工具</h1><blockquote>
-<p>在使用jdbc驱动版本选择时有坑，下面本人提供了一个版本，测试可用</p>
-</blockquote>
-<h2 id="2-1-工具介绍"><a href="#2-1-工具介绍" class="headerlink" title="2.1 工具介绍"></a>2.1 工具介绍</h2><pre><code>DBeaver 6.3.3(网址：https://dbeaver.io/)</code></pre>
-<h2 id="2-2-jdbc驱动jar包"><a href="#2-2-jdbc驱动jar包" class="headerlink" title="2.2 jdbc驱动jar包"></a>2.2 jdbc驱动jar包</h2><pre><code>下载下来，后面需要用到</code></pre>
-<p>/upload/2020/1/h2-2019-03-13-d5148978df7745808925f6f2ec3671b8.zip</p>
-<h2 id="2-3-创建数据库连接"><a href="#2-3-创建数据库连接" class="headerlink" title="2.3 创建数据库连接"></a>2.3 创建数据库连接</h2><ul>
-<li>新建数据库连接</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162902.png"></p>
-<ul>
-<li><p>选择H2 embedded<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162924.png"></p>
-</li>
-<li><p>选择db文件<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162943.png"></p>
-</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163001.png"></p>
-<p><strong>注意将后面的.mv.db删除掉</strong><br>用户名和密码就是配置文件中的H2用户名和密码</p>
-<h2 id="2-6-编辑驱动设置"><a href="#2-6-编辑驱动设置" class="headerlink" title="2.6 编辑驱动设置"></a>2.6 编辑驱动设置</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163038.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163114.png"></p>
-<h2 id="2-5-连接"><a href="#2-5-连接" class="headerlink" title="2.5 连接"></a>2.5 连接</h2><p>创建连接完毕后，连接数据库<br>可以看出Public中的存在的表<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163139.png"></p>
-<h2 id="2-6-测试"><a href="#2-6-测试" class="headerlink" title="2.6 测试"></a>2.6 测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163152.png"></p>
 ]]></content>
       <categories>
         <category>博客</category>
@@ -744,80 +744,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>LeetCode-001-两数之和</title>
-    <url>/posts/a239384e/</url>
-    <content><![CDATA[<blockquote>
-<p>题目链接：<a href="https://leetcode-cn.com/problems/two-sum/">https://leetcode-cn.com/problems/two-sum/</a></p>
-</blockquote>
-<a id="more"></a>
-
-<blockquote>
-<p>难度：简单</p>
-</blockquote>
-<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
-<p>你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。</p>
-<p><strong>示例</strong>:</p>
-<blockquote>
-<p>给定 nums = [2, 7, 11, 15], target = 9</p>
-<p>因为 nums[<strong>0</strong>] + nums[<strong>1</strong>] = 2 + 7 = 9<br>所以返回 [<strong>0, 1</strong>]</p>
-</blockquote>
-<h3 id="个人题解"><a href="#个人题解" class="headerlink" title="个人题解"></a>个人题解</h3><ul>
-<li>使用C++的<code>map</code>，键： <code>target - 遍历过的元素值</code>  值：<code>遍历过的元素值索引</code></li>
-<li>时间复杂度 <code>O(nlogn)</code></li>
-<li>空间复杂度<code>O(n)</code></li>
-<li>C++中<code>map</code>使用红黑树实现，<code>hash_map</code>使用哈希表实现，<code>hash_map</code>相对来说查找元素更快</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">twoSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; numMap;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">        <span class="keyword">int</span> t,i;</span><br><span class="line">        i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); it++)</span><br><span class="line">        &#123;</span><br><span class="line">            t = target - *it;</span><br><span class="line">            <span class="keyword">if</span>(numMap.find(*it) != numMap.end())  <span class="comment">// 之前有元素 + *it = target</span></span><br><span class="line">            &#123;</span><br><span class="line">                v.push_back(numMap[*it]);</span><br><span class="line">                v.push_back(i);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                numMap[t] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="官方题解"><a href="#官方题解" class="headerlink" title="官方题解"></a>官方题解</h3><h4 id="方法一：暴力法"><a href="#方法一：暴力法" class="headerlink" title="方法一：暴力法"></a>方法一：暴力法</h4><p>暴力法很简单，遍历每个元素 x，并查找是否存在一个值与 target−x 相等的目标元素。</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; nums.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[j] == target - nums[i]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, j &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n^2)</code><br>对于每个元素，我们试图通过遍历数组的其余部分来寻找它所对应的目标元素，这将耗费 O(n)的时间。因此时间复杂度为 <code>O(n^2)</code>。</li>
-<li>空间复杂度：<code>O(1)</code>。</li>
-</ul>
-<h4 id="方法二：两遍哈希表"><a href="#方法二：两遍哈希表" class="headerlink" title="方法二：两遍哈希表"></a>方法二：两遍哈希表</h4><p>为了对运行时间复杂度进行优化，我们需要一种更有效的方法来检查数组中是否存在目标元素。如果存在，我们需要找出它的索引。保持数组中的每个元素与其索引相互对应的最好方法是什么？哈希表。</p>
-<p>通过以空间换取速度的方式，我们可以将查找时间从 O(n) 降低到 O(1)。哈希表正是为此目的而构建的，它支持以 <em>近似</em> 恒定的时间进行快速查找。我用“近似”来描述，是因为一旦出现冲突，查找用时可能会退化到 O(n)。但只要你仔细地挑选哈希函数，在哈希表中进行查找的用时应当被摊销为 O(1)。</p>
-<p>一个简单的实现使用了两次迭代。在第一次迭代中，我们将每个元素的值和它的索引添加到表中。然后，在第二次迭代中，我们将检查每个元素所对应的目标元素<code>target−nums[i]</code>是否存在于表中。注意，该目标元素不能是 <code>nums[i]</code> 本身！</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n) </code><br>我们把包含有 n个元素的列表遍历两次。由于哈希表将查找时间缩短到 O(1) ，所以时间复杂度为 O(n)。</li>
-<li>空间复杂度：<code>O(n) </code><br>所需的额外空间取决于哈希表中存储的元素数量，该表中存储了 n个元素。</li>
-</ul>
-<h4 id="方法三：一遍哈希表"><a href="#方法三：一遍哈希表" class="headerlink" title="方法三：一遍哈希表"></a>方法三：一遍哈希表</h4><p>事实证明，我们可以一次完成。在进行迭代并将元素插入到表中的同时，我们还会回过头来检查表中是否已经存在当前元素所对应的目标元素。如果它存在，那我们已经找到了对应解，并立即将其返回。</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; map.get(complement), i &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n)</code>，<br>我们只遍历了包含有 n 个元素的列表一次。在表中进行的每次查找只花费 O(1)的时间。</li>
-<li>空间复杂度：<code>O(n)</code>，<br>所需的额外空间取决于哈希表中存储的元素数量，该表最多需要存储 n个元素。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>算法</category>
-      </categories>
-      <tags>
-        <tag>leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>LeetCode-002-两数相加</title>
     <url>/posts/b190b0aa/</url>
     <content><![CDATA[<blockquote>
@@ -903,6 +829,80 @@ docker部署</code></pre>
 <p><strong>拓展</strong></p>
 <p>如果链表中的数字不是按逆序存储的呢？例如：</p>
 <p>(3→4→2)+(4→6→5)=8→0→7</p>
+]]></content>
+      <categories>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeetCode-001-两数之和</title>
+    <url>/posts/a239384e/</url>
+    <content><![CDATA[<blockquote>
+<p>题目链接：<a href="https://leetcode-cn.com/problems/two-sum/">https://leetcode-cn.com/problems/two-sum/</a></p>
+</blockquote>
+<a id="more"></a>
+
+<blockquote>
+<p>难度：简单</p>
+</blockquote>
+<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
+<p>你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。</p>
+<p><strong>示例</strong>:</p>
+<blockquote>
+<p>给定 nums = [2, 7, 11, 15], target = 9</p>
+<p>因为 nums[<strong>0</strong>] + nums[<strong>1</strong>] = 2 + 7 = 9<br>所以返回 [<strong>0, 1</strong>]</p>
+</blockquote>
+<h3 id="个人题解"><a href="#个人题解" class="headerlink" title="个人题解"></a>个人题解</h3><ul>
+<li>使用C++的<code>map</code>，键： <code>target - 遍历过的元素值</code>  值：<code>遍历过的元素值索引</code></li>
+<li>时间复杂度 <code>O(nlogn)</code></li>
+<li>空间复杂度<code>O(n)</code></li>
+<li>C++中<code>map</code>使用红黑树实现，<code>hash_map</code>使用哈希表实现，<code>hash_map</code>相对来说查找元素更快</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">twoSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; numMap;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">        <span class="keyword">int</span> t,i;</span><br><span class="line">        i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); it++)</span><br><span class="line">        &#123;</span><br><span class="line">            t = target - *it;</span><br><span class="line">            <span class="keyword">if</span>(numMap.find(*it) != numMap.end())  <span class="comment">// 之前有元素 + *it = target</span></span><br><span class="line">            &#123;</span><br><span class="line">                v.push_back(numMap[*it]);</span><br><span class="line">                v.push_back(i);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                numMap[t] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="官方题解"><a href="#官方题解" class="headerlink" title="官方题解"></a>官方题解</h3><h4 id="方法一：暴力法"><a href="#方法一：暴力法" class="headerlink" title="方法一：暴力法"></a>方法一：暴力法</h4><p>暴力法很简单，遍历每个元素 x，并查找是否存在一个值与 target−x 相等的目标元素。</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; nums.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[j] == target - nums[i]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, j &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n^2)</code><br>对于每个元素，我们试图通过遍历数组的其余部分来寻找它所对应的目标元素，这将耗费 O(n)的时间。因此时间复杂度为 <code>O(n^2)</code>。</li>
+<li>空间复杂度：<code>O(1)</code>。</li>
+</ul>
+<h4 id="方法二：两遍哈希表"><a href="#方法二：两遍哈希表" class="headerlink" title="方法二：两遍哈希表"></a>方法二：两遍哈希表</h4><p>为了对运行时间复杂度进行优化，我们需要一种更有效的方法来检查数组中是否存在目标元素。如果存在，我们需要找出它的索引。保持数组中的每个元素与其索引相互对应的最好方法是什么？哈希表。</p>
+<p>通过以空间换取速度的方式，我们可以将查找时间从 O(n) 降低到 O(1)。哈希表正是为此目的而构建的，它支持以 <em>近似</em> 恒定的时间进行快速查找。我用“近似”来描述，是因为一旦出现冲突，查找用时可能会退化到 O(n)。但只要你仔细地挑选哈希函数，在哈希表中进行查找的用时应当被摊销为 O(1)。</p>
+<p>一个简单的实现使用了两次迭代。在第一次迭代中，我们将每个元素的值和它的索引添加到表中。然后，在第二次迭代中，我们将检查每个元素所对应的目标元素<code>target−nums[i]</code>是否存在于表中。注意，该目标元素不能是 <code>nums[i]</code> 本身！</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n) </code><br>我们把包含有 n个元素的列表遍历两次。由于哈希表将查找时间缩短到 O(1) ，所以时间复杂度为 O(n)。</li>
+<li>空间复杂度：<code>O(n) </code><br>所需的额外空间取决于哈希表中存储的元素数量，该表中存储了 n个元素。</li>
+</ul>
+<h4 id="方法三：一遍哈希表"><a href="#方法三：一遍哈希表" class="headerlink" title="方法三：一遍哈希表"></a>方法三：一遍哈希表</h4><p>事实证明，我们可以一次完成。在进行迭代并将元素插入到表中的同时，我们还会回过头来检查表中是否已经存在当前元素所对应的目标元素。如果它存在，那我们已经找到了对应解，并立即将其返回。</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; map.get(complement), i &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n)</code>，<br>我们只遍历了包含有 n 个元素的列表一次。在表中进行的每次查找只花费 O(1)的时间。</li>
+<li>空间复杂度：<code>O(n)</code>，<br>所需的额外空间取决于哈希表中存储的元素数量，该表最多需要存储 n个元素。</li>
+</ul>
 ]]></content>
       <categories>
         <category>算法</category>
@@ -1767,6 +1767,62 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>Telegram-cli安装教程</title>
+    <url>/posts/e82je8eeq/</url>
+    <content><![CDATA[<blockquote>
+<p>Telegram是著名的加密聊天软件，它的命令行版本为Telegram-cli。</p>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<p>详情请见github项目地址：<a href="https://github.com/vysheng/tg/">https://github.com/vysheng/tg/</a></p>
+</blockquote>
+<p>​    在没有图形界面的linux服务器上面，安装<code>Telegram-cli</code>无疑是最合适的。我接触Telegram-cli的最初目的是在服务器上写个脚本，用于每天的群组签到。这里记录下Telegram-cli的安装过程。</p>
+<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><ul>
+<li>OS：centos7</li>
+<li>安装方式：编译安装</li>
+<li>其他系统的安装教程可以看github项目中README</li>
+<li>据说centos7可以使用yum直接安装，但目前暂未找到yum源</li>
+</ul>
+<h2 id="安装Telegram-cli"><a href="#安装Telegram-cli" class="headerlink" title="安装Telegram-cli"></a>安装Telegram-cli</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --recursive https://github.com/vysheng/tg.git &amp;&amp; <span class="built_in">cd</span> tg</span><br><span class="line">yum -y install lua-devel openssl-devel libconfig-devel readline-devel libevent-devel jansson-devel python-devel</span><br><span class="line">./configure</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>​    依次运行上述命令后，telegram-cli已经安装完成，可执行文件在当前目录下的<code>bin/telegram-cli</code></p>
+<h2 id="登录Telegram-cli"><a href="#登录Telegram-cli" class="headerlink" title="登录Telegram-cli"></a>登录Telegram-cli</h2><p>在登录Telegram-cli之前需要在<code>https://my.telegram.org/apps</code>获取pub密钥。我选择创建的application类型为desktop。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200329170931.png"></p>
+<p>将<code>Public keys</code>复制，回到服务器端。执行以下命令，将密钥保存到<code>mytg-server.pub</code>文件中。</p>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">vim mytg-<span class="keyword">server</span>.pub</span><br></pre></td></tr></table></figure>
+
+<p>上述操作完毕之后，就可以登录了。</p>
+<p>执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -k mytg-server.pub</span><br></pre></td></tr></table></figure>
+
+<p>之后会让你输入电话号码和验证码，登录就是了。</p>
+<p>登录完毕后可以按<code>ctrl-c</code>键退出，或者使用命令<code>quit</code>或<code>safe_quit</code>退出。</p>
+<h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><p>如果之前登录过，后面就不需要重新登录，这里发送消息测试一下。</p>
+<ol>
+<li><p>交互命令行模式</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W</span><br></pre></td></tr></table></figure>
+
+<p>执行上述命令进入命令行模式。</p>
+<ul>
+<li>向用户或群组发送消息：<code>msg &lt;username/channelname&gt; &lt;msg&gt;</code></li>
+</ul>
+</li>
+<li><p>直接发消息</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W -e <span class="string">&quot;msg &lt;username/channelname&gt; &lt;msg&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>:warning: 用户名或者群组名包含<code>空格</code>或者<code>#</code>​字符需要替换为<code>_</code></p>
+<p>其他使用方法可以见我的另一篇博客</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>telegram</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>StarUML3.x破解教程</title>
     <url>/posts/b785abd2/</url>
     <content><![CDATA[<blockquote>
@@ -1786,6 +1842,7 @@ docker部署</code></pre>
 <p>我们可以通过<code>asar</code>工具解压修改达到破解目的。具体操作如下：</p>
 <ol>
 <li><p>安装<code>nodejs</code></p>
+<p><a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></p>
 </li>
 <li><p>安装<code>asar</code></p>
 <figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">cnpm install -g asar  <span class="regexp">//</span>或者npm install -g asar</span><br></pre></td></tr></table></figure>
@@ -1842,62 +1899,6 @@ docker部署</code></pre>
 </ul>
 <hr>
 <p><strong>更多命令尚待学习….</strong></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>telegram</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Telegram-cli安装教程</title>
-    <url>/posts/e82je8eeq/</url>
-    <content><![CDATA[<blockquote>
-<p>Telegram是著名的加密聊天软件，它的命令行版本为Telegram-cli。</p>
-</blockquote>
-<a id="more"></a>
-<blockquote>
-<p>详情请见github项目地址：<a href="https://github.com/vysheng/tg/">https://github.com/vysheng/tg/</a></p>
-</blockquote>
-<p>​    在没有图形界面的linux服务器上面，安装<code>Telegram-cli</code>无疑是最合适的。我接触Telegram-cli的最初目的是在服务器上写个脚本，用于每天的群组签到。这里记录下Telegram-cli的安装过程。</p>
-<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><ul>
-<li>OS：centos7</li>
-<li>安装方式：编译安装</li>
-<li>其他系统的安装教程可以看github项目中README</li>
-<li>据说centos7可以使用yum直接安装，但目前暂未找到yum源</li>
-</ul>
-<h2 id="安装Telegram-cli"><a href="#安装Telegram-cli" class="headerlink" title="安装Telegram-cli"></a>安装Telegram-cli</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --recursive https://github.com/vysheng/tg.git &amp;&amp; <span class="built_in">cd</span> tg</span><br><span class="line">yum -y install lua-devel openssl-devel libconfig-devel readline-devel libevent-devel jansson-devel python-devel</span><br><span class="line">./configure</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
-
-<p>​    依次运行上述命令后，telegram-cli已经安装完成，可执行文件在当前目录下的<code>bin/telegram-cli</code></p>
-<h2 id="登录Telegram-cli"><a href="#登录Telegram-cli" class="headerlink" title="登录Telegram-cli"></a>登录Telegram-cli</h2><p>在登录Telegram-cli之前需要在<code>https://my.telegram.org/apps</code>获取pub密钥。我选择创建的application类型为desktop。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200329170931.png"></p>
-<p>将<code>Public keys</code>复制，回到服务器端。执行以下命令，将密钥保存到<code>mytg-server.pub</code>文件中。</p>
-<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">vim mytg-<span class="keyword">server</span>.pub</span><br></pre></td></tr></table></figure>
-
-<p>上述操作完毕之后，就可以登录了。</p>
-<p>执行命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -k mytg-server.pub</span><br></pre></td></tr></table></figure>
-
-<p>之后会让你输入电话号码和验证码，登录就是了。</p>
-<p>登录完毕后可以按<code>ctrl-c</code>键退出，或者使用命令<code>quit</code>或<code>safe_quit</code>退出。</p>
-<h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><p>如果之前登录过，后面就不需要重新登录，这里发送消息测试一下。</p>
-<ol>
-<li><p>交互命令行模式</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W</span><br></pre></td></tr></table></figure>
-
-<p>执行上述命令进入命令行模式。</p>
-<ul>
-<li>向用户或群组发送消息：<code>msg &lt;username/channelname&gt; &lt;msg&gt;</code></li>
-</ul>
-</li>
-<li><p>直接发消息</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W -e <span class="string">&quot;msg &lt;username/channelname&gt; &lt;msg&gt;&quot;</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<p>:warning: 用户名或者群组名包含<code>空格</code>或者<code>#</code>​字符需要替换为<code>_</code></p>
-<p>其他使用方法可以见我的另一篇博客</p>
 ]]></content>
       <categories>
         <category>linux</category>
@@ -2115,39 +2116,6 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
-    <title>crontab定时任务发邮件的问题</title>
-    <url>/posts/a50980cb/</url>
-    <content><![CDATA[<p>在用 crontab -e 命令创建定时任务后，发现定时任务中的发邮件并未执行。</p>
-<a id="more"></a>
-
-<p>通过上网查询，可以看crontab的日志。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tail /var/<span class="built_in">log</span>/cron</span><br></pre></td></tr></table></figure>
-
-<p>执行结果如下图：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-06/20200622132839.png"></p>
-<p>发现发送邮件报错为 mailed 284 bytes of output but got status 0x004b#012</p>
-<br>
-
-<p>通过查询资料，最终解决方案如下</p>
-<p>文字说明：修改 <code>/etc/postfix/main.cf</code>文件，将其中的 inet_interfaces 设置为all。</p>
-<p>操作：</p>
-<p>执行命令, 修改文件内容</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /etc/postfix/main.cf</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-06/20200622133227.png"></p>
-<p>最终可以解决，但并不知道原理，不知道会不会影响系统安全性。</p>
-<p>参考执行</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nohup  python3 -u /root/services/ISL.py  &gt;&gt; /root/services/ISL.log 2&gt;&amp;1  &amp;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>cron</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>WebDriver下载地址</title>
     <url>/posts/6b450c9b/</url>
     <content><![CDATA[<blockquote>
@@ -2193,6 +2161,39 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>webdriver</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>crontab定时任务发邮件的问题</title>
+    <url>/posts/a50980cb/</url>
+    <content><![CDATA[<p>在用 crontab -e 命令创建定时任务后，发现定时任务中的发邮件并未执行。</p>
+<a id="more"></a>
+
+<p>通过上网查询，可以看crontab的日志。命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tail /var/<span class="built_in">log</span>/cron</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下图：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-06/20200622132839.png"></p>
+<p>发现发送邮件报错为 mailed 284 bytes of output but got status 0x004b#012</p>
+<br>
+
+<p>通过查询资料，最终解决方案如下</p>
+<p>文字说明：修改 <code>/etc/postfix/main.cf</code>文件，将其中的 inet_interfaces 设置为all。</p>
+<p>操作：</p>
+<p>执行命令, 修改文件内容</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /etc/postfix/main.cf</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-06/20200622133227.png"></p>
+<p>最终可以解决，但并不知道原理，不知道会不会影响系统安全性。</p>
+<p>参考执行</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nohup  python3 -u /root/services/ISL.py  &gt;&gt; /root/services/ISL.log 2&gt;&amp;1  &amp;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>cron</tag>
       </tags>
   </entry>
   <entry>
@@ -2435,54 +2436,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>linux下部署selenium环境</title>
-    <url>/posts/65c4a6d8/</url>
-    <content><![CDATA[<blockquote>
-<p>记录在linux服务器上搭建selenium环境，用于Python爬虫</p>
-</blockquote>
-<a id="more"></a>
-
-<h1 id="Centos7"><a href="#Centos7" class="headerlink" title="Centos7"></a>Centos7</h1><ol>
-<li><p>添加 yum 信息</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">vim</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">yum</span><span class="selector-class">.repos</span><span class="selector-class">.d</span>/<span class="selector-tag">google-chrome</span><span class="selector-class">.repo</span></span><br></pre></td></tr></table></figure>
-
-<p>向文件中添加以下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[google-chrome]</span></span><br><span class="line"><span class="attr">name</span>=google-chrome</span><br><span class="line"><span class="attr">baseurl</span>=http://dl.google.com/linux/chrome/rpm/stable/<span class="variable">$basearch</span></span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=https://dl-ssl.google.com/linux/linux_signing_key.pub</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<ol start="2">
-<li><p>安装chrome</p>
-<p>Google官方源安装：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> google-chrome-stable</span><br></pre></td></tr></table></figure>
-
-<p>Google官方源可能在中国无法使用，导致安装失败或者在国内无法更新，可以添加以下参数来安装：　　</p>
-<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">yum -y install google-chrome-<span class="keyword">stable</span> <span class="comment">--nogpgcheck</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加 chrome 到环境变量中</p>
-<p>找到chrome路径，并做个软连接，方便使用:</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">which google-chrome-stable</span><br><span class="line">ln -s xxx <span class="regexp">/bin/</span>chrome <span class="comment"># xxx为chrome可执行文件路径</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载webdriver</p>
-<p>以chromedriver为例，<a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a> ,选择对应版本的driver</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-11/20201108234442.png"></p>
-<p>Python代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">chromeOptions = webdriver.ChromeOptions()</span><br><span class="line"><span class="comment"># 加载无窗口浏览器</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line"><span class="comment">#chromeOptions.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--lang=en_US&#x27;</span>)</span><br><span class="line"><span class="comment"># 以根用户打身份运行Chrome，使用-no-sandbox标记重新运行Chrome,禁止沙箱启动</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--no-sandbox&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(options=chromeOptions, executable_path=driver_path) <span class="comment">#driver_path为driver路径</span></span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>selenium</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux学习01 - linux系统简介</title>
     <url>/posts/51bc6a9b/</url>
     <content><![CDATA[<blockquote>
@@ -2563,204 +2516,52 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
-    <title>linux学习03 - 用户及权限管理</title>
-    <url>/posts/68370406/</url>
+    <title>linux下部署selenium环境</title>
+    <url>/posts/65c4a6d8/</url>
     <content><![CDATA[<blockquote>
-<p>linux学习03：用户及权限管理<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
+<p>记录在linux服务器上搭建selenium环境，用于Python爬虫</p>
 </blockquote>
 <a id="more"></a>
 
-<h3 id="查看用户"><a href="#查看用户" class="headerlink" title="查看用户"></a>查看用户</h3><p>请打开终端，输入命令：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>who am i</span><br><span class="line"></span><br><span class="line">或者</span><br><span class="line"></span><br><span class="line"><span class="variable">$ </span>who mom likes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="Centos7"><a href="#Centos7" class="headerlink" title="Centos7"></a>Centos7</h1><ol>
+<li><p>添加 yum 信息</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">vim</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">yum</span><span class="selector-class">.repos</span><span class="selector-class">.d</span>/<span class="selector-tag">google-chrome</span><span class="selector-class">.repo</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-1.png"></p>
-<p> 输出的第一列表示打开当前伪终端的用户的用户名（要查看当前登录用户的用户名，去掉空格直接使用 <code>whoami</code> 即可），第二列的 <code>pts/0</code> 中 <code>pts</code> 表示伪终端，所谓伪是相对于 <code>/dev/tty</code> 设备而言的，还记得上一节讲终端时的那七个使用 <code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F7]</code> 进行切换的 <code>/dev/tty</code> 设备么,这是“真终端”，伪终端就是当你在图形用户界面使用 <code>/dev/tty7</code> 时每打开一个终端就会产生一个伪终端， <code>pts/0</code> 后面那个数字就表示打开的伪终端序号，你可以尝试再打开一个终端，然后在里面输入 <code>who am i</code> ，看第二列是不是就变成 <code>pts/1</code> 了，第三列则表示当前伪终端的启动时间。</p>
-<p><code>who</code> 命令其它常用参数</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>-a</code></td>
-<td>打印能打印的全部</td>
-</tr>
-<tr>
-<td><code>-d</code></td>
-<td>打印死掉的进程</td>
-</tr>
-<tr>
-<td><code>-m</code></td>
-<td>同<code>am i</code>,<code>mom likes</code></td>
-</tr>
-<tr>
-<td><code>-q</code></td>
-<td>打印当前登录用户数及用户名</td>
-</tr>
-<tr>
-<td><code>-u</code></td>
-<td>打印当前登录用户登录信息</td>
-</tr>
-<tr>
-<td><code>-r</code></td>
-<td>打印运行等级</td>
-</tr>
-</tbody></table>
-<h3 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h3><p>在 Linux 系统里， <code>root</code> 账户拥有整个系统至高无上的权利，比如 新建/添加 用户。</p>
-<blockquote>
-<p>root 权限，系统权限的一种，与 SYSTEM 权限可以理解成一个概念，但高于 Administrator 权限，root 是 Linux 和 UNIX 系统中的超级管理员用户帐户，该帐户拥有整个系统至高无上的权力，所有对象他都可以操作，所以很多黑客在入侵系统的时候，都要把权限提升到 root 权限，用 Windows 的方法理解也就是将自己的非法帐户添加到 Administrators 用户组。更比如安卓操作系统中（基于 Linux 内核）获得 root 权限之后就意味着已经获得了手机的最高权限，这时候你可以对手机中的任何文件（包括系统文件）执行所有增、删、改、查的操作。</p>
-</blockquote>
-<p>我们一般登录系统时都是以普通账户的身份登录的，要创建用户需要 root 权限，这里就要用到 <code>sudo</code> 这个命令了。不过使用这个命令有两个大前提，一是你要知道当前登录用户的密码，二是当前用户必须在 <code>sudo</code> 用户组。shiyanlou 用户也属于 sudo 用户组（稍后会介绍如何查看和添加用户组）。</p>
-<h4 id="su，su-与-sudo"><a href="#su，su-与-sudo" class="headerlink" title="su，su- 与 sudo"></a>su，su- 与 sudo</h4><p><strong>需要注意 Linux 环境下输入密码是不会显示的。</strong></p>
-<p><code>su &lt;user&gt;</code> 可以切换到用户 user，执行时需要输入目标用户的密码，<code>sudo &lt;cmd&gt;</code> 可以以特权级别运行 cmd 命令，需要当前用户属于 sudo 组，且需要输入当前用户的密码。<code>su - &lt;user&gt;</code> 命令也是切换用户，<font color="red">同时环境变量也会跟着改变成目标用户的环境变量。</font></p>
-<p>现在我们新建一个叫 lilei 的用户：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>sudo adduser lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>实验楼的环境目前设置为 shiyanlou 用户执行 sudo 不需要输入密码，通常此处需要按照提示输入 shiyanlou 密码（<strong>Linux 下密码输入是不显示任何内容的</strong>），shiyanlou 用户密码可以通过 <code>sudo passwd shiyanlou</code> 命令进行设置。然后是给 lilei 用户设置密码，后面的选项的一些内容你可以选择直接回车使用默认值：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-2.png"></p>
-<p>这个命令不但可以添加用户到系统，同时也会默认为新用户创建 home 目录：</p>
-<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">ls</span> <span class="string">/home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>向文件中添加以下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[google-chrome]</span></span><br><span class="line"><span class="attr">name</span>=google-chrome</span><br><span class="line"><span class="attr">baseurl</span>=http://dl.google.com/linux/chrome/rpm/stable/<span class="variable">$basearch</span></span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=https://dl-ssl.google.com/linux/linux_signing_key.pub</span><br></pre></td></tr></table></figure>
 
-<p>现在你已经创建好一个用户，并且你可以使用你创建的用户登录了，使用如下命令切换登录用户：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su -l lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p>输入刚刚设置的 lilei 的密码，然后输入如下命令并查看输出：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> who am i</span><br><span class="line"><span class="variable">$</span> whoami</span><br><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p>退出当前用户跟退出终端一样可以使用 <code>exit</code> 命令或者使用快捷键 <code>Ctrl+d</code>。</p>
-<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>在 Linux 里面每个用户都有一个归属（用户组），用户组简单地理解就是一组用户的集合，它们共享一些资源和权限，同时拥有私有资源，就跟家的形式差不多，你的兄弟姐妹（不同的用户）属于同一个家（用户组），你们可以共同拥有这个家（共享资源），爸妈对待你们都一样（共享权限），你偶尔写写日记，其他人未经允许不能查看（私有资源和权限）。当然一个用户是可以属于多个用户组的，正如你既属于家庭，又属于学校或公司。</p>
-<p>在 Linux 里面如何知道自己属于哪些用户组呢？</p>
-<h4 id="方法一：使用-groups-命令"><a href="#方法一：使用-groups-命令" class="headerlink" title="方法一：使用 groups 命令"></a>方法一：使用 groups 命令</h4><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>groups shiyanlou</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ol start="2">
+<li><p>安装chrome</p>
+<p>Google官方源安装：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> google-chrome-stable</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-3.png"></p>
-<p>其中冒号之前表示用户，后面表示该用户所属的用户组。这里可以看到 shiyanlou 用户属于 shiyanlou 用户组，<strong>每次新建用户如果不指定用户组的话，默认会自动创建一个与用户名相同的用户组</strong>（差不多就相当于家长的意思，或者说是老总）。默认情况下在 sudo 用户组里的可以使用 sudo 命令获得 root 权限。shiyanlou 用户也可以使用 sudo 命令，为什么这里没有显示在 sudo 用户组里呢？可以查看下 <code>/etc/sudoers.d/shiyanlou</code> 文件，我们在 <code>/etc/sudoers.d</code> 目录下创建了这个文件，从而给 shiyanlou 用户赋予了 sudo 权限：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-4.png"></p>
-<h4 id="方法二：查看-etc-group-文件"><a href="#方法二：查看-etc-group-文件" class="headerlink" title="方法二：查看 /etc/group 文件"></a>方法二：查看 <code>/etc/group</code> 文件</h4><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> /etc/<span class="built_in">group</span> | <span class="built_in">sort</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>Google官方源可能在中国无法使用，导致安装失败或者在国内无法更新，可以添加以下参数来安装：　　</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">yum -y install google-chrome-<span class="keyword">stable</span> <span class="comment">--nogpgcheck</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加 chrome 到环境变量中</p>
+<p>找到chrome路径，并做个软连接，方便使用:</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">which google-chrome-stable</span><br><span class="line">ln -s xxx <span class="regexp">/bin/</span>chrome <span class="comment"># xxx为chrome可执行文件路径</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载webdriver</p>
+<p>以chromedriver为例，<a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a> ,选择对应版本的driver</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-11/20201108234442.png"></p>
+<p>Python代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">chromeOptions = webdriver.ChromeOptions()</span><br><span class="line"><span class="comment"># 加载无窗口浏览器</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line"><span class="comment">#chromeOptions.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--lang=en_US&#x27;</span>)</span><br><span class="line"><span class="comment"># 以根用户打身份运行Chrome，使用-no-sandbox标记重新运行Chrome,禁止沙箱启动</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--no-sandbox&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(options=chromeOptions, executable_path=driver_path) <span class="comment">#driver_path为driver路径</span></span><br></pre></td></tr></table></figure>
 
-<p>这里 <code>cat</code> 命令用于读取指定文件的内容并打印到终端输出，后面会详细讲它的使用。 <code>| sort</code> 表示将读取的文本进行一个字典排序再输出，然后你将看到如下一堆输出，你可以在最下面看到 shiyanlou 的用户组信息：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-5.png"></p>
-<p>没找到，没关系，你可以使用命令过滤掉一些你不想看到的结果：</p>
-<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">$ cat /etc/<span class="keyword">group</span> <span class="title">| grep</span> -E <span class="string">&quot;shiyanlou&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-6.png"></p>
-<h5 id="etc-group-文件格式说明"><a href="#etc-group-文件格式说明" class="headerlink" title="/etc/group 文件格式说明"></a><code>/etc/group</code> 文件格式说明</h5><p>/etc/group 的内容包括用户组（Group）、用户组口令、GID 及该用户组所包含的用户（User），每个用户组一条记录。格式如下：</p>
-<blockquote>
-<p>group_name:password:GID:user_list</p>
-</blockquote>
-<p>你看到上面的 password 字段为一个 <code>x</code> 并不是说密码就是它，只是表示密码不可见而已。</p>
-<p>这里需要注意，如果用户的 GID 等于用户组的 GID，那么最后一个字段 <code>user_list</code> 就是空的，比如 shiyanlou 用户，在 <code>/etc/group</code> 中的 shiyanlou 用户组后面是不会显示的。lilei 用户，在 <code>/etc/group</code> 中的 lilei 用户组后面是不会显示的。</p>
-<h5 id="将其它用户加入-sudo-用户组"><a href="#将其它用户加入-sudo-用户组" class="headerlink" title="将其它用户加入 sudo 用户组"></a>将其它用户加入 sudo 用户组</h5><p>默认情况下新创建的用户是不具有 root 权限的，也不在 sudo 用户组，可以让其加入 sudo 用户组从而获取 root 权限：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> su <span class="literal">-l</span> lilei</span><br><span class="line"><span class="variable">$</span> sudo <span class="built_in">ls</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>会提示 lilei 不在 sudoers 文件中，意思就是 lilei 不在 sudo 用户组中，至于 sudoers 文件（/etc/sudoers）你现在最好不要动它，操作不慎会导致比较麻烦的后果。</p>
-<p>使用 <code>usermod</code> 命令可以为用户添加用户组，同样使用该命令你必需有 root 权限，你可以直接使用 root 用户为其它用户添加用户组，或者用其它已经在 sudo 用户组的用户使用 sudo 命令获取权限来执行该命令。</p>
-<p>这里我用 shiyanlou 用户执行 sudo 命令将 lilei 添加到 sudo 用户组，让它也可以使用 sudo 命令获得 root 权限：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su shiyanlou  <span class="comment"># 注意 Linux 上输入密码是不会显示的</span></span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"><span class="variable">$ </span>sudo usermod -G sudo lilei</span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>然后你再切换回 lilei 用户，现在就可以使用 sudo 获取 root 权限了。</p>
-<h3 id="删除用户"><a href="#删除用户" class="headerlink" title="删除用户"></a>删除用户</h3><p>删除用户是很简单的事：</p>
-<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">$ sudo deluser lilei --<span class="built_in">remove</span>-<span class="built_in">home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-7.png"></p>
-<h3 id="linux文件权限"><a href="#linux文件权限" class="headerlink" title="linux文件权限"></a>linux文件权限</h3><p>文件权限就是文件的访问控制权限，即哪些用户和组群可以访问文件以及可以执行什么样的操作。</p>
-<p>Unix/Linux系统是一个典型的多用户系统，不同的用户处于不同的地位，对文件和目录有不同的访问权限。为了保护系统的安全性，Unix/Linux系统除了对用户权限作了严格的界定外，还在用户身份认证、访问控制、传输安全、文件读写权限等方面作了周密的控制。</p>
-<p>在 Unix/Linux中的每一个文件或目录都包含有访问权限，这些访问权限决定了谁能访问和如何访问这些文件和目录。</p>
-<hr>
-
-<p>我们之前已经很多次用到<code>ls</code>命令了，如你所见，我们用它来列出并显示当前目录下的文件，当然这是在不带任何参数的情况下，它能做的当然不止这么多，现在我们就要用它来查看文件权限。</p>
-<p>使用较长格式列出文件：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-l</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-8.png"></p>
-<p>你可能除了知道最后面那一项是文件名之外，其它项就不太清楚了，那么到底是什么意思呢：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-9.png"></p>
-<p>可能你还是不太明白，比如第一项文件类型和权限那一堆东西具体指什么，链接又是什么，何为最后修改时间，下面一一道来：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-10.png"></p>
-<ul>
-<li>  文件类型</li>
-</ul>
-<blockquote>
-<p>关于文件类型，这里有一点你必需时刻牢记 <strong>Linux 里面一切皆文件</strong>，正因为这一点才有了设备文件（ <code>/dev</code> 目录下有各种设备文件，大都跟具体的硬件设备相关）这一说。 <code>socket</code>：网络套接字，具体是什么，感兴趣的用户可以自己去了解或期待实验楼的后续相关课程。<code>pipe</code> 管道，这个东西很重要，我们以后将会讨论到，这里你先知道有它的存在即可。<code>软链接文件</code>：链接文件是分为两种的，另一种当然是“硬链接”（硬链接不常用，具体内容不作为本课程讨论重点，而软链接等同于 Windows 上的快捷方式,你记住这一点就够了）。</p>
-</blockquote>
-<ul>
-<li>  文件权限</li>
-</ul>
-<blockquote>
-<p>读权限，表示你可以使用 <code>cat &lt;file name&gt;</code> 之类的命令来读取某个文件的内容；写权限，表示你可以编辑和修改某个文件； 执行权限，通常指可以运行的二进制程序文件或者脚本文件，如同 Windows 上的 <code>exe</code> 后缀的文件，不过 Linux 上不是通过文件后缀名来区分文件的类型。你需要注意的一点是，<strong>一个目录同时具有读权限和执行权限才可以打开并查看内部文件，而一个目录要有写权限才允许在其中创建其它文件</strong>，这是因为目录文件实际保存着该目录里面的文件的列表等信息。</p>
-</blockquote>
-<p>所有者权限，这一点相信你应该明白了，至于所属用户组权限，是指你所在的用户组中的所有其它用户对于该文件的权限，比如，你有一个 iPad，那么这个用户组权限就决定了你的兄弟姐妹有没有权限使用它破坏它和占有它。</p>
-<ul>
-<li>  链接数</li>
-</ul>
-<blockquote>
-<p>链接到该文件所在的 inode 结点的文件名数目（关于这个概念涉及到 Linux 文件系统的相关概念知识，不在本课程的讨论范围，感兴趣的用户可以自己去了解）。</p>
-</blockquote>
-<ul>
-<li>  文件大小</li>
-</ul>
-<blockquote>
-<p>以 inode 结点大小为单位来表示的文件大小，你可以给 ls 加上 <code>-lh</code> 参数来更直观的查看文件的大小。</p>
-</blockquote>
-<p>明白了文件权限的一些概念，我们顺带补充一下关于 <code>ls</code> 命令的一些其它常用的用法：</p>
-<ul>
-<li>  显示除了 <code>.</code>（当前目录）和 <code>..</code>（上一级目录）之外的所有文件，包括隐藏文件（Linux 下以 <code>.</code> 开头的文件为隐藏文件）。</li>
-</ul>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-A</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-11.png"></p>
-<p>当然，你可以同时使用 <code>-A</code> 和 <code>-l</code> 参数：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-Al</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>查看某一个目录的完整属性，而不是显示目录里面的文件属性：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-dl</span> &lt;目录名&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>  显示所有文件大小，并以普通人类能看懂的方式呈现：</li>
-</ul>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-AsSh</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>其中小 s 为显示文件大小，大 S 为按文件大小排序，若需要知道如何按其它方式排序，请使用“man”命令查询。</p>
-<h3 id="变更文件所有者"><a href="#变更文件所有者" class="headerlink" title="变更文件所有者"></a>变更文件所有者</h3><blockquote>
-<p>若前面已经执行删除lilei用户的命令，这里重新创建一下。</p>
-</blockquote>
-<p>假设目前是 lilei 用户登录，新建一个文件，命名为 “ iphone6 ”：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 注意当前的用户必须是 lilei</span></span><br><span class="line"><span class="comment"># 如果是 shiyanlou 用户需要切换到 lilei（如果之前已经删除需要重新创建下）</span></span><br><span class="line"><span class="variable">$</span> su lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> touch iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>可见文件所有者是 lilei ：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-12.png"></p>
-<p>现在，换回到 shiyanlou 用户身份，使用以下命令变更文件所有者为 shiyanlou ：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要切换到 shiyanlou 用户执行以下操作</span></span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> iphone6</span><br><span class="line"><span class="variable">$</span> sudo chown shiyanlou iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>现在查看，发现 文件所有者成功修改为 shiyanlou ：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-13.png"></p>
-<h3 id="修改文件权限"><a href="#修改文件权限" class="headerlink" title="修改文件权限"></a>修改文件权限</h3><p>如果你有一个自己的文件不想被其他用户读、写、执行，那么就需要对文件的权限做修改，这里有两种方式：</p>
-<ul>
-<li>  方式一：二进制数字表示</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-14.png"></p>
-<p>每个文件的三组权限（拥有者，所属用户组，其他用户，<strong>记住这个顺序是一定的</strong>）对应一个 “ rwx “，也就是一个 “ 7 ” ，所以如果我要将文件“ iphone6 ”的权限改为只有我自己可以用那么就这样：</p>
-<p>为了演示，我先在文件里加点内容：</p>
-<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$ echo <span class="string">&quot;echo <span class="subst">\&quot;</span>hello shiyanlou<span class="subst">\&quot;</span>&quot;</span> &gt; iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>然后修改权限：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod <span class="number">600</span> iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>现在，其他用户已经不能读这个“ iphone6 ”文件了：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-15.png"></p>
-<ul>
-<li>  方式二：加减赋值操作</li>
-</ul>
-<p>完成上述相同的效果，你可以：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod go-rw iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-16.png"></p>
-<p><code>g</code>、<code>o</code> 还有 <code>u</code> 分别表示 group、others 和 user，<code>+</code> 和 <code>-</code> 分别表示增加和去掉相应的权限。</p>
-<h3 id="adduser-和-useradd-的区别是什么？"><a href="#adduser-和-useradd-的区别是什么？" class="headerlink" title="adduser 和 useradd 的区别是什么？"></a><code>adduser</code> 和 <code>useradd</code> 的区别是什么？</h3><p>答：useradd 只创建用户，创建完了用 passwd lilei 去设置新用户的密码。adduser 会创建用户，创建目录，创建密码（提示你设置），做这一系列的操作。其实 useradd、userdel 这类操作更像是一种命令，执行完了就返回。而 adduser 更像是一种程序，需要你输入、确定等一系列操作。</p>
-<p>Linux 还有一些关于隐藏权限和特殊权限的内容，想全面了解 Linux 权限管理这部分内容的用户可以通过其它方式学习。</p>
+</li>
+</ol>
 ]]></content>
       <categories>
-        <category>linux</category>
+        <category>爬虫</category>
       </categories>
+      <tags>
+        <tag>selenium</tag>
+      </tags>
   </entry>
   <entry>
     <title>linux学习02 - 基本概念和操作</title>
@@ -2981,6 +2782,206 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>linux学习03 - 用户及权限管理</title>
+    <url>/posts/68370406/</url>
+    <content><![CDATA[<blockquote>
+<p>linux学习03：用户及权限管理<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="查看用户"><a href="#查看用户" class="headerlink" title="查看用户"></a>查看用户</h3><p>请打开终端，输入命令：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>who am i</span><br><span class="line"></span><br><span class="line">或者</span><br><span class="line"></span><br><span class="line"><span class="variable">$ </span>who mom likes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-1.png"></p>
+<p> 输出的第一列表示打开当前伪终端的用户的用户名（要查看当前登录用户的用户名，去掉空格直接使用 <code>whoami</code> 即可），第二列的 <code>pts/0</code> 中 <code>pts</code> 表示伪终端，所谓伪是相对于 <code>/dev/tty</code> 设备而言的，还记得上一节讲终端时的那七个使用 <code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F7]</code> 进行切换的 <code>/dev/tty</code> 设备么,这是“真终端”，伪终端就是当你在图形用户界面使用 <code>/dev/tty7</code> 时每打开一个终端就会产生一个伪终端， <code>pts/0</code> 后面那个数字就表示打开的伪终端序号，你可以尝试再打开一个终端，然后在里面输入 <code>who am i</code> ，看第二列是不是就变成 <code>pts/1</code> 了，第三列则表示当前伪终端的启动时间。</p>
+<p><code>who</code> 命令其它常用参数</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-a</code></td>
+<td>打印能打印的全部</td>
+</tr>
+<tr>
+<td><code>-d</code></td>
+<td>打印死掉的进程</td>
+</tr>
+<tr>
+<td><code>-m</code></td>
+<td>同<code>am i</code>,<code>mom likes</code></td>
+</tr>
+<tr>
+<td><code>-q</code></td>
+<td>打印当前登录用户数及用户名</td>
+</tr>
+<tr>
+<td><code>-u</code></td>
+<td>打印当前登录用户登录信息</td>
+</tr>
+<tr>
+<td><code>-r</code></td>
+<td>打印运行等级</td>
+</tr>
+</tbody></table>
+<h3 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h3><p>在 Linux 系统里， <code>root</code> 账户拥有整个系统至高无上的权利，比如 新建/添加 用户。</p>
+<blockquote>
+<p>root 权限，系统权限的一种，与 SYSTEM 权限可以理解成一个概念，但高于 Administrator 权限，root 是 Linux 和 UNIX 系统中的超级管理员用户帐户，该帐户拥有整个系统至高无上的权力，所有对象他都可以操作，所以很多黑客在入侵系统的时候，都要把权限提升到 root 权限，用 Windows 的方法理解也就是将自己的非法帐户添加到 Administrators 用户组。更比如安卓操作系统中（基于 Linux 内核）获得 root 权限之后就意味着已经获得了手机的最高权限，这时候你可以对手机中的任何文件（包括系统文件）执行所有增、删、改、查的操作。</p>
+</blockquote>
+<p>我们一般登录系统时都是以普通账户的身份登录的，要创建用户需要 root 权限，这里就要用到 <code>sudo</code> 这个命令了。不过使用这个命令有两个大前提，一是你要知道当前登录用户的密码，二是当前用户必须在 <code>sudo</code> 用户组。shiyanlou 用户也属于 sudo 用户组（稍后会介绍如何查看和添加用户组）。</p>
+<h4 id="su，su-与-sudo"><a href="#su，su-与-sudo" class="headerlink" title="su，su- 与 sudo"></a>su，su- 与 sudo</h4><p><strong>需要注意 Linux 环境下输入密码是不会显示的。</strong></p>
+<p><code>su &lt;user&gt;</code> 可以切换到用户 user，执行时需要输入目标用户的密码，<code>sudo &lt;cmd&gt;</code> 可以以特权级别运行 cmd 命令，需要当前用户属于 sudo 组，且需要输入当前用户的密码。<code>su - &lt;user&gt;</code> 命令也是切换用户，<font color="red">同时环境变量也会跟着改变成目标用户的环境变量。</font></p>
+<p>现在我们新建一个叫 lilei 的用户：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>sudo adduser lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>实验楼的环境目前设置为 shiyanlou 用户执行 sudo 不需要输入密码，通常此处需要按照提示输入 shiyanlou 密码（<strong>Linux 下密码输入是不显示任何内容的</strong>），shiyanlou 用户密码可以通过 <code>sudo passwd shiyanlou</code> 命令进行设置。然后是给 lilei 用户设置密码，后面的选项的一些内容你可以选择直接回车使用默认值：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-2.png"></p>
+<p>这个命令不但可以添加用户到系统，同时也会默认为新用户创建 home 目录：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">ls</span> <span class="string">/home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在你已经创建好一个用户，并且你可以使用你创建的用户登录了，使用如下命令切换登录用户：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su -l lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>输入刚刚设置的 lilei 的密码，然后输入如下命令并查看输出：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> who am i</span><br><span class="line"><span class="variable">$</span> whoami</span><br><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>退出当前用户跟退出终端一样可以使用 <code>exit</code> 命令或者使用快捷键 <code>Ctrl+d</code>。</p>
+<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>在 Linux 里面每个用户都有一个归属（用户组），用户组简单地理解就是一组用户的集合，它们共享一些资源和权限，同时拥有私有资源，就跟家的形式差不多，你的兄弟姐妹（不同的用户）属于同一个家（用户组），你们可以共同拥有这个家（共享资源），爸妈对待你们都一样（共享权限），你偶尔写写日记，其他人未经允许不能查看（私有资源和权限）。当然一个用户是可以属于多个用户组的，正如你既属于家庭，又属于学校或公司。</p>
+<p>在 Linux 里面如何知道自己属于哪些用户组呢？</p>
+<h4 id="方法一：使用-groups-命令"><a href="#方法一：使用-groups-命令" class="headerlink" title="方法一：使用 groups 命令"></a>方法一：使用 groups 命令</h4><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>groups shiyanlou</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-3.png"></p>
+<p>其中冒号之前表示用户，后面表示该用户所属的用户组。这里可以看到 shiyanlou 用户属于 shiyanlou 用户组，<strong>每次新建用户如果不指定用户组的话，默认会自动创建一个与用户名相同的用户组</strong>（差不多就相当于家长的意思，或者说是老总）。默认情况下在 sudo 用户组里的可以使用 sudo 命令获得 root 权限。shiyanlou 用户也可以使用 sudo 命令，为什么这里没有显示在 sudo 用户组里呢？可以查看下 <code>/etc/sudoers.d/shiyanlou</code> 文件，我们在 <code>/etc/sudoers.d</code> 目录下创建了这个文件，从而给 shiyanlou 用户赋予了 sudo 权限：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-4.png"></p>
+<h4 id="方法二：查看-etc-group-文件"><a href="#方法二：查看-etc-group-文件" class="headerlink" title="方法二：查看 /etc/group 文件"></a>方法二：查看 <code>/etc/group</code> 文件</h4><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> /etc/<span class="built_in">group</span> | <span class="built_in">sort</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>cat</code> 命令用于读取指定文件的内容并打印到终端输出，后面会详细讲它的使用。 <code>| sort</code> 表示将读取的文本进行一个字典排序再输出，然后你将看到如下一堆输出，你可以在最下面看到 shiyanlou 的用户组信息：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-5.png"></p>
+<p>没找到，没关系，你可以使用命令过滤掉一些你不想看到的结果：</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">$ cat /etc/<span class="keyword">group</span> <span class="title">| grep</span> -E <span class="string">&quot;shiyanlou&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-6.png"></p>
+<h5 id="etc-group-文件格式说明"><a href="#etc-group-文件格式说明" class="headerlink" title="/etc/group 文件格式说明"></a><code>/etc/group</code> 文件格式说明</h5><p>/etc/group 的内容包括用户组（Group）、用户组口令、GID 及该用户组所包含的用户（User），每个用户组一条记录。格式如下：</p>
+<blockquote>
+<p>group_name:password:GID:user_list</p>
+</blockquote>
+<p>你看到上面的 password 字段为一个 <code>x</code> 并不是说密码就是它，只是表示密码不可见而已。</p>
+<p>这里需要注意，如果用户的 GID 等于用户组的 GID，那么最后一个字段 <code>user_list</code> 就是空的，比如 shiyanlou 用户，在 <code>/etc/group</code> 中的 shiyanlou 用户组后面是不会显示的。lilei 用户，在 <code>/etc/group</code> 中的 lilei 用户组后面是不会显示的。</p>
+<h5 id="将其它用户加入-sudo-用户组"><a href="#将其它用户加入-sudo-用户组" class="headerlink" title="将其它用户加入 sudo 用户组"></a>将其它用户加入 sudo 用户组</h5><p>默认情况下新创建的用户是不具有 root 权限的，也不在 sudo 用户组，可以让其加入 sudo 用户组从而获取 root 权限：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> su <span class="literal">-l</span> lilei</span><br><span class="line"><span class="variable">$</span> sudo <span class="built_in">ls</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>会提示 lilei 不在 sudoers 文件中，意思就是 lilei 不在 sudo 用户组中，至于 sudoers 文件（/etc/sudoers）你现在最好不要动它，操作不慎会导致比较麻烦的后果。</p>
+<p>使用 <code>usermod</code> 命令可以为用户添加用户组，同样使用该命令你必需有 root 权限，你可以直接使用 root 用户为其它用户添加用户组，或者用其它已经在 sudo 用户组的用户使用 sudo 命令获取权限来执行该命令。</p>
+<p>这里我用 shiyanlou 用户执行 sudo 命令将 lilei 添加到 sudo 用户组，让它也可以使用 sudo 命令获得 root 权限：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su shiyanlou  <span class="comment"># 注意 Linux 上输入密码是不会显示的</span></span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"><span class="variable">$ </span>sudo usermod -G sudo lilei</span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后你再切换回 lilei 用户，现在就可以使用 sudo 获取 root 权限了。</p>
+<h3 id="删除用户"><a href="#删除用户" class="headerlink" title="删除用户"></a>删除用户</h3><p>删除用户是很简单的事：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">$ sudo deluser lilei --<span class="built_in">remove</span>-<span class="built_in">home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-7.png"></p>
+<h3 id="linux文件权限"><a href="#linux文件权限" class="headerlink" title="linux文件权限"></a>linux文件权限</h3><p>文件权限就是文件的访问控制权限，即哪些用户和组群可以访问文件以及可以执行什么样的操作。</p>
+<p>Unix/Linux系统是一个典型的多用户系统，不同的用户处于不同的地位，对文件和目录有不同的访问权限。为了保护系统的安全性，Unix/Linux系统除了对用户权限作了严格的界定外，还在用户身份认证、访问控制、传输安全、文件读写权限等方面作了周密的控制。</p>
+<p>在 Unix/Linux中的每一个文件或目录都包含有访问权限，这些访问权限决定了谁能访问和如何访问这些文件和目录。</p>
+<hr>
+
+<p>我们之前已经很多次用到<code>ls</code>命令了，如你所见，我们用它来列出并显示当前目录下的文件，当然这是在不带任何参数的情况下，它能做的当然不止这么多，现在我们就要用它来查看文件权限。</p>
+<p>使用较长格式列出文件：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-l</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-8.png"></p>
+<p>你可能除了知道最后面那一项是文件名之外，其它项就不太清楚了，那么到底是什么意思呢：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-9.png"></p>
+<p>可能你还是不太明白，比如第一项文件类型和权限那一堆东西具体指什么，链接又是什么，何为最后修改时间，下面一一道来：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-10.png"></p>
+<ul>
+<li>  文件类型</li>
+</ul>
+<blockquote>
+<p>关于文件类型，这里有一点你必需时刻牢记 <strong>Linux 里面一切皆文件</strong>，正因为这一点才有了设备文件（ <code>/dev</code> 目录下有各种设备文件，大都跟具体的硬件设备相关）这一说。 <code>socket</code>：网络套接字，具体是什么，感兴趣的用户可以自己去了解或期待实验楼的后续相关课程。<code>pipe</code> 管道，这个东西很重要，我们以后将会讨论到，这里你先知道有它的存在即可。<code>软链接文件</code>：链接文件是分为两种的，另一种当然是“硬链接”（硬链接不常用，具体内容不作为本课程讨论重点，而软链接等同于 Windows 上的快捷方式,你记住这一点就够了）。</p>
+</blockquote>
+<ul>
+<li>  文件权限</li>
+</ul>
+<blockquote>
+<p>读权限，表示你可以使用 <code>cat &lt;file name&gt;</code> 之类的命令来读取某个文件的内容；写权限，表示你可以编辑和修改某个文件； 执行权限，通常指可以运行的二进制程序文件或者脚本文件，如同 Windows 上的 <code>exe</code> 后缀的文件，不过 Linux 上不是通过文件后缀名来区分文件的类型。你需要注意的一点是，<strong>一个目录同时具有读权限和执行权限才可以打开并查看内部文件，而一个目录要有写权限才允许在其中创建其它文件</strong>，这是因为目录文件实际保存着该目录里面的文件的列表等信息。</p>
+</blockquote>
+<p>所有者权限，这一点相信你应该明白了，至于所属用户组权限，是指你所在的用户组中的所有其它用户对于该文件的权限，比如，你有一个 iPad，那么这个用户组权限就决定了你的兄弟姐妹有没有权限使用它破坏它和占有它。</p>
+<ul>
+<li>  链接数</li>
+</ul>
+<blockquote>
+<p>链接到该文件所在的 inode 结点的文件名数目（关于这个概念涉及到 Linux 文件系统的相关概念知识，不在本课程的讨论范围，感兴趣的用户可以自己去了解）。</p>
+</blockquote>
+<ul>
+<li>  文件大小</li>
+</ul>
+<blockquote>
+<p>以 inode 结点大小为单位来表示的文件大小，你可以给 ls 加上 <code>-lh</code> 参数来更直观的查看文件的大小。</p>
+</blockquote>
+<p>明白了文件权限的一些概念，我们顺带补充一下关于 <code>ls</code> 命令的一些其它常用的用法：</p>
+<ul>
+<li>  显示除了 <code>.</code>（当前目录）和 <code>..</code>（上一级目录）之外的所有文件，包括隐藏文件（Linux 下以 <code>.</code> 开头的文件为隐藏文件）。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-A</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-11.png"></p>
+<p>当然，你可以同时使用 <code>-A</code> 和 <code>-l</code> 参数：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-Al</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看某一个目录的完整属性，而不是显示目录里面的文件属性：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-dl</span> &lt;目录名&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>  显示所有文件大小，并以普通人类能看懂的方式呈现：</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-AsSh</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中小 s 为显示文件大小，大 S 为按文件大小排序，若需要知道如何按其它方式排序，请使用“man”命令查询。</p>
+<h3 id="变更文件所有者"><a href="#变更文件所有者" class="headerlink" title="变更文件所有者"></a>变更文件所有者</h3><blockquote>
+<p>若前面已经执行删除lilei用户的命令，这里重新创建一下。</p>
+</blockquote>
+<p>假设目前是 lilei 用户登录，新建一个文件，命名为 “ iphone6 ”：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 注意当前的用户必须是 lilei</span></span><br><span class="line"><span class="comment"># 如果是 shiyanlou 用户需要切换到 lilei（如果之前已经删除需要重新创建下）</span></span><br><span class="line"><span class="variable">$</span> su lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> touch iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可见文件所有者是 lilei ：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-12.png"></p>
+<p>现在，换回到 shiyanlou 用户身份，使用以下命令变更文件所有者为 shiyanlou ：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要切换到 shiyanlou 用户执行以下操作</span></span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> iphone6</span><br><span class="line"><span class="variable">$</span> sudo chown shiyanlou iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在查看，发现 文件所有者成功修改为 shiyanlou ：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-13.png"></p>
+<h3 id="修改文件权限"><a href="#修改文件权限" class="headerlink" title="修改文件权限"></a>修改文件权限</h3><p>如果你有一个自己的文件不想被其他用户读、写、执行，那么就需要对文件的权限做修改，这里有两种方式：</p>
+<ul>
+<li>  方式一：二进制数字表示</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-14.png"></p>
+<p>每个文件的三组权限（拥有者，所属用户组，其他用户，<strong>记住这个顺序是一定的</strong>）对应一个 “ rwx “，也就是一个 “ 7 ” ，所以如果我要将文件“ iphone6 ”的权限改为只有我自己可以用那么就这样：</p>
+<p>为了演示，我先在文件里加点内容：</p>
+<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$ echo <span class="string">&quot;echo <span class="subst">\&quot;</span>hello shiyanlou<span class="subst">\&quot;</span>&quot;</span> &gt; iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后修改权限：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod <span class="number">600</span> iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在，其他用户已经不能读这个“ iphone6 ”文件了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-15.png"></p>
+<ul>
+<li>  方式二：加减赋值操作</li>
+</ul>
+<p>完成上述相同的效果，你可以：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod go-rw iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-16.png"></p>
+<p><code>g</code>、<code>o</code> 还有 <code>u</code> 分别表示 group、others 和 user，<code>+</code> 和 <code>-</code> 分别表示增加和去掉相应的权限。</p>
+<h3 id="adduser-和-useradd-的区别是什么？"><a href="#adduser-和-useradd-的区别是什么？" class="headerlink" title="adduser 和 useradd 的区别是什么？"></a><code>adduser</code> 和 <code>useradd</code> 的区别是什么？</h3><p>答：useradd 只创建用户，创建完了用 passwd lilei 去设置新用户的密码。adduser 会创建用户，创建目录，创建密码（提示你设置），做这一系列的操作。其实 useradd、userdel 这类操作更像是一种命令，执行完了就返回。而 adduser 更像是一种程序，需要你输入、确定等一系列操作。</p>
+<p>Linux 还有一些关于隐藏权限和特殊权限的内容，想全面了解 Linux 权限管理这部分内容的用户可以通过其它方式学习。</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>linux学习04 - linux目录结构及文件基本操作</title>
     <url>/posts/caf6d338/</url>
     <content><![CDATA[<blockquote>
@@ -3138,24 +3139,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>linux服务器上传文件到百度网盘</title>
-    <url>/posts/33eb66fd/</url>
-    <content><![CDATA[<blockquote>
-<p>记录linux如何直接上传文件到百度网盘</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="1-安装python3和相关库"><a href="#1-安装python3和相关库" class="headerlink" title="1. 安装python3和相关库"></a>1. 安装python3和相关库</h1><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> python3</span><br><span class="line">pip3 <span class="keyword">install</span> requests</span><br><span class="line">pip3 <span class="keyword">install</span> bypy</span><br></pre></td></tr></table></figure>
-<p><code>bypy</code>就是连接百度网盘的工具</p>
-<h1 id="2-身份认证"><a href="#2-身份认证" class="headerlink" title="2. 身份认证"></a>2. 身份认证</h1><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">bypy</span> <span class="literal">info</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172131.png"><br>访问要求的网址，获得授权码，前提是浏览器需要登录了网页版百度网盘</p>
-<p>将授权码复制到命令行中，按下enter键，就能认证成功</p>
-<p>:warning: 如果输入bypy info提示编码问题，可以修改linux默认编码解决，参考我的另一篇博客 <a href="/archives/%E4%BF%AE%E6%94%B9linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%BB%98%E8%AE%A4%E7%BC%96%E7%A0%81%E4%B8%BAutf8#more">修改linux默认编码为utf8</a></p>
-<h1 id="3-一些常用命令"><a href="#3-一些常用命令" class="headerlink" title="3. 一些常用命令"></a>3. 一些常用命令</h1><figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">bypy </span>list                 <span class="comment"># 显示文档</span></span><br><span class="line"><span class="keyword">bypy </span>upload filename -v   <span class="comment"># 上传某文件，显示进度</span></span><br><span class="line"><span class="keyword">bypy </span>-c                   <span class="comment"># 取消令牌文件。一段时间后要重新授权</span></span><br><span class="line"><span class="keyword">bypy </span>downdir filename     <span class="comment"># 下载</span></span><br><span class="line"><span class="keyword">bypy </span><span class="built_in">compare</span>              <span class="comment"># 比较本地目录和网盘目录</span></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>linux服务器上传文件到onedrive</title>
     <url>/posts/83e8a4ac/</url>
     <content><![CDATA[<blockquote>
@@ -3200,6 +3183,24 @@ docker部署</code></pre>
 <p>然后上传命令和上面一样，只需要把<code>OneDriveUploader</code>改成<code>OneDriveUploader.exe</code>即可。</p>
 <p>最后经测试，该版本的上传已经完全能应对各种稀奇古怪的字符问题，如果有问题可以回复下，贴上报错代码，方便修复。</p>
 ]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>linux服务器上传文件到百度网盘</title>
+    <url>/posts/33eb66fd/</url>
+    <content><![CDATA[<blockquote>
+<p>记录linux如何直接上传文件到百度网盘</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="1-安装python3和相关库"><a href="#1-安装python3和相关库" class="headerlink" title="1. 安装python3和相关库"></a>1. 安装python3和相关库</h1><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> python3</span><br><span class="line">pip3 <span class="keyword">install</span> requests</span><br><span class="line">pip3 <span class="keyword">install</span> bypy</span><br></pre></td></tr></table></figure>
+<p><code>bypy</code>就是连接百度网盘的工具</p>
+<h1 id="2-身份认证"><a href="#2-身份认证" class="headerlink" title="2. 身份认证"></a>2. 身份认证</h1><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">bypy</span> <span class="literal">info</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172131.png"><br>访问要求的网址，获得授权码，前提是浏览器需要登录了网页版百度网盘</p>
+<p>将授权码复制到命令行中，按下enter键，就能认证成功</p>
+<p>:warning: 如果输入bypy info提示编码问题，可以修改linux默认编码解决，参考我的另一篇博客 <a href="/archives/%E4%BF%AE%E6%94%B9linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%BB%98%E8%AE%A4%E7%BC%96%E7%A0%81%E4%B8%BAutf8#more">修改linux默认编码为utf8</a></p>
+<h1 id="3-一些常用命令"><a href="#3-一些常用命令" class="headerlink" title="3. 一些常用命令"></a>3. 一些常用命令</h1><figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">bypy </span>list                 <span class="comment"># 显示文档</span></span><br><span class="line"><span class="keyword">bypy </span>upload filename -v   <span class="comment"># 上传某文件，显示进度</span></span><br><span class="line"><span class="keyword">bypy </span>-c                   <span class="comment"># 取消令牌文件。一段时间后要重新授权</span></span><br><span class="line"><span class="keyword">bypy </span>downdir filename     <span class="comment"># 下载</span></span><br><span class="line"><span class="keyword">bypy </span><span class="built_in">compare</span>              <span class="comment"># 比较本地目录和网盘目录</span></span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>linux</category>
       </categories>
@@ -3495,47 +3496,6 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
-    <title>修改linux服务器默认编码为utf8</title>
-    <url>/posts/6c7dab33/</url>
-    <content><![CDATA[<blockquote>
-<p>修改linux默认编码</p>
-</blockquote>
-<a id="more"></a>
-<h2 id="1-修改-etc-profile文件"><a href="#1-修改-etc-profile文件" class="headerlink" title="1. 修改/etc/profile文件"></a>1. 修改/etc/profile文件</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
-<p>在文件最后一行添加<code>export LANG=zh_CN.UTF-8</code></p>
-<h2 id="2-使配置生效"><a href="#2-使配置生效" class="headerlink" title="2. 使配置生效"></a>2. 使配置生效</h2><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line"><span class="keyword">source</span> <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
-<h2 id="3-验证结果"><a href="#3-验证结果" class="headerlink" title="3. 验证结果"></a>3. 验证结果</h2><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">locale</span></span><br></pre></td></tr></table></figure>
-<p>结果显示如下：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172159.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>免费申请SSL证书</title>
-    <url>/posts/75de5a08/</url>
-    <content><![CDATA[<blockquote>
-<p>阿里云上面可以免费申请SSL证书，但是需要实名认证，这里介绍一个免费申请SSL证书的方法，并且无需进行实名认证，一次申请有3个月的有效期，到期之后可重新申请。</p>
-</blockquote>
-<a id="more"></a>
-<p>网址：<a href="https://www.sslforfree.com/">https://www.sslforfree.com/</a></p>
-<h3 id="1-输入域名"><a href="#1-输入域名" class="headerlink" title="1.输入域名"></a>1.输入域名</h3><p>此处直接输入需要申请SSL的域名<br><img src="https://i.loli.net/2020/01/19/JvhiI98z3bew7AW.png"></p>
-<h3 id="2-点击Manual-Verification"><a href="#2-点击Manual-Verification" class="headerlink" title="2.点击Manual Verification"></a>2.点击Manual Verification</h3><p>点击Manual Verification后，再点击下面的Verify<br><img src="https://i.loli.net/2020/01/19/k5VEnpD4z1T3NWh.png"></p>
-<h3 id="3-在服务器网站目录下按照步骤操作"><a href="#3-在服务器网站目录下按照步骤操作" class="headerlink" title="3.在服务器网站目录下按照步骤操作"></a>3.在服务器网站目录下按照步骤操作</h3><p>根据图片中的步骤，进行相应的操作<br><img src="https://i.loli.net/2020/01/19/XMVGhFLI54xaDbA.png"></p>
-<h3 id="4-点击下载SSL证书"><a href="#4-点击下载SSL证书" class="headerlink" title="4.点击下载SSL证书"></a>4.点击下载SSL证书</h3><p>生成证书后会显示只有90天的有效期，到期后可再次免费申请<br><img src="https://i.loli.net/2020/01/19/cWkHoeyhFwn3a7N.png"></p>
-<h3 id="5-下载证书"><a href="#5-下载证书" class="headerlink" title="5.下载证书"></a>5.下载证书</h3><p>生成的证书有三个文件<br><img src="https://i.loli.net/2020/01/19/G3kiUswVJbdpLoj.png"></p>
-<p><strong>注：</strong><br>第二个文件是对应SSL证书的<code>.key</code>文件<br>第一个和第三个文件是对应SSL证书的<code>.pem</code>文件（将两个文件内容放在同一个文件中）</p>
-<p><strong>宝塔面板中可以这样设置SSL证书:</strong><br><img src="https://i.loli.net/2020/01/19/bZUtagu4BSIWrlh.png"></p>
-<p>这样就完成了！</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
-<li><a href="https://www.youtube.com/watch?v=zUbpj6rvWzE&amp;t=248s">https://www.youtube.com/watch?v=zUbpj6rvWzE&amp;t=248s</a></li>
-</ol>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>xshell密钥登录服务器的配置过程</title>
     <url>/posts/344ac519/</url>
     <content><![CDATA[<ul>
@@ -3585,77 +3545,45 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>取消Pycharm双击shift出现搜索框</title>
-    <url>/posts/d7b9624b/</url>
+    <title>修改linux服务器默认编码为utf8</title>
+    <url>/posts/6c7dab33/</url>
     <content><![CDATA[<blockquote>
-<p>在使用Jetbrains产品时，例如IDEA、Pycharm，输入法切换双击shift键总是弹出全局搜索，十分不便，这里采用一种简单的方法来屏蔽这个功能。</p>
+<p>修改linux默认编码</p>
 </blockquote>
 <a id="more"></a>
-
-<h4 id="1-按下ctrl-shift-A打开搜索框"><a href="#1-按下ctrl-shift-A打开搜索框" class="headerlink" title="1. 按下ctrl+shift+A打开搜索框"></a>1. 按下ctrl+shift+A打开搜索框</h4><h4 id="2-输入registry-弹出如下界面"><a href="#2-输入registry-弹出如下界面" class="headerlink" title="2. 输入registry, 弹出如下界面"></a>2. 输入registry, 弹出如下界面</h4><p><img src="https://i.loli.net/2020/01/19/TtUg5ql2JiFQKXh.png"></p>
-<h4 id="3-找到ide-supress-double-click-handler，并勾选"><a href="#3-找到ide-supress-double-click-handler，并勾选" class="headerlink" title="3. 找到ide.supress.double.click.handler，并勾选"></a>3. 找到ide.supress.double.click.handler，并勾选</h4><p><img src="https://i.loli.net/2020/01/19/9kpq8SYdMLh7ZyA.png"></p>
-<p>点击close就完成了。</p>
-]]></content>
-      <categories>
-        <category>配置问题</category>
-      </categories>
-      <tags>
-        <tag>pycharm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>服务器禁止被ping</title>
-    <url>/posts/6898a3ea/</url>
-    <content><![CDATA[<blockquote>
-<p>利用服务器搭建网站之后，一般都会担心自己的服务器被攻击，写这个旨在记录一下一些防护措施。</p>
-<a id="more"></a>
-</blockquote>
-<h1 id="禁止ping服务器"><a href="#禁止ping服务器" class="headerlink" title="禁止ping服务器"></a>禁止ping服务器</h1><blockquote>
-<p>网站的攻击一般是从ping开始的，黑客攻击网站前会先ping下服务器看其是否在线，所以如果服务器禁止ping，可以有效减少服务器被攻击次数。Centos系统默认是允许ping的，如你有服务器root账户管理权限，可以通过修改Centos系统内核参数永久禁止ping。</p>
-</blockquote>
-<p>Linux默认是允许Ping响应的，系统是否允许Ping由2个因素决定的：</p>
-<ol>
-<li>内核参数</li>
-<li>防火墙。<br>需要2个因素同时允许才能允许Ping，2个因素有任意一个禁Ping就无法Ping。<br>
-具体的配置方法如下：
-
-</li>
-</ol>
-<p><i class="fa fa-pencil"></i><strong>内核参数设置</strong></p>
-<ol>
-<li>临时允许/禁止PING设置 <figure class="highlight bash"><figcaption><span>临时设置PING操作的命令为：</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="comment">#echo 0 &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all //允许PING</span></span><br><span class="line"><span class="comment">#echo 1 &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all //禁止PING</span></span><br></pre></td></tr></table></figure></li>
-<li>永久允许/禁止Ping设置<br> 在/etc/sysctl.conf 中增加一行 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">net.ipv4.icmp_echo_ignore_all=1 //禁止PING</span><br><span class="line">net.ipv4.icmp_echo_ignore_all=1 //允许PING</span><br></pre></td></tr></table></figure>
- 如果已经有net.ipv4.icmp_echo_ignore_all这一行了，直接修改=号后面的值即可的（0表示允许，1表示禁止）。<br> 修改完成后执行下面语句使配置生效 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<br>
-
-<hr>
-<p><i class="fa fa-pencil"></i><strong>防火墙设置（注：此处的方法的前提是内核配置是默认值，也就是没有禁止Ping</strong></p>
-<pre><code> 这里以Iptables防火墙为例，其他防火墙操作方法可参考防火墙的官方文档。
-
- 1、允许PING设置      
-
-    iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
-
-    iptables -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
-
-   或者也可以临时停止防火墙操作的。
-
-    service iptables stop
-
- 2、禁止PING设置
-
-    iptables -A INPUT -p icmp --icmp-type 8 -s 0/0 -j DROP</code></pre>
-<p>参考博客：<a href="https://www.cnblogs.com/chenshoubiao/p/4781016.html">https://www.cnblogs.com/chenshoubiao/p/4781016.html</a></p>
+<h2 id="1-修改-etc-profile文件"><a href="#1-修改-etc-profile文件" class="headerlink" title="1. 修改/etc/profile文件"></a>1. 修改/etc/profile文件</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
+<p>在文件最后一行添加<code>export LANG=zh_CN.UTF-8</code></p>
+<h2 id="2-使配置生效"><a href="#2-使配置生效" class="headerlink" title="2. 使配置生效"></a>2. 使配置生效</h2><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line"><span class="keyword">source</span> <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
+<h2 id="3-验证结果"><a href="#3-验证结果" class="headerlink" title="3. 验证结果"></a>3. 验证结果</h2><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">locale</span></span><br></pre></td></tr></table></figure>
+<p>结果显示如下：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172159.png"></p>
 ]]></content>
       <categories>
         <category>linux</category>
       </categories>
-      <tags>
-        <tag>安全</tag>
-      </tags>
+  </entry>
+  <entry>
+    <title>免费申请SSL证书</title>
+    <url>/posts/75de5a08/</url>
+    <content><![CDATA[<blockquote>
+<p>阿里云上面可以免费申请SSL证书，但是需要实名认证，这里介绍一个免费申请SSL证书的方法，并且无需进行实名认证，一次申请有3个月的有效期，到期之后可重新申请。</p>
+</blockquote>
+<a id="more"></a>
+<p>网址：<a href="https://www.sslforfree.com/">https://www.sslforfree.com/</a></p>
+<h3 id="1-输入域名"><a href="#1-输入域名" class="headerlink" title="1.输入域名"></a>1.输入域名</h3><p>此处直接输入需要申请SSL的域名<br><img src="https://i.loli.net/2020/01/19/JvhiI98z3bew7AW.png"></p>
+<h3 id="2-点击Manual-Verification"><a href="#2-点击Manual-Verification" class="headerlink" title="2.点击Manual Verification"></a>2.点击Manual Verification</h3><p>点击Manual Verification后，再点击下面的Verify<br><img src="https://i.loli.net/2020/01/19/k5VEnpD4z1T3NWh.png"></p>
+<h3 id="3-在服务器网站目录下按照步骤操作"><a href="#3-在服务器网站目录下按照步骤操作" class="headerlink" title="3.在服务器网站目录下按照步骤操作"></a>3.在服务器网站目录下按照步骤操作</h3><p>根据图片中的步骤，进行相应的操作<br><img src="https://i.loli.net/2020/01/19/XMVGhFLI54xaDbA.png"></p>
+<h3 id="4-点击下载SSL证书"><a href="#4-点击下载SSL证书" class="headerlink" title="4.点击下载SSL证书"></a>4.点击下载SSL证书</h3><p>生成证书后会显示只有90天的有效期，到期后可再次免费申请<br><img src="https://i.loli.net/2020/01/19/cWkHoeyhFwn3a7N.png"></p>
+<h3 id="5-下载证书"><a href="#5-下载证书" class="headerlink" title="5.下载证书"></a>5.下载证书</h3><p>生成的证书有三个文件<br><img src="https://i.loli.net/2020/01/19/G3kiUswVJbdpLoj.png"></p>
+<p><strong>注：</strong><br>第二个文件是对应SSL证书的<code>.key</code>文件<br>第一个和第三个文件是对应SSL证书的<code>.pem</code>文件（将两个文件内容放在同一个文件中）</p>
+<p><strong>宝塔面板中可以这样设置SSL证书:</strong><br><img src="https://i.loli.net/2020/01/19/bZUtagu4BSIWrlh.png"></p>
+<p>这样就完成了！</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://www.youtube.com/watch?v=zUbpj6rvWzE&amp;t=248s">https://www.youtube.com/watch?v=zUbpj6rvWzE&amp;t=248s</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
   </entry>
   <entry>
     <title>在阿里服务器上利用宝塔面板+GIT搭建hexo博客</title>
@@ -3804,6 +3732,60 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>文件服务器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>服务器禁止被ping</title>
+    <url>/posts/6898a3ea/</url>
+    <content><![CDATA[<blockquote>
+<p>利用服务器搭建网站之后，一般都会担心自己的服务器被攻击，写这个旨在记录一下一些防护措施。</p>
+<a id="more"></a>
+</blockquote>
+<h1 id="禁止ping服务器"><a href="#禁止ping服务器" class="headerlink" title="禁止ping服务器"></a>禁止ping服务器</h1><blockquote>
+<p>网站的攻击一般是从ping开始的，黑客攻击网站前会先ping下服务器看其是否在线，所以如果服务器禁止ping，可以有效减少服务器被攻击次数。Centos系统默认是允许ping的，如你有服务器root账户管理权限，可以通过修改Centos系统内核参数永久禁止ping。</p>
+</blockquote>
+<p>Linux默认是允许Ping响应的，系统是否允许Ping由2个因素决定的：</p>
+<ol>
+<li>内核参数</li>
+<li>防火墙。<br>需要2个因素同时允许才能允许Ping，2个因素有任意一个禁Ping就无法Ping。<br>
+具体的配置方法如下：
+
+</li>
+</ol>
+<p><i class="fa fa-pencil"></i><strong>内核参数设置</strong></p>
+<ol>
+<li>临时允许/禁止PING设置 <figure class="highlight bash"><figcaption><span>临时设置PING操作的命令为：</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="comment">#echo 0 &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all //允许PING</span></span><br><span class="line"><span class="comment">#echo 1 &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all //禁止PING</span></span><br></pre></td></tr></table></figure></li>
+<li>永久允许/禁止Ping设置<br> 在/etc/sysctl.conf 中增加一行 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">net.ipv4.icmp_echo_ignore_all=1 //禁止PING</span><br><span class="line">net.ipv4.icmp_echo_ignore_all=1 //允许PING</span><br></pre></td></tr></table></figure>
+ 如果已经有net.ipv4.icmp_echo_ignore_all这一行了，直接修改=号后面的值即可的（0表示允许，1表示禁止）。<br> 修改完成后执行下面语句使配置生效 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<br>
+
+<hr>
+<p><i class="fa fa-pencil"></i><strong>防火墙设置（注：此处的方法的前提是内核配置是默认值，也就是没有禁止Ping</strong></p>
+<pre><code> 这里以Iptables防火墙为例，其他防火墙操作方法可参考防火墙的官方文档。
+
+ 1、允许PING设置      
+
+    iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+    iptables -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
+
+   或者也可以临时停止防火墙操作的。
+
+    service iptables stop
+
+ 2、禁止PING设置
+
+    iptables -A INPUT -p icmp --icmp-type 8 -s 0/0 -j DROP</code></pre>
+<p>参考博客：<a href="https://www.cnblogs.com/chenshoubiao/p/4781016.html">https://www.cnblogs.com/chenshoubiao/p/4781016.html</a></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>安全</tag>
       </tags>
   </entry>
   <entry>
