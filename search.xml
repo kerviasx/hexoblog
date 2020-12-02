@@ -40,6 +40,126 @@
       </tags>
   </entry>
   <entry>
+    <title>CentOS 7安装fail2ban+Firewall防止SSH爆破与CC攻击</title>
+    <url>/posts/191dc2a0/</url>
+    <content><![CDATA[<blockquote>
+<p>转载自：<a href="https://www.hosteacher.com/server-centos7-install-fail2ban.html">文章</a></p>
+</blockquote>
+<a id="more"></a>
+<p><strong>说明</strong>：差不多很多博主都会遇到被<code>CC</code>攻击和<code>SSH</code>爆破的情况，这个时候就需要做下防御措施了，对于<code>CentOS 7</code>来说，由于防火墙的因素，配置起来还是有点麻烦的，这里针对<code>CentOS 7</code>再分享个简单防<code>CC</code>攻击和<code>SSH</code>爆破的方法。<a href="https://www.hosteacher.com/linux-centos7-firewall.html">Linux安全-CentOS 7开放设置端口及firewall常用命令介绍</a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>fail2ban</code>可以监视你的系统日志，然后匹配日志的错误信息执行相应的屏蔽动作。网上大部分教程都是关于<code>fail2ban</code>+<code>iptables</code>组合，考虑到<code>CentOS 7</code>已经自带<code>Firewalld</code>，所以这里我们也可以利用<code>fail2ban</code>+<code>Firewalld</code>来防<code>CC</code>攻击和<code>SSH</code>爆破。</p>
+<p>本教程编辑文件使用<code>vi</code>命令，如果不会用的，可以使使用<code>FTP</code>工具，如<code>WinSCP</code>登录<code>VPS</code>操作。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p><strong>1、检查Firewalld是否启用</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#如果您已经安装iptables建议先关闭</span></span><br><span class="line">service iptables <span class="keyword">stop</span></span><br><span class="line"><span class="comment">#查看Firewalld状态</span></span><br><span class="line">firewall-cmd <span class="comment">--state</span></span><br><span class="line"><span class="comment">#启动firewalld</span></span><br><span class="line">systemctl <span class="keyword">start</span> firewalld</span><br><span class="line"><span class="comment">#设置开机启动</span></span><br><span class="line">systemctl <span class="keyword">enable</span> firewalld.service</span><br></pre></td></tr></table></figure>
+
+<p>启用<code>Firewalld</code>后会禁止所有端口连接，因此请务必放行常用的端口，以免被阻挡在外，以下是放行<code>SSH</code>端口（<code>22</code>）示例，供参考：</p>
+<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="comment">#放行22端口</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --zone=public --add-port=80/tcp --permanent</span></span><br><span class="line"><span class="comment">#重载配置</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --reload</span></span><br><span class="line"><span class="comment">#查看已放行端口</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --zone=public --list-ports</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2、安装fail2ban</strong><br><code>fail2ban</code>可以监控系统日志，并且根据一定规则匹配异常<code>IP</code>后使用<code>Firewalld</code>将其屏蔽，尤其是针对一些爆破/扫描等非常有效。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#CentOS内置源并未包含fail2ban，需要先安装epel源</span></span><br><span class="line">yum -y <span class="keyword">install</span> epel-<span class="keyword">release</span></span><br><span class="line"><span class="comment">#安装fial2ban</span></span><br><span class="line">yum -y <span class="keyword">install</span> fail2ban</span><br></pre></td></tr></table></figure>
+
+<p>安装成功后<code>fail2ban</code>配置文件位于<code>/etc/fail2ban</code>，其中<code>jail.conf</code>为主配置文件，相关的匹配规则位于<code>filter.d</code>目录，其它目录/文件一般很少用到，如果需要详细了解可自行搜索。</p>
+<p><strong>3、配置规则</strong><br>新建<code>jail.local</code>来覆盖<code>fail2ban</code>的一些默认规则：</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="comment">#新建配置</span></span><br><span class="line">vi /etc/fail2ban/jail.local</span><br><span class="line"><span class="comment">#默认配置</span></span><br><span class="line">[DEFAULT]</span><br><span class="line">ignoreip = 127.0.0.1/8</span><br><span class="line">bantime  = 86400</span><br><span class="line">findtime = 600</span><br><span class="line">maxretry = 5</span><br><span class="line"><span class="comment">#这里banaction必须用firewallcmd-ipset,这是fiewalll支持的关键，如果是用Iptables请不要这样填写</span></span><br><span class="line">banaction = firewallcmd-ipset</span><br><span class="line">action = %(action_mwl)s</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="symbol">ignoreip</span>：<span class="built_in">IP</span>白名单，白名单中的<span class="built_in">IP</span>不会屏蔽，可填写多个以（,）分隔</span><br><span class="line"><span class="symbol">bantime</span>：屏蔽时间，单位为秒（s）</span><br><span class="line"><span class="symbol">findtime</span>：时间范围</span><br><span class="line"><span class="symbol">maxretry</span>：最大次数</span><br><span class="line"><span class="symbol">banaction</span>：屏蔽<span class="built_in">IP</span>所使用的方法，上面使用firewalld屏蔽端口</span><br></pre></td></tr></table></figure>
+
+<h2 id="防止SSH爆破"><a href="#防止SSH爆破" class="headerlink" title="防止SSH爆破"></a>防止SSH爆破</h2><p>如果您还在使用默认<code>SSH</code>端口（<code>22</code>），可能每天都会被扫描，我们可以修改端口尽量避免被扫，参考：<a href="https://www.hosteacher.com/linux-modify-ssh-port.html">Linux安全-修改VPS默认SSH端口</a>，或者可以使用<code>fail2ban</code>将恶意<code>IP</code>屏蔽。</p>
+<p>继续修改<code>jail.local</code>这个配置文件，在后面追加如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[sshd]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">filter</span>  = sshd</span><br><span class="line"><span class="attr">port</span>    = <span class="number">22</span></span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">logpath</span> = /var/log/secure</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<figure class="highlight scss"><table><tr><td class="code"><pre><span class="line"><span class="selector-attr">[sshd]</span>：名称，可以随便填写</span><br><span class="line"><span class="attribute">filter</span>：规则名称，必须填写位于<span class="attribute">filter</span><span class="selector-class">.d</span>目录里面的规则，sshd是fail2ban内置规则</span><br><span class="line">port：对应的端口</span><br><span class="line">action：采取的行动</span><br><span class="line">logpath：需要监视的日志路径</span><br></pre></td></tr></table></figure>
+
+<p>到这一步，我们<code>jail.local</code>的规则看起来可能像下面这样子：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[DEFAULT]</span></span><br><span class="line"><span class="attr">ignoreip</span> = <span class="number">127.0</span>.<span class="number">0.1</span>/<span class="number">8</span></span><br><span class="line"><span class="attr">bantime</span>  = <span class="number">86400</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">600</span></span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">5</span></span><br><span class="line"><span class="attr">banaction</span> = firewallcmd-ipset</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"></span><br><span class="line"><span class="section">[sshd]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">filter</span>  = sshd</span><br><span class="line"><span class="attr">port</span>    = <span class="number">22</span></span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">logpath</span> = /var/log/secure</span><br></pre></td></tr></table></figure>
+
+<p>上面的配置意思是如果同一个<code>IP</code>，在<code>10</code>分钟内，如果连续超过<code>5</code>次错误，则使用<code>Firewalld</code>将他<code>IP ban</code>了。输入<code>systemctl start fail2ban</code>启动<code>fail2ban</code>来试试效果。</p>
+<p>使用另一台服务器不断尝试连接<code>SSH</code>，并且不断的将密码输入错误，你会发现连续超过<code>5</code>次后直接连不上，说明<code>IP</code>被<code>ban</code>了，可以输入：<code>fail2ban-client status sshd</code>查看被<code>ban</code>的<code>IP</code></p>
+<h2 id="防止CC攻击"><a href="#防止CC攻击" class="headerlink" title="防止CC攻击"></a>防止CC攻击</h2><p>这里仅以<code>Nginx</code>为例，使用<code>fail2ban</code>来监视<code>nginx</code>日志，匹配短时间内频繁请求的<code>IP</code>，并使用<code>firewalld</code>将其<code>IP</code>屏蔽，达到<code>CC</code>防护的作用。</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">vi <span class="regexp">/etc/</span>fail2ban<span class="regexp">/filter.d/</span>nginx-cc.conf</span><br><span class="line"></span><br><span class="line">[Definition]</span><br><span class="line">failregex =  -.*- .*HTTP/<span class="number">1</span>.* .* .*$</span><br><span class="line">ignoreregex =</span><br></pre></td></tr></table></figure>
+
+<p>继续修改<code>jail.local</code>追加如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[nginx-cc]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">port</span> = http,https</span><br><span class="line"><span class="attr">filter</span> = nginx-cc</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">60</span></span><br><span class="line"><span class="attr">bantime</span> = <span class="number">3600</span></span><br><span class="line"><span class="attr">logpath</span> = /usr/local/nginx/logs/access.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>上面的配置意思是如果在<code>60s</code>内，同一<code>IP</code>达到<code>20</code>次请求，则将其<code>IP ban 1</code>小时，上面只是为了测试，请根据自己的实际情况修改。<code>logpath</code>为<code>nginx</code>日志路径。</p>
+<h2 id="防止Wordpress爆破"><a href="#防止Wordpress爆破" class="headerlink" title="防止Wordpress爆破"></a>防止Wordpress爆破</h2><p>如果您经常分析日志会发现有大量机器人在扫描<code>wordpress</code>登录页面<code>wp-login.php</code>，虽然对方可能没成功，但是为了避免万一还是将他<code>IP</code>干掉为好。</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">vi</span> /etc/fail2ban/<span class="built_in">filter</span>.d/wordpress.<span class="keyword">conf</span></span><br><span class="line"></span><br><span class="line">[Definition]</span><br><span class="line">failregex = ^ -.* /<span class="keyword">wp</span>-login.php.* HTTP/<span class="number">1</span>\..<span class="comment">&quot;</span></span><br><span class="line">ignoreregex =</span><br></pre></td></tr></table></figure>
+
+<p>继续修改<code>jail.local</code>追加如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[wordpress]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">port</span> = http,https</span><br><span class="line"><span class="attr">filter</span> = wordpress</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">60</span></span><br><span class="line"><span class="attr">bantime</span> = <span class="number">3600</span></span><br><span class="line"><span class="attr">logpath</span> = /usr/local/nginx/logs/access.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当然，别忘记输入<code>systemctl restart fail2ban</code>重启<code>fail2ban</code>使其生效。</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#启动</span></span><br><span class="line">systemctl <span class="keyword">start</span> fail2ban</span><br><span class="line"><span class="comment">#停止</span></span><br><span class="line">systemctl <span class="keyword">stop</span> fail2ban</span><br><span class="line"><span class="comment">#开机启动</span></span><br><span class="line">systemctl <span class="keyword">enable</span> fail2ban</span><br><span class="line"><span class="comment">#查看被ban IP，其中sshd为名称，比如上面的[wordpress]</span></span><br><span class="line">fail2ban-<span class="keyword">client</span> <span class="keyword">status</span> sshd</span><br><span class="line"><span class="comment">#删除被ban IP</span></span><br><span class="line">fail2ban-<span class="keyword">client</span> <span class="keyword">set</span> sshd delignoreip <span class="number">192.168</span><span class="number">.111</span><span class="number">.111</span></span><br><span class="line"><span class="comment">#查看日志</span></span><br><span class="line">tail /<span class="keyword">var</span>/<span class="keyword">log</span>/fail2ban.log</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>fail2ban</code>已经内置很多匹配规则，位于<code>filter.d</code>目录下，包含了常见的<code>SSH/FTP/Nginx/Apache</code>等日志匹配，如果都还无法满足您的需求，您也可以自行新建规则来匹配异常<code>IP</code>。使用<code>fail2ban</code>+<code>Firewalld</code>来阻止恶意<code>IP</code>是行之有效的办法，可极大提高服务器安全。</p>
+<hr>
+<h2 id="实际测试"><a href="#实际测试" class="headerlink" title="实际测试"></a>实际测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415171736.png"></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Centos7使用rclone挂载谷歌团队盘</title>
+    <url>/posts/45226759/</url>
+    <content><![CDATA[<blockquote>
+<p>国外服务器文件上传和下载有时很慢，本地与服务器直接传输文件效率很低，这里通过将国外云盘作为中转的方式包含很多优点。</p>
+</blockquote>
+<a id="more"></a>
+<p>主要优势如下：</p>
+<ul>
+<li>国外服务器与国外云盘之间文件传输效率高</li>
+<li>本地与国外云盘之间文件传输可以通过xx工具提高下载速度</li>
+<li>大容量云盘可以存储大量数据（谷歌团队盘有1PB空间）</li>
+</ul>
+<p>首先非常感谢参考博客：<a href="https://omo.moe/archives/103/">https://omo.moe/archives/103/</a></p>
+<h2 id="安装环境配置"><a href="#安装环境配置" class="headerlink" title="安装环境配置"></a>安装环境配置</h2><p>在服务器执行以下命令，安装环境</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install wget unzip screen fuse fuse-devel</span><br><span class="line">wget https://downloads.rclone.org/rclone-current-linux-amd64.zip</span><br><span class="line">unzip rclone-current-linux-amd64.zip</span><br><span class="line">chmod 0755 ./rclone-*/rclone</span><br><span class="line">cp ./rclone-*/rclone /usr/bin/</span><br><span class="line">rm -rf ./rclone-*</span><br></pre></td></tr></table></figure>
+
+<h2 id="身份认证"><a href="#身份认证" class="headerlink" title="身份认证"></a>身份认证</h2><p>执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone config</span><br></pre></td></tr></table></figure>
+
+<p>如下图，name为最后挂载的盘名。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png"></p>
+<p>如下图，可以看到可以选择各种网盘进行挂载，这里选择第13个<code>google drive</code>(具体序号需联系实际)</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105448.png"></p>
+<p>如下图，配置<code>权限</code>等功能，主要看英文介绍，图中空白处直接按确认选择默认</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105741.png"></p>
+<p>如下图，将链接复制到浏览器打开，获取<code>认证码</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110051.png"></p>
+<p>选择Team Drive的编号，最后退出</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110457.png"></p>
+<h2 id="挂载云盘"><a href="#挂载云盘" class="headerlink" title="挂载云盘"></a>挂载云盘</h2><ul>
+<li><p>在服务器创建目录，用于目录映射</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mkdir /root/Gdrive</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>输入以下命令，需要注意参数</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone mount wellod:folder /root/Gdrive --allow-other --allow-non-empty --vfs-cache-mode writes &amp;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>wellod:floder</code>：wellod为第一步中输入的name, folder为云盘中的文件夹名</li>
+<li><code>/root/Gdrive</code>：服务器相对于云盘的映射地址</li>
+</ol>
+</li>
+<li><p>查看挂载是否成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401111343.png"></p>
+<p>成功就如上图所示。</p>
+</li>
+<li><p>文件上传和下载</p>
+<p>使用<code>cp</code>命令即可，也可以使用<code>rclone copy</code>等命令操作。</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Cron表达式</title>
     <url>/posts/6a1ed024/</url>
     <content><![CDATA[<blockquote>
@@ -163,126 +283,6 @@
 <td align="center">每个月的 5 号和 20 号的 8 点和 10 点之间每隔 30 分钟执行一次，也就是 8:00、8:30、9:00 和 9:30。</td>
 </tr>
 </tbody></table>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>CentOS 7安装fail2ban+Firewall防止SSH爆破与CC攻击</title>
-    <url>/posts/191dc2a0/</url>
-    <content><![CDATA[<blockquote>
-<p>转载自：<a href="https://www.hosteacher.com/server-centos7-install-fail2ban.html">文章</a></p>
-</blockquote>
-<a id="more"></a>
-<p><strong>说明</strong>：差不多很多博主都会遇到被<code>CC</code>攻击和<code>SSH</code>爆破的情况，这个时候就需要做下防御措施了，对于<code>CentOS 7</code>来说，由于防火墙的因素，配置起来还是有点麻烦的，这里针对<code>CentOS 7</code>再分享个简单防<code>CC</code>攻击和<code>SSH</code>爆破的方法。<a href="https://www.hosteacher.com/linux-centos7-firewall.html">Linux安全-CentOS 7开放设置端口及firewall常用命令介绍</a></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>fail2ban</code>可以监视你的系统日志，然后匹配日志的错误信息执行相应的屏蔽动作。网上大部分教程都是关于<code>fail2ban</code>+<code>iptables</code>组合，考虑到<code>CentOS 7</code>已经自带<code>Firewalld</code>，所以这里我们也可以利用<code>fail2ban</code>+<code>Firewalld</code>来防<code>CC</code>攻击和<code>SSH</code>爆破。</p>
-<p>本教程编辑文件使用<code>vi</code>命令，如果不会用的，可以使使用<code>FTP</code>工具，如<code>WinSCP</code>登录<code>VPS</code>操作。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p><strong>1、检查Firewalld是否启用</strong></p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#如果您已经安装iptables建议先关闭</span></span><br><span class="line">service iptables <span class="keyword">stop</span></span><br><span class="line"><span class="comment">#查看Firewalld状态</span></span><br><span class="line">firewall-cmd <span class="comment">--state</span></span><br><span class="line"><span class="comment">#启动firewalld</span></span><br><span class="line">systemctl <span class="keyword">start</span> firewalld</span><br><span class="line"><span class="comment">#设置开机启动</span></span><br><span class="line">systemctl <span class="keyword">enable</span> firewalld.service</span><br></pre></td></tr></table></figure>
-
-<p>启用<code>Firewalld</code>后会禁止所有端口连接，因此请务必放行常用的端口，以免被阻挡在外，以下是放行<code>SSH</code>端口（<code>22</code>）示例，供参考：</p>
-<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="comment">#放行22端口</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --zone=public --add-port=80/tcp --permanent</span></span><br><span class="line"><span class="comment">#重载配置</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --reload</span></span><br><span class="line"><span class="comment">#查看已放行端口</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --zone=public --list-ports</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>2、安装fail2ban</strong><br><code>fail2ban</code>可以监控系统日志，并且根据一定规则匹配异常<code>IP</code>后使用<code>Firewalld</code>将其屏蔽，尤其是针对一些爆破/扫描等非常有效。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#CentOS内置源并未包含fail2ban，需要先安装epel源</span></span><br><span class="line">yum -y <span class="keyword">install</span> epel-<span class="keyword">release</span></span><br><span class="line"><span class="comment">#安装fial2ban</span></span><br><span class="line">yum -y <span class="keyword">install</span> fail2ban</span><br></pre></td></tr></table></figure>
-
-<p>安装成功后<code>fail2ban</code>配置文件位于<code>/etc/fail2ban</code>，其中<code>jail.conf</code>为主配置文件，相关的匹配规则位于<code>filter.d</code>目录，其它目录/文件一般很少用到，如果需要详细了解可自行搜索。</p>
-<p><strong>3、配置规则</strong><br>新建<code>jail.local</code>来覆盖<code>fail2ban</code>的一些默认规则：</p>
-<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="comment">#新建配置</span></span><br><span class="line">vi /etc/fail2ban/jail.local</span><br><span class="line"><span class="comment">#默认配置</span></span><br><span class="line">[DEFAULT]</span><br><span class="line">ignoreip = 127.0.0.1/8</span><br><span class="line">bantime  = 86400</span><br><span class="line">findtime = 600</span><br><span class="line">maxretry = 5</span><br><span class="line"><span class="comment">#这里banaction必须用firewallcmd-ipset,这是fiewalll支持的关键，如果是用Iptables请不要这样填写</span></span><br><span class="line">banaction = firewallcmd-ipset</span><br><span class="line">action = %(action_mwl)s</span><br></pre></td></tr></table></figure>
-
-<p>参数说明：</p>
-<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="symbol">ignoreip</span>：<span class="built_in">IP</span>白名单，白名单中的<span class="built_in">IP</span>不会屏蔽，可填写多个以（,）分隔</span><br><span class="line"><span class="symbol">bantime</span>：屏蔽时间，单位为秒（s）</span><br><span class="line"><span class="symbol">findtime</span>：时间范围</span><br><span class="line"><span class="symbol">maxretry</span>：最大次数</span><br><span class="line"><span class="symbol">banaction</span>：屏蔽<span class="built_in">IP</span>所使用的方法，上面使用firewalld屏蔽端口</span><br></pre></td></tr></table></figure>
-
-<h2 id="防止SSH爆破"><a href="#防止SSH爆破" class="headerlink" title="防止SSH爆破"></a>防止SSH爆破</h2><p>如果您还在使用默认<code>SSH</code>端口（<code>22</code>），可能每天都会被扫描，我们可以修改端口尽量避免被扫，参考：<a href="https://www.hosteacher.com/linux-modify-ssh-port.html">Linux安全-修改VPS默认SSH端口</a>，或者可以使用<code>fail2ban</code>将恶意<code>IP</code>屏蔽。</p>
-<p>继续修改<code>jail.local</code>这个配置文件，在后面追加如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[sshd]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">filter</span>  = sshd</span><br><span class="line"><span class="attr">port</span>    = <span class="number">22</span></span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">logpath</span> = /var/log/secure</span><br></pre></td></tr></table></figure>
-
-<p>参数说明：</p>
-<figure class="highlight scss"><table><tr><td class="code"><pre><span class="line"><span class="selector-attr">[sshd]</span>：名称，可以随便填写</span><br><span class="line"><span class="attribute">filter</span>：规则名称，必须填写位于<span class="attribute">filter</span><span class="selector-class">.d</span>目录里面的规则，sshd是fail2ban内置规则</span><br><span class="line">port：对应的端口</span><br><span class="line">action：采取的行动</span><br><span class="line">logpath：需要监视的日志路径</span><br></pre></td></tr></table></figure>
-
-<p>到这一步，我们<code>jail.local</code>的规则看起来可能像下面这样子：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[DEFAULT]</span></span><br><span class="line"><span class="attr">ignoreip</span> = <span class="number">127.0</span>.<span class="number">0.1</span>/<span class="number">8</span></span><br><span class="line"><span class="attr">bantime</span>  = <span class="number">86400</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">600</span></span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">5</span></span><br><span class="line"><span class="attr">banaction</span> = firewallcmd-ipset</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"></span><br><span class="line"><span class="section">[sshd]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">filter</span>  = sshd</span><br><span class="line"><span class="attr">port</span>    = <span class="number">22</span></span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">logpath</span> = /var/log/secure</span><br></pre></td></tr></table></figure>
-
-<p>上面的配置意思是如果同一个<code>IP</code>，在<code>10</code>分钟内，如果连续超过<code>5</code>次错误，则使用<code>Firewalld</code>将他<code>IP ban</code>了。输入<code>systemctl start fail2ban</code>启动<code>fail2ban</code>来试试效果。</p>
-<p>使用另一台服务器不断尝试连接<code>SSH</code>，并且不断的将密码输入错误，你会发现连续超过<code>5</code>次后直接连不上，说明<code>IP</code>被<code>ban</code>了，可以输入：<code>fail2ban-client status sshd</code>查看被<code>ban</code>的<code>IP</code></p>
-<h2 id="防止CC攻击"><a href="#防止CC攻击" class="headerlink" title="防止CC攻击"></a>防止CC攻击</h2><p>这里仅以<code>Nginx</code>为例，使用<code>fail2ban</code>来监视<code>nginx</code>日志，匹配短时间内频繁请求的<code>IP</code>，并使用<code>firewalld</code>将其<code>IP</code>屏蔽，达到<code>CC</code>防护的作用。</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">vi <span class="regexp">/etc/</span>fail2ban<span class="regexp">/filter.d/</span>nginx-cc.conf</span><br><span class="line"></span><br><span class="line">[Definition]</span><br><span class="line">failregex =  -.*- .*HTTP/<span class="number">1</span>.* .* .*$</span><br><span class="line">ignoreregex =</span><br></pre></td></tr></table></figure>
-
-<p>继续修改<code>jail.local</code>追加如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[nginx-cc]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">port</span> = http,https</span><br><span class="line"><span class="attr">filter</span> = nginx-cc</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">60</span></span><br><span class="line"><span class="attr">bantime</span> = <span class="number">3600</span></span><br><span class="line"><span class="attr">logpath</span> = /usr/local/nginx/logs/access.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>上面的配置意思是如果在<code>60s</code>内，同一<code>IP</code>达到<code>20</code>次请求，则将其<code>IP ban 1</code>小时，上面只是为了测试，请根据自己的实际情况修改。<code>logpath</code>为<code>nginx</code>日志路径。</p>
-<h2 id="防止Wordpress爆破"><a href="#防止Wordpress爆破" class="headerlink" title="防止Wordpress爆破"></a>防止Wordpress爆破</h2><p>如果您经常分析日志会发现有大量机器人在扫描<code>wordpress</code>登录页面<code>wp-login.php</code>，虽然对方可能没成功，但是为了避免万一还是将他<code>IP</code>干掉为好。</p>
-<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">vi</span> /etc/fail2ban/<span class="built_in">filter</span>.d/wordpress.<span class="keyword">conf</span></span><br><span class="line"></span><br><span class="line">[Definition]</span><br><span class="line">failregex = ^ -.* /<span class="keyword">wp</span>-login.php.* HTTP/<span class="number">1</span>\..<span class="comment">&quot;</span></span><br><span class="line">ignoreregex =</span><br></pre></td></tr></table></figure>
-
-<p>继续修改<code>jail.local</code>追加如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[wordpress]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">port</span> = http,https</span><br><span class="line"><span class="attr">filter</span> = wordpress</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">60</span></span><br><span class="line"><span class="attr">bantime</span> = <span class="number">3600</span></span><br><span class="line"><span class="attr">logpath</span> = /usr/local/nginx/logs/access.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>当然，别忘记输入<code>systemctl restart fail2ban</code>重启<code>fail2ban</code>使其生效。</p>
-<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#启动</span></span><br><span class="line">systemctl <span class="keyword">start</span> fail2ban</span><br><span class="line"><span class="comment">#停止</span></span><br><span class="line">systemctl <span class="keyword">stop</span> fail2ban</span><br><span class="line"><span class="comment">#开机启动</span></span><br><span class="line">systemctl <span class="keyword">enable</span> fail2ban</span><br><span class="line"><span class="comment">#查看被ban IP，其中sshd为名称，比如上面的[wordpress]</span></span><br><span class="line">fail2ban-<span class="keyword">client</span> <span class="keyword">status</span> sshd</span><br><span class="line"><span class="comment">#删除被ban IP</span></span><br><span class="line">fail2ban-<span class="keyword">client</span> <span class="keyword">set</span> sshd delignoreip <span class="number">192.168</span><span class="number">.111</span><span class="number">.111</span></span><br><span class="line"><span class="comment">#查看日志</span></span><br><span class="line">tail /<span class="keyword">var</span>/<span class="keyword">log</span>/fail2ban.log</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>fail2ban</code>已经内置很多匹配规则，位于<code>filter.d</code>目录下，包含了常见的<code>SSH/FTP/Nginx/Apache</code>等日志匹配，如果都还无法满足您的需求，您也可以自行新建规则来匹配异常<code>IP</code>。使用<code>fail2ban</code>+<code>Firewalld</code>来阻止恶意<code>IP</code>是行之有效的办法，可极大提高服务器安全。</p>
-<hr>
-<h2 id="实际测试"><a href="#实际测试" class="headerlink" title="实际测试"></a>实际测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415171736.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>安全</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Centos7使用rclone挂载谷歌团队盘</title>
-    <url>/posts/45226759/</url>
-    <content><![CDATA[<blockquote>
-<p>国外服务器文件上传和下载有时很慢，本地与服务器直接传输文件效率很低，这里通过将国外云盘作为中转的方式包含很多优点。</p>
-</blockquote>
-<a id="more"></a>
-<p>主要优势如下：</p>
-<ul>
-<li>国外服务器与国外云盘之间文件传输效率高</li>
-<li>本地与国外云盘之间文件传输可以通过xx工具提高下载速度</li>
-<li>大容量云盘可以存储大量数据（谷歌团队盘有1PB空间）</li>
-</ul>
-<p>首先非常感谢参考博客：<a href="https://omo.moe/archives/103/">https://omo.moe/archives/103/</a></p>
-<h2 id="安装环境配置"><a href="#安装环境配置" class="headerlink" title="安装环境配置"></a>安装环境配置</h2><p>在服务器执行以下命令，安装环境</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install wget unzip screen fuse fuse-devel</span><br><span class="line">wget https://downloads.rclone.org/rclone-current-linux-amd64.zip</span><br><span class="line">unzip rclone-current-linux-amd64.zip</span><br><span class="line">chmod 0755 ./rclone-*/rclone</span><br><span class="line">cp ./rclone-*/rclone /usr/bin/</span><br><span class="line">rm -rf ./rclone-*</span><br></pre></td></tr></table></figure>
-
-<h2 id="身份认证"><a href="#身份认证" class="headerlink" title="身份认证"></a>身份认证</h2><p>执行命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone config</span><br></pre></td></tr></table></figure>
-
-<p>如下图，name为最后挂载的盘名。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png"></p>
-<p>如下图，可以看到可以选择各种网盘进行挂载，这里选择第13个<code>google drive</code>(具体序号需联系实际)</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105448.png"></p>
-<p>如下图，配置<code>权限</code>等功能，主要看英文介绍，图中空白处直接按确认选择默认</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105741.png"></p>
-<p>如下图，将链接复制到浏览器打开，获取<code>认证码</code>。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110051.png"></p>
-<p>选择Team Drive的编号，最后退出</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110457.png"></p>
-<h2 id="挂载云盘"><a href="#挂载云盘" class="headerlink" title="挂载云盘"></a>挂载云盘</h2><ul>
-<li><p>在服务器创建目录，用于目录映射</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mkdir /root/Gdrive</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>输入以下命令，需要注意参数</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone mount wellod:folder /root/Gdrive --allow-other --allow-non-empty --vfs-cache-mode writes &amp;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><code>wellod:floder</code>：wellod为第一步中输入的name, folder为云盘中的文件夹名</li>
-<li><code>/root/Gdrive</code>：服务器相对于云盘的映射地址</li>
-</ol>
-</li>
-<li><p>查看挂载是否成功</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401111343.png"></p>
-<p>成功就如上图所示。</p>
-</li>
-<li><p>文件上传和下载</p>
-<p>使用<code>cp</code>命令即可，也可以使用<code>rclone copy</code>等命令操作。</p>
-</li>
-</ul>
 ]]></content>
       <categories>
         <category>linux</category>
@@ -420,56 +420,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Halo博客H2数据库查询</title>
-    <url>/posts/2d3051dc/</url>
-    <content><![CDATA[<blockquote>
-<p>记录一下Halo博客中如何操作H2数据库。</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="0-Halo博客数据库文件路径"><a href="#0-Halo博客数据库文件路径" class="headerlink" title="0. Halo博客数据库文件路径"></a>0. Halo博客数据库文件路径</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162738.png"></p>
-<h1 id="1-使用Halo提供的h2-console"><a href="#1-使用Halo提供的h2-console" class="headerlink" title="1. 使用Halo提供的h2-console"></a>1. 使用Halo提供的h2-console</h1><h2 id="1-1-打开h2-console功能"><a href="#1-1-打开h2-console功能" class="headerlink" title="1.1 打开h2-console功能"></a>1.1 打开h2-console功能</h2><pre><code> 修改Halo博客的配置文件(~/.halo/application.yaml)，具体如下图</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162751.png"></p>
-<pre>
-1. 将false改为true
-2. 设置完毕后重启容器
-</pre>
-<h2 id="1-2-访问网址"><a href="#1-2-访问网址" class="headerlink" title="1.2 访问网址"></a>1.2 访问网址</h2><pre><code> 网址：博客域名/h2-console</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162807.png"></p>
-<p>需要注意一下<code>JDBC URL</code>的填写，用户名和密码在配置文件中已有说明</p>
-<h2 id="1-3-测试"><a href="#1-3-测试" class="headerlink" title="1.3 测试"></a>1.3 测试</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> MENUS </span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162838.png"></p>
-<h1 id="2-在本地主机上使用数据库可视化工具"><a href="#2-在本地主机上使用数据库可视化工具" class="headerlink" title="2. 在本地主机上使用数据库可视化工具"></a>2. 在本地主机上使用数据库可视化工具</h1><blockquote>
-<p>在使用jdbc驱动版本选择时有坑，下面本人提供了一个版本，测试可用</p>
-</blockquote>
-<h2 id="2-1-工具介绍"><a href="#2-1-工具介绍" class="headerlink" title="2.1 工具介绍"></a>2.1 工具介绍</h2><pre><code>DBeaver 6.3.3(网址：https://dbeaver.io/)</code></pre>
-<h2 id="2-2-jdbc驱动jar包"><a href="#2-2-jdbc驱动jar包" class="headerlink" title="2.2 jdbc驱动jar包"></a>2.2 jdbc驱动jar包</h2><pre><code>下载下来，后面需要用到</code></pre>
-<p>/upload/2020/1/h2-2019-03-13-d5148978df7745808925f6f2ec3671b8.zip</p>
-<h2 id="2-3-创建数据库连接"><a href="#2-3-创建数据库连接" class="headerlink" title="2.3 创建数据库连接"></a>2.3 创建数据库连接</h2><ul>
-<li>新建数据库连接</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162902.png"></p>
-<ul>
-<li><p>选择H2 embedded<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162924.png"></p>
-</li>
-<li><p>选择db文件<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162943.png"></p>
-</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163001.png"></p>
-<p><strong>注意将后面的.mv.db删除掉</strong><br>用户名和密码就是配置文件中的H2用户名和密码</p>
-<h2 id="2-6-编辑驱动设置"><a href="#2-6-编辑驱动设置" class="headerlink" title="2.6 编辑驱动设置"></a>2.6 编辑驱动设置</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163038.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163114.png"></p>
-<h2 id="2-5-连接"><a href="#2-5-连接" class="headerlink" title="2.5 连接"></a>2.5 连接</h2><p>创建连接完毕后，连接数据库<br>可以看出Public中的存在的表<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163139.png"></p>
-<h2 id="2-6-测试"><a href="#2-6-测试" class="headerlink" title="2.6 测试"></a>2.6 测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163152.png"></p>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>halo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Halo博客修改密码</title>
     <url>/posts/f2aea09c/</url>
     <content><![CDATA[<blockquote>
@@ -521,6 +471,56 @@ docker部署</code></pre>
 <li>修改配置文件中H2数据库密码, 并关闭h2-console功能（修改true为false）</li>
 <li>启动docker的halo容器服务<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">stop</span> HALO_ID <span class="comment">//启动halo服务</span></span><br></pre></td></tr></table></figure></li>
 </ul>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>halo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Halo博客H2数据库查询</title>
+    <url>/posts/2d3051dc/</url>
+    <content><![CDATA[<blockquote>
+<p>记录一下Halo博客中如何操作H2数据库。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="0-Halo博客数据库文件路径"><a href="#0-Halo博客数据库文件路径" class="headerlink" title="0. Halo博客数据库文件路径"></a>0. Halo博客数据库文件路径</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162738.png"></p>
+<h1 id="1-使用Halo提供的h2-console"><a href="#1-使用Halo提供的h2-console" class="headerlink" title="1. 使用Halo提供的h2-console"></a>1. 使用Halo提供的h2-console</h1><h2 id="1-1-打开h2-console功能"><a href="#1-1-打开h2-console功能" class="headerlink" title="1.1 打开h2-console功能"></a>1.1 打开h2-console功能</h2><pre><code> 修改Halo博客的配置文件(~/.halo/application.yaml)，具体如下图</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162751.png"></p>
+<pre>
+1. 将false改为true
+2. 设置完毕后重启容器
+</pre>
+<h2 id="1-2-访问网址"><a href="#1-2-访问网址" class="headerlink" title="1.2 访问网址"></a>1.2 访问网址</h2><pre><code> 网址：博客域名/h2-console</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162807.png"></p>
+<p>需要注意一下<code>JDBC URL</code>的填写，用户名和密码在配置文件中已有说明</p>
+<h2 id="1-3-测试"><a href="#1-3-测试" class="headerlink" title="1.3 测试"></a>1.3 测试</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> MENUS </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162838.png"></p>
+<h1 id="2-在本地主机上使用数据库可视化工具"><a href="#2-在本地主机上使用数据库可视化工具" class="headerlink" title="2. 在本地主机上使用数据库可视化工具"></a>2. 在本地主机上使用数据库可视化工具</h1><blockquote>
+<p>在使用jdbc驱动版本选择时有坑，下面本人提供了一个版本，测试可用</p>
+</blockquote>
+<h2 id="2-1-工具介绍"><a href="#2-1-工具介绍" class="headerlink" title="2.1 工具介绍"></a>2.1 工具介绍</h2><pre><code>DBeaver 6.3.3(网址：https://dbeaver.io/)</code></pre>
+<h2 id="2-2-jdbc驱动jar包"><a href="#2-2-jdbc驱动jar包" class="headerlink" title="2.2 jdbc驱动jar包"></a>2.2 jdbc驱动jar包</h2><pre><code>下载下来，后面需要用到</code></pre>
+<p>/upload/2020/1/h2-2019-03-13-d5148978df7745808925f6f2ec3671b8.zip</p>
+<h2 id="2-3-创建数据库连接"><a href="#2-3-创建数据库连接" class="headerlink" title="2.3 创建数据库连接"></a>2.3 创建数据库连接</h2><ul>
+<li>新建数据库连接</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162902.png"></p>
+<ul>
+<li><p>选择H2 embedded<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162924.png"></p>
+</li>
+<li><p>选择db文件<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162943.png"></p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163001.png"></p>
+<p><strong>注意将后面的.mv.db删除掉</strong><br>用户名和密码就是配置文件中的H2用户名和密码</p>
+<h2 id="2-6-编辑驱动设置"><a href="#2-6-编辑驱动设置" class="headerlink" title="2.6 编辑驱动设置"></a>2.6 编辑驱动设置</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163038.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163114.png"></p>
+<h2 id="2-5-连接"><a href="#2-5-连接" class="headerlink" title="2.5 连接"></a>2.5 连接</h2><p>创建连接完毕后，连接数据库<br>可以看出Public中的存在的表<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163139.png"></p>
+<h2 id="2-6-测试"><a href="#2-6-测试" class="headerlink" title="2.6 测试"></a>2.6 测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163152.png"></p>
 ]]></content>
       <categories>
         <category>博客</category>
@@ -1389,55 +1389,107 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>StarUML3.x破解教程</title>
-    <url>/posts/b785abd2/</url>
-    <content><![CDATA[<blockquote>
-<p>StarUML是非常好的UML画图工具，这里介绍StarUML3.2.2的破解教程。</p>
-</blockquote>
-<ul>
-<li><strong>有能力的请支持正版！</strong></li>
-<li>参考教程：<a href="https://www.cnblogs.com/yourstars/p/9309529.html">https://www.cnblogs.com/yourstars/p/9309529.html</a></li>
-<li>在破解基础上取消自动更新</li>
-</ul>
+    <title>SQL Server数据库(1) - 基本知识</title>
+    <url>/posts/f50c229a/</url>
+    <content><![CDATA[<h3 id="基本常识"><a href="#基本常识" class="headerlink" title="基本常识"></a>基本常识</h3><p>sa(super administrator): 超级管理员</p>
+<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h3><figure class="highlight bash"><figcaption><span>基本命令.txt</span></figcaption><table><tr><td class="code"><pre><span class="line">net start mssqlserver //开启SQL Server服务</span><br><span class="line">net stop mssqlserver  //关闭SQL Server服务</span><br></pre></td></tr></table></figure>
 <a id="more"></a>
 
-<h3 id="破解原理"><a href="#破解原理" class="headerlink" title="破解原理"></a>破解原理</h3><p><a href="http://staruml.io/download"><code>StarUML</code></a>是用<code>nodejs</code>写的。确切的说是用<a href="https://github.com/electron/electron">Electron前端框架</a>写的。</p>
-<p>新版本中所有的starUML源代码是通过<a href="https://github.com/electron/asar">asar</a>工具打包而成。</p>
-<p>确切的代码位置在<code>%LOCALAPPDATA%\Programs\StarURML\resources\app.asar</code>。</p>
-<h3 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h3><p>在执行下列操作前，<strong>请确保本机安装了<code>nodejs    </code>工具</strong></p>
-<p>我们可以通过<code>asar</code>工具解压修改达到破解目的。具体操作如下：</p>
-<ol>
-<li><p>安装<code>nodejs</code></p>
-</li>
-<li><p>安装<code>asar</code></p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">cnpm install -g asar  <span class="regexp">//</span>或者npm install -g asar</span><br></pre></td></tr></table></figure>
 
+<h3 id="SQL语句"><a href="#SQL语句" class="headerlink" title="SQL语句"></a>SQL语句</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">print @@version <span class="comment">--查看数据库版本</span></span><br><span class="line">setuser <span class="comment">--使用默认用户sa</span></span><br><span class="line">setuser &#x27;new_user&#x27; <span class="comment">--使用用户new_user</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">user</span> <span class="comment">--查询当前操作的用户的用户名</span></span><br><span class="line"><span class="keyword">use</span> <span class="keyword">master</span> <span class="comment">--使用master数据库</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">user</span> df <span class="comment">--删除用户df</span></span><br><span class="line"><span class="keyword">drop</span> login df <span class="comment">--删除登录名df</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">database</span> mybase <span class="comment">--删除mybase数据库</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这是单行注释</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	这是多行注释</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="SQL-Server的5个系统数据库"><a href="#SQL-Server的5个系统数据库" class="headerlink" title="SQL Server的5个系统数据库"></a>SQL Server的5个系统数据库</h3><ol>
+<li><p>master</p>
+<ul>
+<li>记录SQL Server系统的所有系统级信息.<br>例如:登录账户信息,链接服务器和系统配置设置,记录其他所有数据库的存在,数据文件的位置,SQL Server的初始化信息等.</li>
+<li>如果master不存在,无法启动SQL Server;</li>
+</ul>
+</li>
+<li><p>msdb</p>
+<ul>
+<li>用于SQL Server代理计划警报和作业,数据库定时执行某些操作,数据库邮件等;</li>
+</ul>
+</li>
+<li><p>model</p>
+<ul>
+<li>用作于SQL Server实例上创建的所有数据库的模板. </li>
+<li>对model数据库的修改(数据库大小/排序规则/恢复模式/其他数据库选项)将应用于以后创建的所有的数据库.在model中创建一张表,以后创建其他数据库都默认有一张同样的表;4</li>
+</ul>
+</li>
+<li><p>tempdb</p>
+<ul>
+<li><p>一个工作空间,用于保存临时对象或中间集.一个全局资源,可供链接到SQL Server的所有实例用户使用.</p>
+</li>
+<li><p>每次启动SQL Server时都会重新创建tempdb;</p>
+</li>
+</ul>
 </li>
 </ol>
-<h3 id="修改源代码"><a href="#修改源代码" class="headerlink" title="修改源代码"></a>修改源代码</h3><p>打开软件安装路径，找到resources文件夹下的app.asar文件，将其复制到另一文件夹，我们从另一文件夹内解压app.asar，修改其中代码，最后将其压缩为app.asar文件替换最初的app.asar文件。具体过程如下：</p>
-<ol>
-<li><p>解压app.asar</p>
-</li>
-<li><p>修改<code>app\src\engine\license-manager.js</code>文件 –&gt; 取消<code>注册操作</code></p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">checkLicenseValidity () &#123;</span><br><span class="line">  <span class="built_in">this</span>.validate().then(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    setStatus(<span class="built_in">this</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">//setStatus(this, false)</span></span><br><span class="line">    <span class="comment">//UnregisteredDialog.showDialog()</span></span><br><span class="line">    </span><br><span class="line">    setStatus(<span class="built_in">this</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>找到上述代码位置，注释掉原先两行代码，添加<code>setStatus(this, true)</code>。</p>
-</li>
-<li><p>修改<code>app\src\engine\update-manager.js</code>文件 –&gt; 取消<code>自动更新</code></p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Check extensions updates</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">checkExtensionUpdates () &#123;</span><br><span class="line">  ExtensionManager.downloadRegistry().done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> updateAvailable = <span class="literal">false</span></span><br><span class="line">    _.each(ExtensionManager.extensions, <span class="function"><span class="params">ext</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">//if (ext.installInfo &amp;&amp; ext.installInfo.updateAvailable) &#123;</span></span><br><span class="line">        <span class="comment">//updateAvailable = true</span></span><br><span class="line">      <span class="comment">//&#125;</span></span><br><span class="line">        updateAvailable = <span class="literal">false</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> (updateAvailable) &#123;</span><br><span class="line">      $(<span class="string">&#x27;#toolbar-extension-manager&#x27;</span>).addClass(<span class="string">&#x27;selected&#x27;</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      $(<span class="string">&#x27;#toolbar-extension-manager&#x27;</span>).removeClass(<span class="string">&#x27;selected&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>找到上述代码位置，注释那几行代码，添加<code>updateAvailable = false</code>。</p>
-</li>
-<li><p>重新打包<code>app.asar</code></p>
-<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">asar pack <span class="keyword">app</span> <span class="keyword">app</span>.asar</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>将打包后的<code>app.asar</code>覆盖原先的<code>app.asar</code>文件</p>
+<ol start="5">
+<li><p>Resource</p>
+<ul>
+<li>一个只读数据库.包含SQL Server包括的系统对象.</li>
+<li>系统对象在物理上保留在Resource数据库中, 但在逻辑上显示在每个数据库的sys架构中.</li>
+</ul>
 </li>
 </ol>
-<h3 id="已经破解好的StarUML"><a href="#已经破解好的StarUML" class="headerlink" title="已经破解好的StarUML"></a>已经破解好的StarUML</h3><p><a href="https://jxjjxy-my.sharepoint.com/:u:/g/personal/cxz_kervia1_t_odmail_cn/Efh1n8IPGbZMqhmdubupEAsBwk6GVdVutPwb9Eoizy_qUQ?e=9ai3Jr">下载地址</a></p>
+<h3 id="通过设计器创建数据库和表"><a href="#通过设计器创建数据库和表" class="headerlink" title="通过设计器创建数据库和表"></a>通过设计器创建数据库和表</h3><p>每个数据库都有且只有一个主数据文件(.mdf), 日志文件(_log.ldf); 任意多个次要数据文件(.ndf), 多个事务日志文件;</p>
+<ul>
+<li><p>文件组: 可将多个数据文件逻辑分到一组,方便日后管理维护(备份/将表建立在对应文件组上等);</p>
+</li>
+<li><p>分离:对要分离的数据库,右击,分离,删除链接;</p>
+</li>
+<li><p>附加:右击数据库,选择附加,找到目录下的数据库文件;</p>
+</li>
+<li><p>脱机:暂时不用这个数据库,右击脱机,还在原来的目录,需要恢复,右击联机;</p>
+</li>
+</ul>
+<p>生成兼容脚本移动数据库:右击数据库→任务→生成脚本,可选生成向下版本,可选项根据需求;</p>
+<p><strong>注</strong>:</p>
+<ol>
+<li><p>附加和分离是在数据库版本是一样的情况下进行的,不同版本是会出错;</p>
+</li>
+<li><p>报错:”不允许保存更改.您所做的更改要求删除并重新创建以下表.您对无法重新创建的表进行了更改或者启用了”阻止保存要求重新创建表的更改”选项”;</p>
+<p> 解决方法:工具→选项→Designer/设计→ 勾去  阻止保存要求重新创建表的更改;</p>
+</li>
+<li><p>报错:附加数据库时报错”..拒绝访问..”;</p>
+<p> 权限问题,设置数据库文件安全为:Everyone;</p>
+</li>
+<li><p>低版本向高版本是兼容的,高版本向低版本是不兼容的;</p>
+</li>
+</ol>
+<h3 id="数据库的数据类型"><a href="#数据库的数据类型" class="headerlink" title="数据库的数据类型"></a>数据库的数据类型</h3><p><strong>image</strong>:用来存储 byte[]类型;</p>
+<p><strong>字符串类型</strong>:<br>    char,nchar,varchar,nvarchar,text,ntext,varchar(max),nvarchar(max)都属于字符串类型,下面是对应的区别;</p>
+<p>(1) <strong>带n和不带n的区别</strong>:</p>
+<pre><code>   char: char(2),表示可以**存储2个字节**,比如:ab,12,赵;
+
+   nchar:nchar(2),表示可以**存储两个字符**,每个字符占用2个字节,比如:貂蝉,ab,12;
+
+   总结:
+
+   不带n:存储**中文**占用**2**个字节;存储**数字/英文**等占用**1**个字节;
+
+   带n:无论存储**中文/英文/数字**,每个字符都占用**2**个字节;
+
+   带n的数据类型最长4000,nchar(4000)/nvarchar(4000);
+
+   不带n的数据类型最长是8000,char(8000)/varchar(8000);</code></pre>
+<p>(2)  <strong>带var和不带var的区别</strong>:</p>
+<p>​       不带var: 固定长度,存储1个字符,也要占用10个字节,会自动补9个空格,占满10个字节;<br>​       带var: 可变长度,会根据实际存储的字符大小动态重新分配存储空间,相对节省存储空间;<br>​       10: 表示存储最大10个字节,无论是固定长度还是可变长度,超过后都会报错;</p>
+<p>(3)  <strong>大字符串存储时</strong></p>
+<p>   SQL 2005前用:text和ntext;</p>
+<p>   SQL 2005后用:varchar(max)/nvarchar(max);max表示4GB内存;</p>
+<p> 注:对于双字节字符,用nvarchar解决;</p>
+<p><strong>bit类型</strong>:</p>
+<p>​    在程序中和查询语句中bit的类型的值都是1(true)和0(false),但是在设计器中必须输入true/false;</p>
+<p>   注:详细的数据类型文档,在  帮助→索引中搜索”数据类型 [SQL Server]”都会有详细的解释文档;</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ol>
+<li><a href="https://www.cnblogs.com/sauerkraut/p/6651154.html">https://www.cnblogs.com/sauerkraut/p/6651154.html</a></li>
+</ol>
 ]]></content>
       <categories>
-        <category>工具</category>
+        <category>数据库</category>
       </categories>
   </entry>
   <entry>
@@ -1715,107 +1767,61 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>SQL Server数据库(1) - 基本知识</title>
-    <url>/posts/f50c229a/</url>
-    <content><![CDATA[<h3 id="基本常识"><a href="#基本常识" class="headerlink" title="基本常识"></a>基本常识</h3><p>sa(super administrator): 超级管理员</p>
-<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h3><figure class="highlight bash"><figcaption><span>基本命令.txt</span></figcaption><table><tr><td class="code"><pre><span class="line">net start mssqlserver //开启SQL Server服务</span><br><span class="line">net stop mssqlserver  //关闭SQL Server服务</span><br></pre></td></tr></table></figure>
+    <title>StarUML3.x破解教程</title>
+    <url>/posts/b785abd2/</url>
+    <content><![CDATA[<blockquote>
+<p>StarUML 是非常好的UML画图工具，这里介绍StarUML3.2.2的破解教程。</p>
+</blockquote>
+<ul>
+<li><strong>有能力的请支持正版！</strong></li>
+<li>参考教程：<a href="https://www.cnblogs.com/yourstars/p/9309529.html">https://www.cnblogs.com/yourstars/p/9309529.html</a></li>
+<li>在破解基础上取消自动更新</li>
+</ul>
 <a id="more"></a>
 
-
-<h3 id="SQL语句"><a href="#SQL语句" class="headerlink" title="SQL语句"></a>SQL语句</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">print @@version <span class="comment">--查看数据库版本</span></span><br><span class="line">setuser <span class="comment">--使用默认用户sa</span></span><br><span class="line">setuser &#x27;new_user&#x27; <span class="comment">--使用用户new_user</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">user</span> <span class="comment">--查询当前操作的用户的用户名</span></span><br><span class="line"><span class="keyword">use</span> <span class="keyword">master</span> <span class="comment">--使用master数据库</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">user</span> df <span class="comment">--删除用户df</span></span><br><span class="line"><span class="keyword">drop</span> login df <span class="comment">--删除登录名df</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">database</span> mybase <span class="comment">--删除mybase数据库</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这是单行注释</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	这是多行注释</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
-
-
-<h3 id="SQL-Server的5个系统数据库"><a href="#SQL-Server的5个系统数据库" class="headerlink" title="SQL Server的5个系统数据库"></a>SQL Server的5个系统数据库</h3><ol>
-<li><p>master</p>
-<ul>
-<li>记录SQL Server系统的所有系统级信息.<br>例如:登录账户信息,链接服务器和系统配置设置,记录其他所有数据库的存在,数据文件的位置,SQL Server的初始化信息等.</li>
-<li>如果master不存在,无法启动SQL Server;</li>
-</ul>
-</li>
-<li><p>msdb</p>
-<ul>
-<li>用于SQL Server代理计划警报和作业,数据库定时执行某些操作,数据库邮件等;</li>
-</ul>
-</li>
-<li><p>model</p>
-<ul>
-<li>用作于SQL Server实例上创建的所有数据库的模板. </li>
-<li>对model数据库的修改(数据库大小/排序规则/恢复模式/其他数据库选项)将应用于以后创建的所有的数据库.在model中创建一张表,以后创建其他数据库都默认有一张同样的表;4</li>
-</ul>
-</li>
-<li><p>tempdb</p>
-<ul>
-<li><p>一个工作空间,用于保存临时对象或中间集.一个全局资源,可供链接到SQL Server的所有实例用户使用.</p>
-</li>
-<li><p>每次启动SQL Server时都会重新创建tempdb;</p>
-</li>
-</ul>
-</li>
-</ol>
-<ol start="5">
-<li><p>Resource</p>
-<ul>
-<li>一个只读数据库.包含SQL Server包括的系统对象.</li>
-<li>系统对象在物理上保留在Resource数据库中, 但在逻辑上显示在每个数据库的sys架构中.</li>
-</ul>
-</li>
-</ol>
-<h3 id="通过设计器创建数据库和表"><a href="#通过设计器创建数据库和表" class="headerlink" title="通过设计器创建数据库和表"></a>通过设计器创建数据库和表</h3><p>每个数据库都有且只有一个主数据文件(.mdf), 日志文件(_log.ldf); 任意多个次要数据文件(.ndf), 多个事务日志文件;</p>
-<ul>
-<li><p>文件组: 可将多个数据文件逻辑分到一组,方便日后管理维护(备份/将表建立在对应文件组上等);</p>
-</li>
-<li><p>分离:对要分离的数据库,右击,分离,删除链接;</p>
-</li>
-<li><p>附加:右击数据库,选择附加,找到目录下的数据库文件;</p>
-</li>
-<li><p>脱机:暂时不用这个数据库,右击脱机,还在原来的目录,需要恢复,右击联机;</p>
-</li>
-</ul>
-<p>生成兼容脚本移动数据库:右击数据库→任务→生成脚本,可选生成向下版本,可选项根据需求;</p>
-<p><strong>注</strong>:</p>
+<h3 id="破解原理"><a href="#破解原理" class="headerlink" title="破解原理"></a>破解原理</h3><p><a href="http://staruml.io/download"><code>StarUML</code></a>是用<code>nodejs</code>写的。确切的说是用<a href="https://github.com/electron/electron">Electron前端框架</a>写的。</p>
+<p>新版本中所有的starUML源代码是通过<a href="https://github.com/electron/asar">asar</a>工具打包而成。</p>
+<p>确切的代码位置在<code>%LOCALAPPDATA%\Programs\StarURML\resources\app.asar</code>。</p>
+<h3 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h3><p>在执行下列操作前，<strong>请确保本机安装了<code>nodejs    </code>工具</strong></p>
+<p>我们可以通过<code>asar</code>工具解压修改达到破解目的。具体操作如下：</p>
 <ol>
-<li><p>附加和分离是在数据库版本是一样的情况下进行的,不同版本是会出错;</p>
+<li><p>安装<code>nodejs</code></p>
 </li>
-<li><p>报错:”不允许保存更改.您所做的更改要求删除并重新创建以下表.您对无法重新创建的表进行了更改或者启用了”阻止保存要求重新创建表的更改”选项”;</p>
-<p> 解决方法:工具→选项→Designer/设计→ 勾去  阻止保存要求重新创建表的更改;</p>
-</li>
-<li><p>报错:附加数据库时报错”..拒绝访问..”;</p>
-<p> 权限问题,设置数据库文件安全为:Everyone;</p>
-</li>
-<li><p>低版本向高版本是兼容的,高版本向低版本是不兼容的;</p>
+<li><p>安装<code>asar</code></p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">cnpm install -g asar  <span class="regexp">//</span>或者npm install -g asar</span><br></pre></td></tr></table></figure>
+
 </li>
 </ol>
-<h3 id="数据库的数据类型"><a href="#数据库的数据类型" class="headerlink" title="数据库的数据类型"></a>数据库的数据类型</h3><p><strong>image</strong>:用来存储 byte[]类型;</p>
-<p><strong>字符串类型</strong>:<br>    char,nchar,varchar,nvarchar,text,ntext,varchar(max),nvarchar(max)都属于字符串类型,下面是对应的区别;</p>
-<p>(1) <strong>带n和不带n的区别</strong>:</p>
-<pre><code>   char: char(2),表示可以**存储2个字节**,比如:ab,12,赵;
+<h3 id="修改源代码"><a href="#修改源代码" class="headerlink" title="修改源代码"></a>修改源代码</h3><p>打开软件安装路径，找到resources文件夹下的app.asar文件，将其复制到另一文件夹，我们从另一文件夹内解压app.asar，修改其中代码，最后将其压缩为app.asar文件替换最初的app.asar文件。具体过程如下：</p>
+<ol>
+<li><p>解压app.asar</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">asar extract <span class="keyword">app</span>.asar ./<span class="keyword">app</span> <span class="comment">// 解压到app文件夹</span></span><br></pre></td></tr></table></figure>
 
-   nchar:nchar(2),表示可以**存储两个字符**,每个字符占用2个字节,比如:貂蝉,ab,12;
 
-   总结:
 
-   不带n:存储**中文**占用**2**个字节;存储**数字/英文**等占用**1**个字节;
-
-   带n:无论存储**中文/英文/数字**,每个字符都占用**2**个字节;
-
-   带n的数据类型最长4000,nchar(4000)/nvarchar(4000);
-
-   不带n的数据类型最长是8000,char(8000)/varchar(8000);</code></pre>
-<p>(2)  <strong>带var和不带var的区别</strong>:</p>
-<p>​       不带var: 固定长度,存储1个字符,也要占用10个字节,会自动补9个空格,占满10个字节;<br>​       带var: 可变长度,会根据实际存储的字符大小动态重新分配存储空间,相对节省存储空间;<br>​       10: 表示存储最大10个字节,无论是固定长度还是可变长度,超过后都会报错;</p>
-<p>(3)  <strong>大字符串存储时</strong></p>
-<p>   SQL 2005前用:text和ntext;</p>
-<p>   SQL 2005后用:varchar(max)/nvarchar(max);max表示4GB内存;</p>
-<p> 注:对于双字节字符,用nvarchar解决;</p>
-<p><strong>bit类型</strong>:</p>
-<p>​    在程序中和查询语句中bit的类型的值都是1(true)和0(false),但是在设计器中必须输入true/false;</p>
-<p>   注:详细的数据类型文档,在  帮助→索引中搜索”数据类型 [SQL Server]”都会有详细的解释文档;</p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ol>
-<li><a href="https://www.cnblogs.com/sauerkraut/p/6651154.html">https://www.cnblogs.com/sauerkraut/p/6651154.html</a></li>
+</li>
 </ol>
+<ol start="2">
+<li><p>修改<code>app\src\engine\license-manager.js</code>文件 –&gt; 取消<code>注册操作</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">checkLicenseValidity () &#123;</span><br><span class="line">  <span class="built_in">this</span>.validate().then(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    setStatus(<span class="built_in">this</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">//setStatus(this, false)</span></span><br><span class="line">    <span class="comment">//UnregisteredDialog.showDialog()</span></span><br><span class="line">    </span><br><span class="line">    setStatus(<span class="built_in">this</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>找到上述代码位置，注释掉原先两行代码，添加<code>setStatus(this, true)</code>。</p>
+</li>
+<li><p>修改<code>app\src\engine\update-manager.js</code>文件 –&gt; 取消<code>自动更新</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Check extensions updates</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">checkExtensionUpdates () &#123;</span><br><span class="line">  ExtensionManager.downloadRegistry().done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> updateAvailable = <span class="literal">false</span></span><br><span class="line">    _.each(ExtensionManager.extensions, <span class="function"><span class="params">ext</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">//if (ext.installInfo &amp;&amp; ext.installInfo.updateAvailable) &#123;</span></span><br><span class="line">        <span class="comment">//updateAvailable = true</span></span><br><span class="line">      <span class="comment">//&#125;</span></span><br><span class="line">        updateAvailable = <span class="literal">false</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> (updateAvailable) &#123;</span><br><span class="line">      $(<span class="string">&#x27;#toolbar-extension-manager&#x27;</span>).addClass(<span class="string">&#x27;selected&#x27;</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      $(<span class="string">&#x27;#toolbar-extension-manager&#x27;</span>).removeClass(<span class="string">&#x27;selected&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>找到上述代码位置，注释那几行代码，添加<code>updateAvailable = false</code>。</p>
+</li>
+<li><p>重新打包<code>app.asar</code></p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">asar pack <span class="keyword">app</span> <span class="keyword">app</span>.asar</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将打包后的<code>app.asar</code>覆盖原先的<code>app.asar</code>文件</p>
+</li>
+</ol>
+<h3 id="已经破解好的StarUML"><a href="#已经破解好的StarUML" class="headerlink" title="已经破解好的StarUML"></a>已经破解好的StarUML</h3><p><a href="https://jxjjxy-my.sharepoint.com/:u:/g/personal/cxz_kervia1_t_odmail_cn/Efh1n8IPGbZMqhmdubupEAsBwk6GVdVutPwb9Eoizy_qUQ?e=9ai3Jr">下载地址</a></p>
 ]]></content>
       <categories>
-        <category>数据库</category>
+        <category>工具</category>
       </categories>
   </entry>
   <entry>
@@ -1898,54 +1904,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>telegram</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>WebDriver下载地址</title>
-    <url>/posts/6b450c9b/</url>
-    <content><![CDATA[<blockquote>
-<p>在使用python的selenium库实现python爬虫时, 需要安装一些浏览器的driver, 每次安装时都需要寻找下载地址, 这里将各浏览器driver的下载地址记录下来, 方便以后查询.</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="各driver下载地址"><a href="#各driver下载地址" class="headerlink" title="各driver下载地址"></a>各driver下载地址</h3><h4 id="1-chrome浏览器"><a href="#1-chrome浏览器" class="headerlink" title="1. chrome浏览器"></a>1. chrome浏览器</h4><ul>
-<li><a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a></li>
-</ul>
-<h4 id="2-Firefox浏览器"><a href="#2-Firefox浏览器" class="headerlink" title="2. Firefox浏览器"></a>2. Firefox浏览器</h4><ul>
-<li><a href="https://github.com/mozilla/geckodriver/releases/">下载地址</a></li>
-</ul>
-<h4 id="3-IE浏览器"><a href="#3-IE浏览器" class="headerlink" title="3. IE浏览器"></a>3. IE浏览器</h4><ul>
-<li><a href="https://selenium-release.storage.googleapis.com/index.html">下载地址</a></li>
-</ul>
-<h4 id="4-PhantomJS"><a href="#4-PhantomJS" class="headerlink" title="4. PhantomJS"></a>4. PhantomJS</h4><ul>
-<li><a href="https://phantomjs.org/download.html">下载地址</a></li>
-</ul>
-<blockquote>
-<p>这个webdriver已经被selenium弃用了, 使用时会显示相关的警告信息.</p>
-<p>可以替代的有chrome和Firefox的无头浏览器.</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以chromedriver为例, 展示其使用方法</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">browser = webdriver.Chrome() // FireFox(), Ie(), PhantomJS()</span><br><span class="line">broswer.get(<span class="string">&#x27;https://baidu.com&#x27;</span>) //网址</span><br><span class="line">print(broswer.page_source)</span><br><span class="line">browser.close()</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<h3 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h3><blockquote>
-<p>按照对应浏览器版本下载driver, 下载后放在具有环境变量的路径内, 如果不知道如何操作, 直接将driver.exe放在python安装路径下</p>
-</blockquote>
-<h3 id="无头浏览器"><a href="#无头浏览器" class="headerlink" title="无头浏览器"></a>无头浏览器</h3><blockquote>
-<p>chrome和 Firfox都具有类似PhantomJS的功能</p>
-</blockquote>
-<ul>
-<li><p>使用方法如下:</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">chrome_options = Options()</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(chrome_options=chrome_options)</span><br><span class="line">driver.get(<span class="string">&quot;https://baidu.com/&quot;</span>)</span><br><span class="line">print(driver.page_source)</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>webdriver</tag>
       </tags>
   </entry>
   <entry>
@@ -2190,6 +2148,54 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>WebDriver下载地址</title>
+    <url>/posts/6b450c9b/</url>
+    <content><![CDATA[<blockquote>
+<p>在使用python的selenium库实现python爬虫时, 需要安装一些浏览器的driver, 每次安装时都需要寻找下载地址, 这里将各浏览器driver的下载地址记录下来, 方便以后查询.</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="各driver下载地址"><a href="#各driver下载地址" class="headerlink" title="各driver下载地址"></a>各driver下载地址</h3><h4 id="1-chrome浏览器"><a href="#1-chrome浏览器" class="headerlink" title="1. chrome浏览器"></a>1. chrome浏览器</h4><ul>
+<li><a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a></li>
+</ul>
+<h4 id="2-Firefox浏览器"><a href="#2-Firefox浏览器" class="headerlink" title="2. Firefox浏览器"></a>2. Firefox浏览器</h4><ul>
+<li><a href="https://github.com/mozilla/geckodriver/releases/">下载地址</a></li>
+</ul>
+<h4 id="3-IE浏览器"><a href="#3-IE浏览器" class="headerlink" title="3. IE浏览器"></a>3. IE浏览器</h4><ul>
+<li><a href="https://selenium-release.storage.googleapis.com/index.html">下载地址</a></li>
+</ul>
+<h4 id="4-PhantomJS"><a href="#4-PhantomJS" class="headerlink" title="4. PhantomJS"></a>4. PhantomJS</h4><ul>
+<li><a href="https://phantomjs.org/download.html">下载地址</a></li>
+</ul>
+<blockquote>
+<p>这个webdriver已经被selenium弃用了, 使用时会显示相关的警告信息.</p>
+<p>可以替代的有chrome和Firefox的无头浏览器.</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以chromedriver为例, 展示其使用方法</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">browser = webdriver.Chrome() // FireFox(), Ie(), PhantomJS()</span><br><span class="line">broswer.get(<span class="string">&#x27;https://baidu.com&#x27;</span>) //网址</span><br><span class="line">print(broswer.page_source)</span><br><span class="line">browser.close()</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<h3 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h3><blockquote>
+<p>按照对应浏览器版本下载driver, 下载后放在具有环境变量的路径内, 如果不知道如何操作, 直接将driver.exe放在python安装路径下</p>
+</blockquote>
+<h3 id="无头浏览器"><a href="#无头浏览器" class="headerlink" title="无头浏览器"></a>无头浏览器</h3><blockquote>
+<p>chrome和 Firfox都具有类似PhantomJS的功能</p>
+</blockquote>
+<ul>
+<li><p>使用方法如下:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">chrome_options = Options()</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(chrome_options=chrome_options)</span><br><span class="line">driver.get(<span class="string">&quot;https://baidu.com/&quot;</span>)</span><br><span class="line">print(driver.page_source)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>爬虫</category>
+      </categories>
+      <tags>
+        <tag>webdriver</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker安装forsaken mail</title>
     <url>/posts/918f076b/</url>
     <content><![CDATA[<blockquote>
@@ -2429,6 +2435,54 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>linux下部署selenium环境</title>
+    <url>/posts/65c4a6d8/</url>
+    <content><![CDATA[<blockquote>
+<p>记录在linux服务器上搭建selenium环境，用于Python爬虫</p>
+</blockquote>
+<a id="more"></a>
+
+<h1 id="Centos7"><a href="#Centos7" class="headerlink" title="Centos7"></a>Centos7</h1><ol>
+<li><p>添加 yum 信息</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">vim</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">yum</span><span class="selector-class">.repos</span><span class="selector-class">.d</span>/<span class="selector-tag">google-chrome</span><span class="selector-class">.repo</span></span><br></pre></td></tr></table></figure>
+
+<p>向文件中添加以下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[google-chrome]</span></span><br><span class="line"><span class="attr">name</span>=google-chrome</span><br><span class="line"><span class="attr">baseurl</span>=http://dl.google.com/linux/chrome/rpm/stable/<span class="variable">$basearch</span></span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=https://dl-ssl.google.com/linux/linux_signing_key.pub</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="2">
+<li><p>安装chrome</p>
+<p>Google官方源安装：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> google-chrome-stable</span><br></pre></td></tr></table></figure>
+
+<p>Google官方源可能在中国无法使用，导致安装失败或者在国内无法更新，可以添加以下参数来安装：　　</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">yum -y install google-chrome-<span class="keyword">stable</span> <span class="comment">--nogpgcheck</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加 chrome 到环境变量中</p>
+<p>找到chrome路径，并做个软连接，方便使用:</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">which google-chrome-stable</span><br><span class="line">ln -s xxx <span class="regexp">/bin/</span>chrome <span class="comment"># xxx为chrome可执行文件路径</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载webdriver</p>
+<p>以chromedriver为例，<a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a> ,选择对应版本的driver</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-11/20201108234442.png"></p>
+<p>Python代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">chromeOptions = webdriver.ChromeOptions()</span><br><span class="line"><span class="comment"># 加载无窗口浏览器</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line"><span class="comment">#chromeOptions.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--lang=en_US&#x27;</span>)</span><br><span class="line"><span class="comment"># 以根用户打身份运行Chrome，使用-no-sandbox标记重新运行Chrome,禁止沙箱启动</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--no-sandbox&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(options=chromeOptions, executable_path=driver_path) <span class="comment">#driver_path为driver路径</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>爬虫</category>
+      </categories>
+      <tags>
+        <tag>selenium</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux学习01 - linux系统简介</title>
     <url>/posts/51bc6a9b/</url>
     <content><![CDATA[<blockquote>
@@ -2503,6 +2557,206 @@ docker部署</code></pre>
 <h4 id="shell"><a href="#shell" class="headerlink" title="shell"></a>shell</h4><p>通常在图形界面中对实际体验带来差异的不是上述的不同发行版的各种终端模拟器，而是这个 Shell（壳）。有壳就有核，这里的核就是指 UNIX/Linux 内核，Shell 是指“提供给使用者使用界面”的软件（命令解析器），类似于 DOS 下的 command（命令行）和后来的 cmd.exe 。普通意义上的 Shell 就是可以接受用户输入命令的程序。它之所以被称作 Shell 是因为它隐藏了操作系统底层的细节。同样的 UNIX/Linux 下的图形用户界面 GNOME 和 KDE，有时也被叫做“虚拟 shell”或“图形 shell”。</p>
 <p>UNIX/Linux 操作系统下的 Shell 既是用户交互的界面，也是控制系统的脚本语言。当然这一点也有别于 Windows 下的命令行，虽然该命令行也提供了很简单的控制语句。在 Windows 操作系统下，有些用户从来都不会直接使用 Shell，然而在 UNIX 系列操作系统下，Shell 仍然是控制系统启动、X11 启动和很多其它实用工具的脚本解释程序。</p>
 <p>在 UNIX/Linux 中比较流行的常见的 Shell 有 bash、zsh、ksh、csh 等等，Ubuntu 终端默认使用的是 bash，默认的桌面环境是 GNOME 或者 Unity（基于 GNOME），但我们的环境中使用的分别是 zsh 和 xfce。</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>linux学习03 - 用户及权限管理</title>
+    <url>/posts/68370406/</url>
+    <content><![CDATA[<blockquote>
+<p>linux学习03：用户及权限管理<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="查看用户"><a href="#查看用户" class="headerlink" title="查看用户"></a>查看用户</h3><p>请打开终端，输入命令：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>who am i</span><br><span class="line"></span><br><span class="line">或者</span><br><span class="line"></span><br><span class="line"><span class="variable">$ </span>who mom likes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-1.png"></p>
+<p> 输出的第一列表示打开当前伪终端的用户的用户名（要查看当前登录用户的用户名，去掉空格直接使用 <code>whoami</code> 即可），第二列的 <code>pts/0</code> 中 <code>pts</code> 表示伪终端，所谓伪是相对于 <code>/dev/tty</code> 设备而言的，还记得上一节讲终端时的那七个使用 <code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F7]</code> 进行切换的 <code>/dev/tty</code> 设备么,这是“真终端”，伪终端就是当你在图形用户界面使用 <code>/dev/tty7</code> 时每打开一个终端就会产生一个伪终端， <code>pts/0</code> 后面那个数字就表示打开的伪终端序号，你可以尝试再打开一个终端，然后在里面输入 <code>who am i</code> ，看第二列是不是就变成 <code>pts/1</code> 了，第三列则表示当前伪终端的启动时间。</p>
+<p><code>who</code> 命令其它常用参数</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-a</code></td>
+<td>打印能打印的全部</td>
+</tr>
+<tr>
+<td><code>-d</code></td>
+<td>打印死掉的进程</td>
+</tr>
+<tr>
+<td><code>-m</code></td>
+<td>同<code>am i</code>,<code>mom likes</code></td>
+</tr>
+<tr>
+<td><code>-q</code></td>
+<td>打印当前登录用户数及用户名</td>
+</tr>
+<tr>
+<td><code>-u</code></td>
+<td>打印当前登录用户登录信息</td>
+</tr>
+<tr>
+<td><code>-r</code></td>
+<td>打印运行等级</td>
+</tr>
+</tbody></table>
+<h3 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h3><p>在 Linux 系统里， <code>root</code> 账户拥有整个系统至高无上的权利，比如 新建/添加 用户。</p>
+<blockquote>
+<p>root 权限，系统权限的一种，与 SYSTEM 权限可以理解成一个概念，但高于 Administrator 权限，root 是 Linux 和 UNIX 系统中的超级管理员用户帐户，该帐户拥有整个系统至高无上的权力，所有对象他都可以操作，所以很多黑客在入侵系统的时候，都要把权限提升到 root 权限，用 Windows 的方法理解也就是将自己的非法帐户添加到 Administrators 用户组。更比如安卓操作系统中（基于 Linux 内核）获得 root 权限之后就意味着已经获得了手机的最高权限，这时候你可以对手机中的任何文件（包括系统文件）执行所有增、删、改、查的操作。</p>
+</blockquote>
+<p>我们一般登录系统时都是以普通账户的身份登录的，要创建用户需要 root 权限，这里就要用到 <code>sudo</code> 这个命令了。不过使用这个命令有两个大前提，一是你要知道当前登录用户的密码，二是当前用户必须在 <code>sudo</code> 用户组。shiyanlou 用户也属于 sudo 用户组（稍后会介绍如何查看和添加用户组）。</p>
+<h4 id="su，su-与-sudo"><a href="#su，su-与-sudo" class="headerlink" title="su，su- 与 sudo"></a>su，su- 与 sudo</h4><p><strong>需要注意 Linux 环境下输入密码是不会显示的。</strong></p>
+<p><code>su &lt;user&gt;</code> 可以切换到用户 user，执行时需要输入目标用户的密码，<code>sudo &lt;cmd&gt;</code> 可以以特权级别运行 cmd 命令，需要当前用户属于 sudo 组，且需要输入当前用户的密码。<code>su - &lt;user&gt;</code> 命令也是切换用户，<font color="red">同时环境变量也会跟着改变成目标用户的环境变量。</font></p>
+<p>现在我们新建一个叫 lilei 的用户：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>sudo adduser lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>实验楼的环境目前设置为 shiyanlou 用户执行 sudo 不需要输入密码，通常此处需要按照提示输入 shiyanlou 密码（<strong>Linux 下密码输入是不显示任何内容的</strong>），shiyanlou 用户密码可以通过 <code>sudo passwd shiyanlou</code> 命令进行设置。然后是给 lilei 用户设置密码，后面的选项的一些内容你可以选择直接回车使用默认值：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-2.png"></p>
+<p>这个命令不但可以添加用户到系统，同时也会默认为新用户创建 home 目录：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">ls</span> <span class="string">/home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在你已经创建好一个用户，并且你可以使用你创建的用户登录了，使用如下命令切换登录用户：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su -l lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>输入刚刚设置的 lilei 的密码，然后输入如下命令并查看输出：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> who am i</span><br><span class="line"><span class="variable">$</span> whoami</span><br><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>退出当前用户跟退出终端一样可以使用 <code>exit</code> 命令或者使用快捷键 <code>Ctrl+d</code>。</p>
+<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>在 Linux 里面每个用户都有一个归属（用户组），用户组简单地理解就是一组用户的集合，它们共享一些资源和权限，同时拥有私有资源，就跟家的形式差不多，你的兄弟姐妹（不同的用户）属于同一个家（用户组），你们可以共同拥有这个家（共享资源），爸妈对待你们都一样（共享权限），你偶尔写写日记，其他人未经允许不能查看（私有资源和权限）。当然一个用户是可以属于多个用户组的，正如你既属于家庭，又属于学校或公司。</p>
+<p>在 Linux 里面如何知道自己属于哪些用户组呢？</p>
+<h4 id="方法一：使用-groups-命令"><a href="#方法一：使用-groups-命令" class="headerlink" title="方法一：使用 groups 命令"></a>方法一：使用 groups 命令</h4><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>groups shiyanlou</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-3.png"></p>
+<p>其中冒号之前表示用户，后面表示该用户所属的用户组。这里可以看到 shiyanlou 用户属于 shiyanlou 用户组，<strong>每次新建用户如果不指定用户组的话，默认会自动创建一个与用户名相同的用户组</strong>（差不多就相当于家长的意思，或者说是老总）。默认情况下在 sudo 用户组里的可以使用 sudo 命令获得 root 权限。shiyanlou 用户也可以使用 sudo 命令，为什么这里没有显示在 sudo 用户组里呢？可以查看下 <code>/etc/sudoers.d/shiyanlou</code> 文件，我们在 <code>/etc/sudoers.d</code> 目录下创建了这个文件，从而给 shiyanlou 用户赋予了 sudo 权限：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-4.png"></p>
+<h4 id="方法二：查看-etc-group-文件"><a href="#方法二：查看-etc-group-文件" class="headerlink" title="方法二：查看 /etc/group 文件"></a>方法二：查看 <code>/etc/group</code> 文件</h4><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> /etc/<span class="built_in">group</span> | <span class="built_in">sort</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>cat</code> 命令用于读取指定文件的内容并打印到终端输出，后面会详细讲它的使用。 <code>| sort</code> 表示将读取的文本进行一个字典排序再输出，然后你将看到如下一堆输出，你可以在最下面看到 shiyanlou 的用户组信息：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-5.png"></p>
+<p>没找到，没关系，你可以使用命令过滤掉一些你不想看到的结果：</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">$ cat /etc/<span class="keyword">group</span> <span class="title">| grep</span> -E <span class="string">&quot;shiyanlou&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-6.png"></p>
+<h5 id="etc-group-文件格式说明"><a href="#etc-group-文件格式说明" class="headerlink" title="/etc/group 文件格式说明"></a><code>/etc/group</code> 文件格式说明</h5><p>/etc/group 的内容包括用户组（Group）、用户组口令、GID 及该用户组所包含的用户（User），每个用户组一条记录。格式如下：</p>
+<blockquote>
+<p>group_name:password:GID:user_list</p>
+</blockquote>
+<p>你看到上面的 password 字段为一个 <code>x</code> 并不是说密码就是它，只是表示密码不可见而已。</p>
+<p>这里需要注意，如果用户的 GID 等于用户组的 GID，那么最后一个字段 <code>user_list</code> 就是空的，比如 shiyanlou 用户，在 <code>/etc/group</code> 中的 shiyanlou 用户组后面是不会显示的。lilei 用户，在 <code>/etc/group</code> 中的 lilei 用户组后面是不会显示的。</p>
+<h5 id="将其它用户加入-sudo-用户组"><a href="#将其它用户加入-sudo-用户组" class="headerlink" title="将其它用户加入 sudo 用户组"></a>将其它用户加入 sudo 用户组</h5><p>默认情况下新创建的用户是不具有 root 权限的，也不在 sudo 用户组，可以让其加入 sudo 用户组从而获取 root 权限：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> su <span class="literal">-l</span> lilei</span><br><span class="line"><span class="variable">$</span> sudo <span class="built_in">ls</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>会提示 lilei 不在 sudoers 文件中，意思就是 lilei 不在 sudo 用户组中，至于 sudoers 文件（/etc/sudoers）你现在最好不要动它，操作不慎会导致比较麻烦的后果。</p>
+<p>使用 <code>usermod</code> 命令可以为用户添加用户组，同样使用该命令你必需有 root 权限，你可以直接使用 root 用户为其它用户添加用户组，或者用其它已经在 sudo 用户组的用户使用 sudo 命令获取权限来执行该命令。</p>
+<p>这里我用 shiyanlou 用户执行 sudo 命令将 lilei 添加到 sudo 用户组，让它也可以使用 sudo 命令获得 root 权限：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su shiyanlou  <span class="comment"># 注意 Linux 上输入密码是不会显示的</span></span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"><span class="variable">$ </span>sudo usermod -G sudo lilei</span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后你再切换回 lilei 用户，现在就可以使用 sudo 获取 root 权限了。</p>
+<h3 id="删除用户"><a href="#删除用户" class="headerlink" title="删除用户"></a>删除用户</h3><p>删除用户是很简单的事：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">$ sudo deluser lilei --<span class="built_in">remove</span>-<span class="built_in">home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-7.png"></p>
+<h3 id="linux文件权限"><a href="#linux文件权限" class="headerlink" title="linux文件权限"></a>linux文件权限</h3><p>文件权限就是文件的访问控制权限，即哪些用户和组群可以访问文件以及可以执行什么样的操作。</p>
+<p>Unix/Linux系统是一个典型的多用户系统，不同的用户处于不同的地位，对文件和目录有不同的访问权限。为了保护系统的安全性，Unix/Linux系统除了对用户权限作了严格的界定外，还在用户身份认证、访问控制、传输安全、文件读写权限等方面作了周密的控制。</p>
+<p>在 Unix/Linux中的每一个文件或目录都包含有访问权限，这些访问权限决定了谁能访问和如何访问这些文件和目录。</p>
+<hr>
+
+<p>我们之前已经很多次用到<code>ls</code>命令了，如你所见，我们用它来列出并显示当前目录下的文件，当然这是在不带任何参数的情况下，它能做的当然不止这么多，现在我们就要用它来查看文件权限。</p>
+<p>使用较长格式列出文件：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-l</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-8.png"></p>
+<p>你可能除了知道最后面那一项是文件名之外，其它项就不太清楚了，那么到底是什么意思呢：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-9.png"></p>
+<p>可能你还是不太明白，比如第一项文件类型和权限那一堆东西具体指什么，链接又是什么，何为最后修改时间，下面一一道来：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-10.png"></p>
+<ul>
+<li>  文件类型</li>
+</ul>
+<blockquote>
+<p>关于文件类型，这里有一点你必需时刻牢记 <strong>Linux 里面一切皆文件</strong>，正因为这一点才有了设备文件（ <code>/dev</code> 目录下有各种设备文件，大都跟具体的硬件设备相关）这一说。 <code>socket</code>：网络套接字，具体是什么，感兴趣的用户可以自己去了解或期待实验楼的后续相关课程。<code>pipe</code> 管道，这个东西很重要，我们以后将会讨论到，这里你先知道有它的存在即可。<code>软链接文件</code>：链接文件是分为两种的，另一种当然是“硬链接”（硬链接不常用，具体内容不作为本课程讨论重点，而软链接等同于 Windows 上的快捷方式,你记住这一点就够了）。</p>
+</blockquote>
+<ul>
+<li>  文件权限</li>
+</ul>
+<blockquote>
+<p>读权限，表示你可以使用 <code>cat &lt;file name&gt;</code> 之类的命令来读取某个文件的内容；写权限，表示你可以编辑和修改某个文件； 执行权限，通常指可以运行的二进制程序文件或者脚本文件，如同 Windows 上的 <code>exe</code> 后缀的文件，不过 Linux 上不是通过文件后缀名来区分文件的类型。你需要注意的一点是，<strong>一个目录同时具有读权限和执行权限才可以打开并查看内部文件，而一个目录要有写权限才允许在其中创建其它文件</strong>，这是因为目录文件实际保存着该目录里面的文件的列表等信息。</p>
+</blockquote>
+<p>所有者权限，这一点相信你应该明白了，至于所属用户组权限，是指你所在的用户组中的所有其它用户对于该文件的权限，比如，你有一个 iPad，那么这个用户组权限就决定了你的兄弟姐妹有没有权限使用它破坏它和占有它。</p>
+<ul>
+<li>  链接数</li>
+</ul>
+<blockquote>
+<p>链接到该文件所在的 inode 结点的文件名数目（关于这个概念涉及到 Linux 文件系统的相关概念知识，不在本课程的讨论范围，感兴趣的用户可以自己去了解）。</p>
+</blockquote>
+<ul>
+<li>  文件大小</li>
+</ul>
+<blockquote>
+<p>以 inode 结点大小为单位来表示的文件大小，你可以给 ls 加上 <code>-lh</code> 参数来更直观的查看文件的大小。</p>
+</blockquote>
+<p>明白了文件权限的一些概念，我们顺带补充一下关于 <code>ls</code> 命令的一些其它常用的用法：</p>
+<ul>
+<li>  显示除了 <code>.</code>（当前目录）和 <code>..</code>（上一级目录）之外的所有文件，包括隐藏文件（Linux 下以 <code>.</code> 开头的文件为隐藏文件）。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-A</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-11.png"></p>
+<p>当然，你可以同时使用 <code>-A</code> 和 <code>-l</code> 参数：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-Al</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看某一个目录的完整属性，而不是显示目录里面的文件属性：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-dl</span> &lt;目录名&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>  显示所有文件大小，并以普通人类能看懂的方式呈现：</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-AsSh</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中小 s 为显示文件大小，大 S 为按文件大小排序，若需要知道如何按其它方式排序，请使用“man”命令查询。</p>
+<h3 id="变更文件所有者"><a href="#变更文件所有者" class="headerlink" title="变更文件所有者"></a>变更文件所有者</h3><blockquote>
+<p>若前面已经执行删除lilei用户的命令，这里重新创建一下。</p>
+</blockquote>
+<p>假设目前是 lilei 用户登录，新建一个文件，命名为 “ iphone6 ”：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 注意当前的用户必须是 lilei</span></span><br><span class="line"><span class="comment"># 如果是 shiyanlou 用户需要切换到 lilei（如果之前已经删除需要重新创建下）</span></span><br><span class="line"><span class="variable">$</span> su lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> touch iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可见文件所有者是 lilei ：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-12.png"></p>
+<p>现在，换回到 shiyanlou 用户身份，使用以下命令变更文件所有者为 shiyanlou ：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要切换到 shiyanlou 用户执行以下操作</span></span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> iphone6</span><br><span class="line"><span class="variable">$</span> sudo chown shiyanlou iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在查看，发现 文件所有者成功修改为 shiyanlou ：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-13.png"></p>
+<h3 id="修改文件权限"><a href="#修改文件权限" class="headerlink" title="修改文件权限"></a>修改文件权限</h3><p>如果你有一个自己的文件不想被其他用户读、写、执行，那么就需要对文件的权限做修改，这里有两种方式：</p>
+<ul>
+<li>  方式一：二进制数字表示</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-14.png"></p>
+<p>每个文件的三组权限（拥有者，所属用户组，其他用户，<strong>记住这个顺序是一定的</strong>）对应一个 “ rwx “，也就是一个 “ 7 ” ，所以如果我要将文件“ iphone6 ”的权限改为只有我自己可以用那么就这样：</p>
+<p>为了演示，我先在文件里加点内容：</p>
+<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$ echo <span class="string">&quot;echo <span class="subst">\&quot;</span>hello shiyanlou<span class="subst">\&quot;</span>&quot;</span> &gt; iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后修改权限：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod <span class="number">600</span> iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在，其他用户已经不能读这个“ iphone6 ”文件了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-15.png"></p>
+<ul>
+<li>  方式二：加减赋值操作</li>
+</ul>
+<p>完成上述相同的效果，你可以：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod go-rw iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-16.png"></p>
+<p><code>g</code>、<code>o</code> 还有 <code>u</code> 分别表示 group、others 和 user，<code>+</code> 和 <code>-</code> 分别表示增加和去掉相应的权限。</p>
+<h3 id="adduser-和-useradd-的区别是什么？"><a href="#adduser-和-useradd-的区别是什么？" class="headerlink" title="adduser 和 useradd 的区别是什么？"></a><code>adduser</code> 和 <code>useradd</code> 的区别是什么？</h3><p>答：useradd 只创建用户，创建完了用 passwd lilei 去设置新用户的密码。adduser 会创建用户，创建目录，创建密码（提示你设置），做这一系列的操作。其实 useradd、userdel 这类操作更像是一种命令，执行完了就返回。而 adduser 更像是一种程序，需要你输入、确定等一系列操作。</p>
+<p>Linux 还有一些关于隐藏权限和特殊权限的内容，想全面了解 Linux 权限管理这部分内容的用户可以通过其它方式学习。</p>
 ]]></content>
       <categories>
         <category>linux</category>
@@ -2727,254 +2981,6 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
-    <title>linux下部署selenium环境</title>
-    <url>/posts/65c4a6d8/</url>
-    <content><![CDATA[<blockquote>
-<p>记录在linux服务器上搭建selenium环境，用于Python爬虫</p>
-</blockquote>
-<a id="more"></a>
-
-<h1 id="Centos7"><a href="#Centos7" class="headerlink" title="Centos7"></a>Centos7</h1><ol>
-<li><p>添加 yum 信息</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">vim</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">yum</span><span class="selector-class">.repos</span><span class="selector-class">.d</span>/<span class="selector-tag">google-chrome</span><span class="selector-class">.repo</span></span><br></pre></td></tr></table></figure>
-
-<p>向文件中添加以下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[google-chrome]</span></span><br><span class="line"><span class="attr">name</span>=google-chrome</span><br><span class="line"><span class="attr">baseurl</span>=http://dl.google.com/linux/chrome/rpm/stable/<span class="variable">$basearch</span></span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=https://dl-ssl.google.com/linux/linux_signing_key.pub</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<ol start="2">
-<li><p>安装chrome</p>
-<p>Google官方源安装：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> google-chrome-stable</span><br></pre></td></tr></table></figure>
-
-<p>Google官方源可能在中国无法使用，导致安装失败或者在国内无法更新，可以添加以下参数来安装：　　</p>
-<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">yum -y install google-chrome-<span class="keyword">stable</span> <span class="comment">--nogpgcheck</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加 chrome 到环境变量中</p>
-<p>找到chrome路径，并做个软连接，方便使用:</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">which google-chrome-stable</span><br><span class="line">ln -s xxx <span class="regexp">/bin/</span>chrome <span class="comment"># xxx为chrome可执行文件路径</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载webdriver</p>
-<p>以chromedriver为例，<a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a> ,选择对应版本的driver</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-11/20201108234442.png"></p>
-<p>Python代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">chromeOptions = webdriver.ChromeOptions()</span><br><span class="line"><span class="comment"># 加载无窗口浏览器</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line"><span class="comment">#chromeOptions.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--lang=en_US&#x27;</span>)</span><br><span class="line"><span class="comment"># 以根用户打身份运行Chrome，使用-no-sandbox标记重新运行Chrome,禁止沙箱启动</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--no-sandbox&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(options=chromeOptions, executable_path=driver_path) <span class="comment">#driver_path为driver路径</span></span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>selenium</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux学习03 - 用户及权限管理</title>
-    <url>/posts/68370406/</url>
-    <content><![CDATA[<blockquote>
-<p>linux学习03：用户及权限管理<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
-</blockquote>
-<a id="more"></a>
-
-<h3 id="查看用户"><a href="#查看用户" class="headerlink" title="查看用户"></a>查看用户</h3><p>请打开终端，输入命令：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>who am i</span><br><span class="line"></span><br><span class="line">或者</span><br><span class="line"></span><br><span class="line"><span class="variable">$ </span>who mom likes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-1.png"></p>
-<p> 输出的第一列表示打开当前伪终端的用户的用户名（要查看当前登录用户的用户名，去掉空格直接使用 <code>whoami</code> 即可），第二列的 <code>pts/0</code> 中 <code>pts</code> 表示伪终端，所谓伪是相对于 <code>/dev/tty</code> 设备而言的，还记得上一节讲终端时的那七个使用 <code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F7]</code> 进行切换的 <code>/dev/tty</code> 设备么,这是“真终端”，伪终端就是当你在图形用户界面使用 <code>/dev/tty7</code> 时每打开一个终端就会产生一个伪终端， <code>pts/0</code> 后面那个数字就表示打开的伪终端序号，你可以尝试再打开一个终端，然后在里面输入 <code>who am i</code> ，看第二列是不是就变成 <code>pts/1</code> 了，第三列则表示当前伪终端的启动时间。</p>
-<p><code>who</code> 命令其它常用参数</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>-a</code></td>
-<td>打印能打印的全部</td>
-</tr>
-<tr>
-<td><code>-d</code></td>
-<td>打印死掉的进程</td>
-</tr>
-<tr>
-<td><code>-m</code></td>
-<td>同<code>am i</code>,<code>mom likes</code></td>
-</tr>
-<tr>
-<td><code>-q</code></td>
-<td>打印当前登录用户数及用户名</td>
-</tr>
-<tr>
-<td><code>-u</code></td>
-<td>打印当前登录用户登录信息</td>
-</tr>
-<tr>
-<td><code>-r</code></td>
-<td>打印运行等级</td>
-</tr>
-</tbody></table>
-<h3 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h3><p>在 Linux 系统里， <code>root</code> 账户拥有整个系统至高无上的权利，比如 新建/添加 用户。</p>
-<blockquote>
-<p>root 权限，系统权限的一种，与 SYSTEM 权限可以理解成一个概念，但高于 Administrator 权限，root 是 Linux 和 UNIX 系统中的超级管理员用户帐户，该帐户拥有整个系统至高无上的权力，所有对象他都可以操作，所以很多黑客在入侵系统的时候，都要把权限提升到 root 权限，用 Windows 的方法理解也就是将自己的非法帐户添加到 Administrators 用户组。更比如安卓操作系统中（基于 Linux 内核）获得 root 权限之后就意味着已经获得了手机的最高权限，这时候你可以对手机中的任何文件（包括系统文件）执行所有增、删、改、查的操作。</p>
-</blockquote>
-<p>我们一般登录系统时都是以普通账户的身份登录的，要创建用户需要 root 权限，这里就要用到 <code>sudo</code> 这个命令了。不过使用这个命令有两个大前提，一是你要知道当前登录用户的密码，二是当前用户必须在 <code>sudo</code> 用户组。shiyanlou 用户也属于 sudo 用户组（稍后会介绍如何查看和添加用户组）。</p>
-<h4 id="su，su-与-sudo"><a href="#su，su-与-sudo" class="headerlink" title="su，su- 与 sudo"></a>su，su- 与 sudo</h4><p><strong>需要注意 Linux 环境下输入密码是不会显示的。</strong></p>
-<p><code>su &lt;user&gt;</code> 可以切换到用户 user，执行时需要输入目标用户的密码，<code>sudo &lt;cmd&gt;</code> 可以以特权级别运行 cmd 命令，需要当前用户属于 sudo 组，且需要输入当前用户的密码。<code>su - &lt;user&gt;</code> 命令也是切换用户，<font color="red">同时环境变量也会跟着改变成目标用户的环境变量。</font></p>
-<p>现在我们新建一个叫 lilei 的用户：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>sudo adduser lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>实验楼的环境目前设置为 shiyanlou 用户执行 sudo 不需要输入密码，通常此处需要按照提示输入 shiyanlou 密码（<strong>Linux 下密码输入是不显示任何内容的</strong>），shiyanlou 用户密码可以通过 <code>sudo passwd shiyanlou</code> 命令进行设置。然后是给 lilei 用户设置密码，后面的选项的一些内容你可以选择直接回车使用默认值：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-2.png"></p>
-<p>这个命令不但可以添加用户到系统，同时也会默认为新用户创建 home 目录：</p>
-<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">ls</span> <span class="string">/home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>现在你已经创建好一个用户，并且你可以使用你创建的用户登录了，使用如下命令切换登录用户：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su -l lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>输入刚刚设置的 lilei 的密码，然后输入如下命令并查看输出：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> who am i</span><br><span class="line"><span class="variable">$</span> whoami</span><br><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>退出当前用户跟退出终端一样可以使用 <code>exit</code> 命令或者使用快捷键 <code>Ctrl+d</code>。</p>
-<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>在 Linux 里面每个用户都有一个归属（用户组），用户组简单地理解就是一组用户的集合，它们共享一些资源和权限，同时拥有私有资源，就跟家的形式差不多，你的兄弟姐妹（不同的用户）属于同一个家（用户组），你们可以共同拥有这个家（共享资源），爸妈对待你们都一样（共享权限），你偶尔写写日记，其他人未经允许不能查看（私有资源和权限）。当然一个用户是可以属于多个用户组的，正如你既属于家庭，又属于学校或公司。</p>
-<p>在 Linux 里面如何知道自己属于哪些用户组呢？</p>
-<h4 id="方法一：使用-groups-命令"><a href="#方法一：使用-groups-命令" class="headerlink" title="方法一：使用 groups 命令"></a>方法一：使用 groups 命令</h4><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>groups shiyanlou</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-3.png"></p>
-<p>其中冒号之前表示用户，后面表示该用户所属的用户组。这里可以看到 shiyanlou 用户属于 shiyanlou 用户组，<strong>每次新建用户如果不指定用户组的话，默认会自动创建一个与用户名相同的用户组</strong>（差不多就相当于家长的意思，或者说是老总）。默认情况下在 sudo 用户组里的可以使用 sudo 命令获得 root 权限。shiyanlou 用户也可以使用 sudo 命令，为什么这里没有显示在 sudo 用户组里呢？可以查看下 <code>/etc/sudoers.d/shiyanlou</code> 文件，我们在 <code>/etc/sudoers.d</code> 目录下创建了这个文件，从而给 shiyanlou 用户赋予了 sudo 权限：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-4.png"></p>
-<h4 id="方法二：查看-etc-group-文件"><a href="#方法二：查看-etc-group-文件" class="headerlink" title="方法二：查看 /etc/group 文件"></a>方法二：查看 <code>/etc/group</code> 文件</h4><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> /etc/<span class="built_in">group</span> | <span class="built_in">sort</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>这里 <code>cat</code> 命令用于读取指定文件的内容并打印到终端输出，后面会详细讲它的使用。 <code>| sort</code> 表示将读取的文本进行一个字典排序再输出，然后你将看到如下一堆输出，你可以在最下面看到 shiyanlou 的用户组信息：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-5.png"></p>
-<p>没找到，没关系，你可以使用命令过滤掉一些你不想看到的结果：</p>
-<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">$ cat /etc/<span class="keyword">group</span> <span class="title">| grep</span> -E <span class="string">&quot;shiyanlou&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-6.png"></p>
-<h5 id="etc-group-文件格式说明"><a href="#etc-group-文件格式说明" class="headerlink" title="/etc/group 文件格式说明"></a><code>/etc/group</code> 文件格式说明</h5><p>/etc/group 的内容包括用户组（Group）、用户组口令、GID 及该用户组所包含的用户（User），每个用户组一条记录。格式如下：</p>
-<blockquote>
-<p>group_name:password:GID:user_list</p>
-</blockquote>
-<p>你看到上面的 password 字段为一个 <code>x</code> 并不是说密码就是它，只是表示密码不可见而已。</p>
-<p>这里需要注意，如果用户的 GID 等于用户组的 GID，那么最后一个字段 <code>user_list</code> 就是空的，比如 shiyanlou 用户，在 <code>/etc/group</code> 中的 shiyanlou 用户组后面是不会显示的。lilei 用户，在 <code>/etc/group</code> 中的 lilei 用户组后面是不会显示的。</p>
-<h5 id="将其它用户加入-sudo-用户组"><a href="#将其它用户加入-sudo-用户组" class="headerlink" title="将其它用户加入 sudo 用户组"></a>将其它用户加入 sudo 用户组</h5><p>默认情况下新创建的用户是不具有 root 权限的，也不在 sudo 用户组，可以让其加入 sudo 用户组从而获取 root 权限：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> su <span class="literal">-l</span> lilei</span><br><span class="line"><span class="variable">$</span> sudo <span class="built_in">ls</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>会提示 lilei 不在 sudoers 文件中，意思就是 lilei 不在 sudo 用户组中，至于 sudoers 文件（/etc/sudoers）你现在最好不要动它，操作不慎会导致比较麻烦的后果。</p>
-<p>使用 <code>usermod</code> 命令可以为用户添加用户组，同样使用该命令你必需有 root 权限，你可以直接使用 root 用户为其它用户添加用户组，或者用其它已经在 sudo 用户组的用户使用 sudo 命令获取权限来执行该命令。</p>
-<p>这里我用 shiyanlou 用户执行 sudo 命令将 lilei 添加到 sudo 用户组，让它也可以使用 sudo 命令获得 root 权限：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su shiyanlou  <span class="comment"># 注意 Linux 上输入密码是不会显示的</span></span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"><span class="variable">$ </span>sudo usermod -G sudo lilei</span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>然后你再切换回 lilei 用户，现在就可以使用 sudo 获取 root 权限了。</p>
-<h3 id="删除用户"><a href="#删除用户" class="headerlink" title="删除用户"></a>删除用户</h3><p>删除用户是很简单的事：</p>
-<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">$ sudo deluser lilei --<span class="built_in">remove</span>-<span class="built_in">home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-7.png"></p>
-<h3 id="linux文件权限"><a href="#linux文件权限" class="headerlink" title="linux文件权限"></a>linux文件权限</h3><p>文件权限就是文件的访问控制权限，即哪些用户和组群可以访问文件以及可以执行什么样的操作。</p>
-<p>Unix/Linux系统是一个典型的多用户系统，不同的用户处于不同的地位，对文件和目录有不同的访问权限。为了保护系统的安全性，Unix/Linux系统除了对用户权限作了严格的界定外，还在用户身份认证、访问控制、传输安全、文件读写权限等方面作了周密的控制。</p>
-<p>在 Unix/Linux中的每一个文件或目录都包含有访问权限，这些访问权限决定了谁能访问和如何访问这些文件和目录。</p>
-<hr>
-
-<p>我们之前已经很多次用到<code>ls</code>命令了，如你所见，我们用它来列出并显示当前目录下的文件，当然这是在不带任何参数的情况下，它能做的当然不止这么多，现在我们就要用它来查看文件权限。</p>
-<p>使用较长格式列出文件：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-l</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-8.png"></p>
-<p>你可能除了知道最后面那一项是文件名之外，其它项就不太清楚了，那么到底是什么意思呢：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-9.png"></p>
-<p>可能你还是不太明白，比如第一项文件类型和权限那一堆东西具体指什么，链接又是什么，何为最后修改时间，下面一一道来：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-10.png"></p>
-<ul>
-<li>  文件类型</li>
-</ul>
-<blockquote>
-<p>关于文件类型，这里有一点你必需时刻牢记 <strong>Linux 里面一切皆文件</strong>，正因为这一点才有了设备文件（ <code>/dev</code> 目录下有各种设备文件，大都跟具体的硬件设备相关）这一说。 <code>socket</code>：网络套接字，具体是什么，感兴趣的用户可以自己去了解或期待实验楼的后续相关课程。<code>pipe</code> 管道，这个东西很重要，我们以后将会讨论到，这里你先知道有它的存在即可。<code>软链接文件</code>：链接文件是分为两种的，另一种当然是“硬链接”（硬链接不常用，具体内容不作为本课程讨论重点，而软链接等同于 Windows 上的快捷方式,你记住这一点就够了）。</p>
-</blockquote>
-<ul>
-<li>  文件权限</li>
-</ul>
-<blockquote>
-<p>读权限，表示你可以使用 <code>cat &lt;file name&gt;</code> 之类的命令来读取某个文件的内容；写权限，表示你可以编辑和修改某个文件； 执行权限，通常指可以运行的二进制程序文件或者脚本文件，如同 Windows 上的 <code>exe</code> 后缀的文件，不过 Linux 上不是通过文件后缀名来区分文件的类型。你需要注意的一点是，<strong>一个目录同时具有读权限和执行权限才可以打开并查看内部文件，而一个目录要有写权限才允许在其中创建其它文件</strong>，这是因为目录文件实际保存着该目录里面的文件的列表等信息。</p>
-</blockquote>
-<p>所有者权限，这一点相信你应该明白了，至于所属用户组权限，是指你所在的用户组中的所有其它用户对于该文件的权限，比如，你有一个 iPad，那么这个用户组权限就决定了你的兄弟姐妹有没有权限使用它破坏它和占有它。</p>
-<ul>
-<li>  链接数</li>
-</ul>
-<blockquote>
-<p>链接到该文件所在的 inode 结点的文件名数目（关于这个概念涉及到 Linux 文件系统的相关概念知识，不在本课程的讨论范围，感兴趣的用户可以自己去了解）。</p>
-</blockquote>
-<ul>
-<li>  文件大小</li>
-</ul>
-<blockquote>
-<p>以 inode 结点大小为单位来表示的文件大小，你可以给 ls 加上 <code>-lh</code> 参数来更直观的查看文件的大小。</p>
-</blockquote>
-<p>明白了文件权限的一些概念，我们顺带补充一下关于 <code>ls</code> 命令的一些其它常用的用法：</p>
-<ul>
-<li>  显示除了 <code>.</code>（当前目录）和 <code>..</code>（上一级目录）之外的所有文件，包括隐藏文件（Linux 下以 <code>.</code> 开头的文件为隐藏文件）。</li>
-</ul>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-A</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-11.png"></p>
-<p>当然，你可以同时使用 <code>-A</code> 和 <code>-l</code> 参数：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-Al</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>查看某一个目录的完整属性，而不是显示目录里面的文件属性：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-dl</span> &lt;目录名&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>  显示所有文件大小，并以普通人类能看懂的方式呈现：</li>
-</ul>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-AsSh</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>其中小 s 为显示文件大小，大 S 为按文件大小排序，若需要知道如何按其它方式排序，请使用“man”命令查询。</p>
-<h3 id="变更文件所有者"><a href="#变更文件所有者" class="headerlink" title="变更文件所有者"></a>变更文件所有者</h3><blockquote>
-<p>若前面已经执行删除lilei用户的命令，这里重新创建一下。</p>
-</blockquote>
-<p>假设目前是 lilei 用户登录，新建一个文件，命名为 “ iphone6 ”：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 注意当前的用户必须是 lilei</span></span><br><span class="line"><span class="comment"># 如果是 shiyanlou 用户需要切换到 lilei（如果之前已经删除需要重新创建下）</span></span><br><span class="line"><span class="variable">$</span> su lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> touch iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>可见文件所有者是 lilei ：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-12.png"></p>
-<p>现在，换回到 shiyanlou 用户身份，使用以下命令变更文件所有者为 shiyanlou ：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要切换到 shiyanlou 用户执行以下操作</span></span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> iphone6</span><br><span class="line"><span class="variable">$</span> sudo chown shiyanlou iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>现在查看，发现 文件所有者成功修改为 shiyanlou ：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-13.png"></p>
-<h3 id="修改文件权限"><a href="#修改文件权限" class="headerlink" title="修改文件权限"></a>修改文件权限</h3><p>如果你有一个自己的文件不想被其他用户读、写、执行，那么就需要对文件的权限做修改，这里有两种方式：</p>
-<ul>
-<li>  方式一：二进制数字表示</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-14.png"></p>
-<p>每个文件的三组权限（拥有者，所属用户组，其他用户，<strong>记住这个顺序是一定的</strong>）对应一个 “ rwx “，也就是一个 “ 7 ” ，所以如果我要将文件“ iphone6 ”的权限改为只有我自己可以用那么就这样：</p>
-<p>为了演示，我先在文件里加点内容：</p>
-<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$ echo <span class="string">&quot;echo <span class="subst">\&quot;</span>hello shiyanlou<span class="subst">\&quot;</span>&quot;</span> &gt; iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>然后修改权限：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod <span class="number">600</span> iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>现在，其他用户已经不能读这个“ iphone6 ”文件了：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-15.png"></p>
-<ul>
-<li>  方式二：加减赋值操作</li>
-</ul>
-<p>完成上述相同的效果，你可以：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod go-rw iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-16.png"></p>
-<p><code>g</code>、<code>o</code> 还有 <code>u</code> 分别表示 group、others 和 user，<code>+</code> 和 <code>-</code> 分别表示增加和去掉相应的权限。</p>
-<h3 id="adduser-和-useradd-的区别是什么？"><a href="#adduser-和-useradd-的区别是什么？" class="headerlink" title="adduser 和 useradd 的区别是什么？"></a><code>adduser</code> 和 <code>useradd</code> 的区别是什么？</h3><p>答：useradd 只创建用户，创建完了用 passwd lilei 去设置新用户的密码。adduser 会创建用户，创建目录，创建密码（提示你设置），做这一系列的操作。其实 useradd、userdel 这类操作更像是一种命令，执行完了就返回。而 adduser 更像是一种程序，需要你输入、确定等一系列操作。</p>
-<p>Linux 还有一些关于隐藏权限和特殊权限的内容，想全面了解 Linux 权限管理这部分内容的用户可以通过其它方式学习。</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>linux学习04 - linux目录结构及文件基本操作</title>
     <url>/posts/caf6d338/</url>
     <content><![CDATA[<blockquote>
@@ -3132,6 +3138,24 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>linux服务器上传文件到百度网盘</title>
+    <url>/posts/33eb66fd/</url>
+    <content><![CDATA[<blockquote>
+<p>记录linux如何直接上传文件到百度网盘</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="1-安装python3和相关库"><a href="#1-安装python3和相关库" class="headerlink" title="1. 安装python3和相关库"></a>1. 安装python3和相关库</h1><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> python3</span><br><span class="line">pip3 <span class="keyword">install</span> requests</span><br><span class="line">pip3 <span class="keyword">install</span> bypy</span><br></pre></td></tr></table></figure>
+<p><code>bypy</code>就是连接百度网盘的工具</p>
+<h1 id="2-身份认证"><a href="#2-身份认证" class="headerlink" title="2. 身份认证"></a>2. 身份认证</h1><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">bypy</span> <span class="literal">info</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172131.png"><br>访问要求的网址，获得授权码，前提是浏览器需要登录了网页版百度网盘</p>
+<p>将授权码复制到命令行中，按下enter键，就能认证成功</p>
+<p>:warning: 如果输入bypy info提示编码问题，可以修改linux默认编码解决，参考我的另一篇博客 <a href="/archives/%E4%BF%AE%E6%94%B9linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%BB%98%E8%AE%A4%E7%BC%96%E7%A0%81%E4%B8%BAutf8#more">修改linux默认编码为utf8</a></p>
+<h1 id="3-一些常用命令"><a href="#3-一些常用命令" class="headerlink" title="3. 一些常用命令"></a>3. 一些常用命令</h1><figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">bypy </span>list                 <span class="comment"># 显示文档</span></span><br><span class="line"><span class="keyword">bypy </span>upload filename -v   <span class="comment"># 上传某文件，显示进度</span></span><br><span class="line"><span class="keyword">bypy </span>-c                   <span class="comment"># 取消令牌文件。一段时间后要重新授权</span></span><br><span class="line"><span class="keyword">bypy </span>downdir filename     <span class="comment"># 下载</span></span><br><span class="line"><span class="keyword">bypy </span><span class="built_in">compare</span>              <span class="comment"># 比较本地目录和网盘目录</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>linux服务器上传文件到onedrive</title>
     <url>/posts/83e8a4ac/</url>
     <content><![CDATA[<blockquote>
@@ -3176,24 +3200,6 @@ docker部署</code></pre>
 <p>然后上传命令和上面一样，只需要把<code>OneDriveUploader</code>改成<code>OneDriveUploader.exe</code>即可。</p>
 <p>最后经测试，该版本的上传已经完全能应对各种稀奇古怪的字符问题，如果有问题可以回复下，贴上报错代码，方便修复。</p>
 ]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>linux服务器上传文件到百度网盘</title>
-    <url>/posts/33eb66fd/</url>
-    <content><![CDATA[<blockquote>
-<p>记录linux如何直接上传文件到百度网盘</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="1-安装python3和相关库"><a href="#1-安装python3和相关库" class="headerlink" title="1. 安装python3和相关库"></a>1. 安装python3和相关库</h1><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> python3</span><br><span class="line">pip3 <span class="keyword">install</span> requests</span><br><span class="line">pip3 <span class="keyword">install</span> bypy</span><br></pre></td></tr></table></figure>
-<p><code>bypy</code>就是连接百度网盘的工具</p>
-<h1 id="2-身份认证"><a href="#2-身份认证" class="headerlink" title="2. 身份认证"></a>2. 身份认证</h1><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">bypy</span> <span class="literal">info</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172131.png"><br>访问要求的网址，获得授权码，前提是浏览器需要登录了网页版百度网盘</p>
-<p>将授权码复制到命令行中，按下enter键，就能认证成功</p>
-<p>:warning: 如果输入bypy info提示编码问题，可以修改linux默认编码解决，参考我的另一篇博客 <a href="/archives/%E4%BF%AE%E6%94%B9linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%BB%98%E8%AE%A4%E7%BC%96%E7%A0%81%E4%B8%BAutf8#more">修改linux默认编码为utf8</a></p>
-<h1 id="3-一些常用命令"><a href="#3-一些常用命令" class="headerlink" title="3. 一些常用命令"></a>3. 一些常用命令</h1><figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">bypy </span>list                 <span class="comment"># 显示文档</span></span><br><span class="line"><span class="keyword">bypy </span>upload filename -v   <span class="comment"># 上传某文件，显示进度</span></span><br><span class="line"><span class="keyword">bypy </span>-c                   <span class="comment"># 取消令牌文件。一段时间后要重新授权</span></span><br><span class="line"><span class="keyword">bypy </span>downdir filename     <span class="comment"># 下载</span></span><br><span class="line"><span class="keyword">bypy </span><span class="built_in">compare</span>              <span class="comment"># 比较本地目录和网盘目录</span></span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>linux</category>
       </categories>
@@ -3244,6 +3250,28 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>python项目库依赖文件生成</title>
+    <url>/posts/6631b2cf/</url>
+    <content><![CDATA[<blockquote>
+<p>在创建 python 项目后, 往往该项目有许多依赖的 python 库, 当部署到服务器或者其他平台时, 我们可以直接用 pip 针对依赖文件 requirements.txt安装所需的库.</p>
+</blockquote>
+<a id="more"></a>
+
+<h2 id="依赖文件requirements-txt"><a href="#依赖文件requirements-txt" class="headerlink" title="依赖文件requirements.txt"></a>依赖文件requirements.txt</h2><p>我们可以用下面命令一键安装所有库.</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<h2 id="自动生成requirements-txt"><a href="#自动生成requirements-txt" class="headerlink" title="自动生成requirements.txt"></a>自动生成requirements.txt</h2><p>以Pycharm IDE为例.<br>打开界面下方的 Terminal, 输入以下命令,可以自动生成当前项目的依赖库文件 requirements.txt</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">pip freeze&gt;requirements.txt</span><br></pre></td></tr></table></figure>
+<p>生成后的文件内容以下为例:</p>
+<figure class="highlight python"><figcaption><span>requirements.txt</span></figcaption><table><tr><td class="code"><pre><span class="line">Django==<span class="number">2.1</span><span class="number">.5</span></span><br><span class="line">pytz==<span class="number">2019.2</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>技巧</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>unix网络编程2-IPC-0-前言</title>
     <url>/posts/3b3b119c/</url>
     <content><![CDATA[<p>由于本学期操作系统课设选择了linux的进程通信，准备学习《unix网络编程卷2: 进程间通信》。这门书英文版为《UNIX NETWORK Programming, volume 2, Second Edition: Interprocss Communications》，该版出版于2015年。</p>
@@ -3272,28 +3300,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>unix - IPC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>python项目库依赖文件生成</title>
-    <url>/posts/6631b2cf/</url>
-    <content><![CDATA[<blockquote>
-<p>在创建 python 项目后, 往往该项目有许多依赖的 python 库, 当部署到服务器或者其他平台时, 我们可以直接用 pip 针对依赖文件 requirements.txt安装所需的库.</p>
-</blockquote>
-<a id="more"></a>
-
-<h2 id="依赖文件requirements-txt"><a href="#依赖文件requirements-txt" class="headerlink" title="依赖文件requirements.txt"></a>依赖文件requirements.txt</h2><p>我们可以用下面命令一键安装所有库.</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
-
-<h2 id="自动生成requirements-txt"><a href="#自动生成requirements-txt" class="headerlink" title="自动生成requirements.txt"></a>自动生成requirements.txt</h2><p>以Pycharm IDE为例.<br>打开界面下方的 Terminal, 输入以下命令,可以自动生成当前项目的依赖库文件 requirements.txt</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">pip freeze&gt;requirements.txt</span><br></pre></td></tr></table></figure>
-<p>生成后的文件内容以下为例:</p>
-<figure class="highlight python"><figcaption><span>requirements.txt</span></figcaption><table><tr><td class="code"><pre><span class="line">Django==<span class="number">2.1</span><span class="number">.5</span></span><br><span class="line">pytz==<span class="number">2019.2</span></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>技巧</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -3489,6 +3495,47 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>修改linux服务器默认编码为utf8</title>
+    <url>/posts/6c7dab33/</url>
+    <content><![CDATA[<blockquote>
+<p>修改linux默认编码</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="1-修改-etc-profile文件"><a href="#1-修改-etc-profile文件" class="headerlink" title="1. 修改/etc/profile文件"></a>1. 修改/etc/profile文件</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
+<p>在文件最后一行添加<code>export LANG=zh_CN.UTF-8</code></p>
+<h2 id="2-使配置生效"><a href="#2-使配置生效" class="headerlink" title="2. 使配置生效"></a>2. 使配置生效</h2><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line"><span class="keyword">source</span> <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
+<h2 id="3-验证结果"><a href="#3-验证结果" class="headerlink" title="3. 验证结果"></a>3. 验证结果</h2><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">locale</span></span><br></pre></td></tr></table></figure>
+<p>结果显示如下：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172159.png"></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>免费申请SSL证书</title>
+    <url>/posts/75de5a08/</url>
+    <content><![CDATA[<blockquote>
+<p>阿里云上面可以免费申请SSL证书，但是需要实名认证，这里介绍一个免费申请SSL证书的方法，并且无需进行实名认证，一次申请有3个月的有效期，到期之后可重新申请。</p>
+</blockquote>
+<a id="more"></a>
+<p>网址：<a href="https://www.sslforfree.com/">https://www.sslforfree.com/</a></p>
+<h3 id="1-输入域名"><a href="#1-输入域名" class="headerlink" title="1.输入域名"></a>1.输入域名</h3><p>此处直接输入需要申请SSL的域名<br><img src="https://i.loli.net/2020/01/19/JvhiI98z3bew7AW.png"></p>
+<h3 id="2-点击Manual-Verification"><a href="#2-点击Manual-Verification" class="headerlink" title="2.点击Manual Verification"></a>2.点击Manual Verification</h3><p>点击Manual Verification后，再点击下面的Verify<br><img src="https://i.loli.net/2020/01/19/k5VEnpD4z1T3NWh.png"></p>
+<h3 id="3-在服务器网站目录下按照步骤操作"><a href="#3-在服务器网站目录下按照步骤操作" class="headerlink" title="3.在服务器网站目录下按照步骤操作"></a>3.在服务器网站目录下按照步骤操作</h3><p>根据图片中的步骤，进行相应的操作<br><img src="https://i.loli.net/2020/01/19/XMVGhFLI54xaDbA.png"></p>
+<h3 id="4-点击下载SSL证书"><a href="#4-点击下载SSL证书" class="headerlink" title="4.点击下载SSL证书"></a>4.点击下载SSL证书</h3><p>生成证书后会显示只有90天的有效期，到期后可再次免费申请<br><img src="https://i.loli.net/2020/01/19/cWkHoeyhFwn3a7N.png"></p>
+<h3 id="5-下载证书"><a href="#5-下载证书" class="headerlink" title="5.下载证书"></a>5.下载证书</h3><p>生成的证书有三个文件<br><img src="https://i.loli.net/2020/01/19/G3kiUswVJbdpLoj.png"></p>
+<p><strong>注：</strong><br>第二个文件是对应SSL证书的<code>.key</code>文件<br>第一个和第三个文件是对应SSL证书的<code>.pem</code>文件（将两个文件内容放在同一个文件中）</p>
+<p><strong>宝塔面板中可以这样设置SSL证书:</strong><br><img src="https://i.loli.net/2020/01/19/bZUtagu4BSIWrlh.png"></p>
+<p>这样就完成了！</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://www.youtube.com/watch?v=zUbpj6rvWzE&amp;t=248s">https://www.youtube.com/watch?v=zUbpj6rvWzE&amp;t=248s</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>xshell密钥登录服务器的配置过程</title>
     <url>/posts/344ac519/</url>
     <content><![CDATA[<ul>
@@ -3538,47 +3585,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>修改linux服务器默认编码为utf8</title>
-    <url>/posts/6c7dab33/</url>
-    <content><![CDATA[<blockquote>
-<p>修改linux默认编码</p>
-</blockquote>
-<a id="more"></a>
-<h2 id="1-修改-etc-profile文件"><a href="#1-修改-etc-profile文件" class="headerlink" title="1. 修改/etc/profile文件"></a>1. 修改/etc/profile文件</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
-<p>在文件最后一行添加<code>export LANG=zh_CN.UTF-8</code></p>
-<h2 id="2-使配置生效"><a href="#2-使配置生效" class="headerlink" title="2. 使配置生效"></a>2. 使配置生效</h2><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line"><span class="keyword">source</span> <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
-<h2 id="3-验证结果"><a href="#3-验证结果" class="headerlink" title="3. 验证结果"></a>3. 验证结果</h2><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">locale</span></span><br></pre></td></tr></table></figure>
-<p>结果显示如下：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172159.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>免费申请SSL证书</title>
-    <url>/posts/75de5a08/</url>
-    <content><![CDATA[<blockquote>
-<p>阿里云上面可以免费申请SSL证书，但是需要实名认证，这里介绍一个免费申请SSL证书的方法，并且无需进行实名认证，一次申请有3个月的有效期，到期之后可重新申请。</p>
-</blockquote>
-<a id="more"></a>
-<p>网址：<a href="https://www.sslforfree.com/">https://www.sslforfree.com/</a></p>
-<h3 id="1-输入域名"><a href="#1-输入域名" class="headerlink" title="1.输入域名"></a>1.输入域名</h3><p>此处直接输入需要申请SSL的域名<br><img src="https://i.loli.net/2020/01/19/JvhiI98z3bew7AW.png"></p>
-<h3 id="2-点击Manual-Verification"><a href="#2-点击Manual-Verification" class="headerlink" title="2.点击Manual Verification"></a>2.点击Manual Verification</h3><p>点击Manual Verification后，再点击下面的Verify<br><img src="https://i.loli.net/2020/01/19/k5VEnpD4z1T3NWh.png"></p>
-<h3 id="3-在服务器网站目录下按照步骤操作"><a href="#3-在服务器网站目录下按照步骤操作" class="headerlink" title="3.在服务器网站目录下按照步骤操作"></a>3.在服务器网站目录下按照步骤操作</h3><p>根据图片中的步骤，进行相应的操作<br><img src="https://i.loli.net/2020/01/19/XMVGhFLI54xaDbA.png"></p>
-<h3 id="4-点击下载SSL证书"><a href="#4-点击下载SSL证书" class="headerlink" title="4.点击下载SSL证书"></a>4.点击下载SSL证书</h3><p>生成证书后会显示只有90天的有效期，到期后可再次免费申请<br><img src="https://i.loli.net/2020/01/19/cWkHoeyhFwn3a7N.png"></p>
-<h3 id="5-下载证书"><a href="#5-下载证书" class="headerlink" title="5.下载证书"></a>5.下载证书</h3><p>生成的证书有三个文件<br><img src="https://i.loli.net/2020/01/19/G3kiUswVJbdpLoj.png"></p>
-<p><strong>注：</strong><br>第二个文件是对应SSL证书的<code>.key</code>文件<br>第一个和第三个文件是对应SSL证书的<code>.pem</code>文件（将两个文件内容放在同一个文件中）</p>
-<p><strong>宝塔面板中可以这样设置SSL证书:</strong><br><img src="https://i.loli.net/2020/01/19/bZUtagu4BSIWrlh.png"></p>
-<p>这样就完成了！</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
-<li><a href="https://www.youtube.com/watch?v=zUbpj6rvWzE&amp;t=248s">https://www.youtube.com/watch?v=zUbpj6rvWzE&amp;t=248s</a></li>
-</ol>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>取消Pycharm双击shift出现搜索框</title>
     <url>/posts/d7b9624b/</url>
     <content><![CDATA[<blockquote>
@@ -3595,6 +3601,60 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>pycharm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>服务器禁止被ping</title>
+    <url>/posts/6898a3ea/</url>
+    <content><![CDATA[<blockquote>
+<p>利用服务器搭建网站之后，一般都会担心自己的服务器被攻击，写这个旨在记录一下一些防护措施。</p>
+<a id="more"></a>
+</blockquote>
+<h1 id="禁止ping服务器"><a href="#禁止ping服务器" class="headerlink" title="禁止ping服务器"></a>禁止ping服务器</h1><blockquote>
+<p>网站的攻击一般是从ping开始的，黑客攻击网站前会先ping下服务器看其是否在线，所以如果服务器禁止ping，可以有效减少服务器被攻击次数。Centos系统默认是允许ping的，如你有服务器root账户管理权限，可以通过修改Centos系统内核参数永久禁止ping。</p>
+</blockquote>
+<p>Linux默认是允许Ping响应的，系统是否允许Ping由2个因素决定的：</p>
+<ol>
+<li>内核参数</li>
+<li>防火墙。<br>需要2个因素同时允许才能允许Ping，2个因素有任意一个禁Ping就无法Ping。<br>
+具体的配置方法如下：
+
+</li>
+</ol>
+<p><i class="fa fa-pencil"></i><strong>内核参数设置</strong></p>
+<ol>
+<li>临时允许/禁止PING设置 <figure class="highlight bash"><figcaption><span>临时设置PING操作的命令为：</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="comment">#echo 0 &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all //允许PING</span></span><br><span class="line"><span class="comment">#echo 1 &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all //禁止PING</span></span><br></pre></td></tr></table></figure></li>
+<li>永久允许/禁止Ping设置<br> 在/etc/sysctl.conf 中增加一行 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">net.ipv4.icmp_echo_ignore_all=1 //禁止PING</span><br><span class="line">net.ipv4.icmp_echo_ignore_all=1 //允许PING</span><br></pre></td></tr></table></figure>
+ 如果已经有net.ipv4.icmp_echo_ignore_all这一行了，直接修改=号后面的值即可的（0表示允许，1表示禁止）。<br> 修改完成后执行下面语句使配置生效 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<br>
+
+<hr>
+<p><i class="fa fa-pencil"></i><strong>防火墙设置（注：此处的方法的前提是内核配置是默认值，也就是没有禁止Ping</strong></p>
+<pre><code> 这里以Iptables防火墙为例，其他防火墙操作方法可参考防火墙的官方文档。
+
+ 1、允许PING设置      
+
+    iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+    iptables -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
+
+   或者也可以临时停止防火墙操作的。
+
+    service iptables stop
+
+ 2、禁止PING设置
+
+    iptables -A INPUT -p icmp --icmp-type 8 -s 0/0 -j DROP</code></pre>
+<p>参考博客：<a href="https://www.cnblogs.com/chenshoubiao/p/4781016.html">https://www.cnblogs.com/chenshoubiao/p/4781016.html</a></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>安全</tag>
       </tags>
   </entry>
   <entry>
@@ -3990,60 +4050,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>正则表达式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>服务器禁止被ping</title>
-    <url>/posts/6898a3ea/</url>
-    <content><![CDATA[<blockquote>
-<p>利用服务器搭建网站之后，一般都会担心自己的服务器被攻击，写这个旨在记录一下一些防护措施。</p>
-<a id="more"></a>
-</blockquote>
-<h1 id="禁止ping服务器"><a href="#禁止ping服务器" class="headerlink" title="禁止ping服务器"></a>禁止ping服务器</h1><blockquote>
-<p>网站的攻击一般是从ping开始的，黑客攻击网站前会先ping下服务器看其是否在线，所以如果服务器禁止ping，可以有效减少服务器被攻击次数。Centos系统默认是允许ping的，如你有服务器root账户管理权限，可以通过修改Centos系统内核参数永久禁止ping。</p>
-</blockquote>
-<p>Linux默认是允许Ping响应的，系统是否允许Ping由2个因素决定的：</p>
-<ol>
-<li>内核参数</li>
-<li>防火墙。<br>需要2个因素同时允许才能允许Ping，2个因素有任意一个禁Ping就无法Ping。<br>
-具体的配置方法如下：
-
-</li>
-</ol>
-<p><i class="fa fa-pencil"></i><strong>内核参数设置</strong></p>
-<ol>
-<li>临时允许/禁止PING设置 <figure class="highlight bash"><figcaption><span>临时设置PING操作的命令为：</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="comment">#echo 0 &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all //允许PING</span></span><br><span class="line"><span class="comment">#echo 1 &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all //禁止PING</span></span><br></pre></td></tr></table></figure></li>
-<li>永久允许/禁止Ping设置<br> 在/etc/sysctl.conf 中增加一行 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">net.ipv4.icmp_echo_ignore_all=1 //禁止PING</span><br><span class="line">net.ipv4.icmp_echo_ignore_all=1 //允许PING</span><br></pre></td></tr></table></figure>
- 如果已经有net.ipv4.icmp_echo_ignore_all这一行了，直接修改=号后面的值即可的（0表示允许，1表示禁止）。<br> 修改完成后执行下面语句使配置生效 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<br>
-
-<hr>
-<p><i class="fa fa-pencil"></i><strong>防火墙设置（注：此处的方法的前提是内核配置是默认值，也就是没有禁止Ping</strong></p>
-<pre><code> 这里以Iptables防火墙为例，其他防火墙操作方法可参考防火墙的官方文档。
-
- 1、允许PING设置      
-
-    iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
-
-    iptables -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
-
-   或者也可以临时停止防火墙操作的。
-
-    service iptables stop
-
- 2、禁止PING设置
-
-    iptables -A INPUT -p icmp --icmp-type 8 -s 0/0 -j DROP</code></pre>
-<p>参考博客：<a href="https://www.cnblogs.com/chenshoubiao/p/4781016.html">https://www.cnblogs.com/chenshoubiao/p/4781016.html</a></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>安全</tag>
       </tags>
   </entry>
   <entry>
