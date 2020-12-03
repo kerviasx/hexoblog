@@ -160,41 +160,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Github+Hexo win10搭建个人博客教程(1) - 配置相关环境</title>
-    <url>/posts/45982/</url>
-    <content><![CDATA[<blockquote>
-<p> 本文是搭建hexo博客的第一部分, 主要记录一下自己的搭建过程, 这里讲一下相关环境的安装和配置.</p>
-</blockquote>
-<p>参考教程: <a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a><br>参考视频: <a href="https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868">https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868</a></p>
-<a id="more"></a>
-
-<h2 id="一-安装nodejs和git"><a href="#一-安装nodejs和git" class="headerlink" title="一. 安装nodejs和git"></a>一. 安装nodejs和git</h2><p>直接进官网下载安装</p>
-<p>安装完毕之后, 最后需要给nodejs添加环境变量, 譬如我的: D:\ASoftPro\Nodejs\</p>
-<p>打开cmd管理员<br>输入npm -v 查看版本<br>输入node -v 查看版本<br>我这里的安装环境是:</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">nodejs</span>: v<span class="number">10</span>.<span class="number">16</span>.<span class="number">1</span></span><br><span class="line"><span class="attribute">npm</span>:<span class="number">6</span>.<span class="number">9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="二-安装hexo"><a href="#二-安装hexo" class="headerlink" title="二. 安装hexo"></a>二. 安装hexo</h2><h3 id="1-安装淘宝镜像-因为直接访问国外比较慢"><a href="#1-安装淘宝镜像-因为直接访问国外比较慢" class="headerlink" title="1. 安装淘宝镜像,因为直接访问国外比较慢"></a>1. 安装淘宝镜像,因为直接访问国外比较慢</h3><p>安装镜像</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https:<span class="regexp">//</span>registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
-<p>查看版本</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">cnpm -v</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204534.png"></p>
-<h3 id="2-安装hexo"><a href="#2-安装hexo" class="headerlink" title="2. 安装hexo"></a>2. 安装hexo</h3><p>安装hexo和hexo中的git</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">cnpm <span class="keyword">install</span> -g hexo</span><br><span class="line">cnpm <span class="keyword">install</span> -g hexo-cli</span><br><span class="line">cnpm <span class="keyword">install</span> <span class="comment">--save hexo-deployer-git</span></span><br></pre></td></tr></table></figure>
-<p>查看版本</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo -v</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204547.png"></p>
-<h2 id="三-配置github"><a href="#三-配置github" class="headerlink" title="三. 配置github"></a>三. 配置github</h2><p><a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a></p>
-<h2 id="四-配置git"><a href="#四-配置git" class="headerlink" title="四. 配置git"></a>四. 配置git</h2><p>直接网上找教程,配置公钥等等</p>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>博客</tag>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Cron表达式</title>
     <url>/posts/6a1ed024/</url>
     <content><![CDATA[<blockquote>
@@ -324,6 +289,41 @@
       </categories>
   </entry>
   <entry>
+    <title>Github+Hexo win10搭建个人博客教程(1) - 配置相关环境</title>
+    <url>/posts/45982/</url>
+    <content><![CDATA[<blockquote>
+<p> 本文是搭建hexo博客的第一部分, 主要记录一下自己的搭建过程, 这里讲一下相关环境的安装和配置.</p>
+</blockquote>
+<p>参考教程: <a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a><br>参考视频: <a href="https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868">https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868</a></p>
+<a id="more"></a>
+
+<h2 id="一-安装nodejs和git"><a href="#一-安装nodejs和git" class="headerlink" title="一. 安装nodejs和git"></a>一. 安装nodejs和git</h2><p>直接进官网下载安装</p>
+<p>安装完毕之后, 最后需要给nodejs添加环境变量, 譬如我的: D:\ASoftPro\Nodejs\</p>
+<p>打开cmd管理员<br>输入npm -v 查看版本<br>输入node -v 查看版本<br>我这里的安装环境是:</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">nodejs</span>: v<span class="number">10</span>.<span class="number">16</span>.<span class="number">1</span></span><br><span class="line"><span class="attribute">npm</span>:<span class="number">6</span>.<span class="number">9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="二-安装hexo"><a href="#二-安装hexo" class="headerlink" title="二. 安装hexo"></a>二. 安装hexo</h2><h3 id="1-安装淘宝镜像-因为直接访问国外比较慢"><a href="#1-安装淘宝镜像-因为直接访问国外比较慢" class="headerlink" title="1. 安装淘宝镜像,因为直接访问国外比较慢"></a>1. 安装淘宝镜像,因为直接访问国外比较慢</h3><p>安装镜像</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https:<span class="regexp">//</span>registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
+<p>查看版本</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">cnpm -v</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204534.png"></p>
+<h3 id="2-安装hexo"><a href="#2-安装hexo" class="headerlink" title="2. 安装hexo"></a>2. 安装hexo</h3><p>安装hexo和hexo中的git</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">cnpm <span class="keyword">install</span> -g hexo</span><br><span class="line">cnpm <span class="keyword">install</span> -g hexo-cli</span><br><span class="line">cnpm <span class="keyword">install</span> <span class="comment">--save hexo-deployer-git</span></span><br></pre></td></tr></table></figure>
+<p>查看版本</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo -v</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204547.png"></p>
+<h2 id="三-配置github"><a href="#三-配置github" class="headerlink" title="三. 配置github"></a>三. 配置github</h2><p><a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a></p>
+<h2 id="四-配置git"><a href="#四-配置git" class="headerlink" title="四. 配置git"></a>四. 配置git</h2><p>直接网上找教程,配置公钥等等</p>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>博客</tag>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Github+Hexo win10搭建个人博客教程(2) - 本地搭建博客并部署到github</title>
     <url>/posts/44280/</url>
     <content><![CDATA[<p><strong>提醒</strong>: 如果没看教程1,可能完成不了本篇文章的内容<br>这里我们在git上进行命令操作</p>
@@ -380,46 +380,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Git常用命令总结</title>
-    <url>/posts/dwqdwq/</url>
-    <content><![CDATA[<blockquote>
-<p>把GIT的一些常用命令记录下来, 方便查看.</p>
-</blockquote>
-<a id="more"></a>
-<h2 id="GIT配置命令"><a href="#GIT配置命令" class="headerlink" title="GIT配置命令"></a>GIT配置命令</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">git branch  <span class="regexp">//</span>查看本地分支</span><br><span class="line">git remote -v <span class="regexp">//</span>查看remote</span><br><span class="line">git remote show origin <span class="regexp">//</span>详细查看remote</span><br><span class="line">git remote add origin [address] addres为远程仓库地址</span><br><span class="line">git config --list  <span class="regexp">//</span>查看配置信息(包括用户名和邮箱)</span><br></pre></td></tr></table></figure>
-
-<h2 id="GIT推送命令"><a href="#GIT推送命令" class="headerlink" title="GIT推送命令"></a>GIT推送命令</h2><figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="symbol">git</span> <span class="keyword">add</span> .</span><br><span class="line"><span class="symbol">git</span> commit -m <span class="string">&quot;更新日志&quot;</span></span><br><span class="line"><span class="symbol">git</span> <span class="keyword">push</span> origin master</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="GIT本地代理"><a href="#GIT本地代理" class="headerlink" title="GIT本地代理"></a>GIT本地代理</h2><p><strong>将你的proxy server地址代替以下的127.0.0.1</strong></p>
-<ul>
-<li><p>http类型代理</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">git config --global http.proxy [http:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>](http:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>/) （这条即可）  </span><br><span class="line">git config --global https.proxy [https:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>](https:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>/)</span><br></pre></td></tr></table></figure></li>
-<li><p>socks5类型代理  </p>
-<figure class="highlight verilog"><table><tr><td class="code"><pre><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> http<span class="variable">.proxy</span> ‘socks5:<span class="comment">//127.0.0.1:1080’ （这条即可）  </span></span><br><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> https<span class="variable">.proxy</span> ‘socks5:<span class="comment">//127.0.0.1:1080’</span></span><br></pre></td></tr></table></figure>
-<p>注：使用socks5代理进行git push时会出现</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">fatal</span>: NotSupportedException encountered.</span><br><span class="line">   <span class="attribute">ServicePointManager</span> 不支持具有 socks<span class="number">5</span> 方案的代理。</span><br></pre></td></tr></table></figure>
-<p>这样的错误，而需要输入用户名和密码，建议使用http代理。</p>
-</li>
-<li><p>查当前的代理配置</p>
-<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">git<span class="built_in"> config </span>--global --<span class="builtin-name">get</span> http.proxy  </span><br><span class="line">git<span class="built_in"> config </span>--global --<span class="builtin-name">get</span> https.proxy</span><br></pre></td></tr></table></figure></li>
-<li><p>取消设置代理</p>
-<figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line">git config --<span class="keyword">global</span> --<span class="keyword">unset</span> <span class="keyword">http</span>.proxy  </span><br><span class="line">git config --<span class="keyword">global</span> --<span class="keyword">unset</span> https.proxy</span><br></pre></td></tr></table></figure></li>
-<li><p>设置使用需账户密码验证的代理</p>
-</li>
-</ul>
-<p><strong>http类型代理</strong>  </p>
-<figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line">git config --<span class="keyword">global</span> <span class="keyword">http</span>.proxy <span class="keyword">http</span>://username:passwd@<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">1080</span></span><br></pre></td></tr></table></figure>
-<p><strong>socks5类型代理</strong>  </p>
-<figure class="highlight verilog"><table><tr><td class="code"><pre><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> http<span class="variable">.proxy</span> socks5:<span class="comment">//username:passwd@127.0.0.1:1080</span></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>命令总结</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Halo博客H2数据库查询</title>
     <url>/posts/2d3051dc/</url>
     <content><![CDATA[<blockquote>
@@ -467,6 +427,46 @@
       </categories>
       <tags>
         <tag>halo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Git常用命令总结</title>
+    <url>/posts/dwqdwq/</url>
+    <content><![CDATA[<blockquote>
+<p>把GIT的一些常用命令记录下来, 方便查看.</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="GIT配置命令"><a href="#GIT配置命令" class="headerlink" title="GIT配置命令"></a>GIT配置命令</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">git branch  <span class="regexp">//</span>查看本地分支</span><br><span class="line">git remote -v <span class="regexp">//</span>查看remote</span><br><span class="line">git remote show origin <span class="regexp">//</span>详细查看remote</span><br><span class="line">git remote add origin [address] addres为远程仓库地址</span><br><span class="line">git config --list  <span class="regexp">//</span>查看配置信息(包括用户名和邮箱)</span><br></pre></td></tr></table></figure>
+
+<h2 id="GIT推送命令"><a href="#GIT推送命令" class="headerlink" title="GIT推送命令"></a>GIT推送命令</h2><figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="symbol">git</span> <span class="keyword">add</span> .</span><br><span class="line"><span class="symbol">git</span> commit -m <span class="string">&quot;更新日志&quot;</span></span><br><span class="line"><span class="symbol">git</span> <span class="keyword">push</span> origin master</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="GIT本地代理"><a href="#GIT本地代理" class="headerlink" title="GIT本地代理"></a>GIT本地代理</h2><p><strong>将你的proxy server地址代替以下的127.0.0.1</strong></p>
+<ul>
+<li><p>http类型代理</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">git config --global http.proxy [http:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>](http:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>/) （这条即可）  </span><br><span class="line">git config --global https.proxy [https:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>](https:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>/)</span><br></pre></td></tr></table></figure></li>
+<li><p>socks5类型代理  </p>
+<figure class="highlight verilog"><table><tr><td class="code"><pre><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> http<span class="variable">.proxy</span> ‘socks5:<span class="comment">//127.0.0.1:1080’ （这条即可）  </span></span><br><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> https<span class="variable">.proxy</span> ‘socks5:<span class="comment">//127.0.0.1:1080’</span></span><br></pre></td></tr></table></figure>
+<p>注：使用socks5代理进行git push时会出现</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">fatal</span>: NotSupportedException encountered.</span><br><span class="line">   <span class="attribute">ServicePointManager</span> 不支持具有 socks<span class="number">5</span> 方案的代理。</span><br></pre></td></tr></table></figure>
+<p>这样的错误，而需要输入用户名和密码，建议使用http代理。</p>
+</li>
+<li><p>查当前的代理配置</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">git<span class="built_in"> config </span>--global --<span class="builtin-name">get</span> http.proxy  </span><br><span class="line">git<span class="built_in"> config </span>--global --<span class="builtin-name">get</span> https.proxy</span><br></pre></td></tr></table></figure></li>
+<li><p>取消设置代理</p>
+<figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line">git config --<span class="keyword">global</span> --<span class="keyword">unset</span> <span class="keyword">http</span>.proxy  </span><br><span class="line">git config --<span class="keyword">global</span> --<span class="keyword">unset</span> https.proxy</span><br></pre></td></tr></table></figure></li>
+<li><p>设置使用需账户密码验证的代理</p>
+</li>
+</ul>
+<p><strong>http类型代理</strong>  </p>
+<figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line">git config --<span class="keyword">global</span> <span class="keyword">http</span>.proxy <span class="keyword">http</span>://username:passwd@<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">1080</span></span><br></pre></td></tr></table></figure>
+<p><strong>socks5类型代理</strong>  </p>
+<figure class="highlight verilog"><table><tr><td class="code"><pre><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> http<span class="variable">.proxy</span> socks5:<span class="comment">//username:passwd@127.0.0.1:1080</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>命令总结</tag>
       </tags>
   </entry>
   <entry>
@@ -744,6 +744,80 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>LeetCode-001-两数之和</title>
+    <url>/posts/a239384e/</url>
+    <content><![CDATA[<blockquote>
+<p>题目链接：<a href="https://leetcode-cn.com/problems/two-sum/">https://leetcode-cn.com/problems/two-sum/</a></p>
+</blockquote>
+<a id="more"></a>
+
+<blockquote>
+<p>难度：简单</p>
+</blockquote>
+<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
+<p>你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。</p>
+<p><strong>示例</strong>:</p>
+<blockquote>
+<p>给定 nums = [2, 7, 11, 15], target = 9</p>
+<p>因为 nums[<strong>0</strong>] + nums[<strong>1</strong>] = 2 + 7 = 9<br>所以返回 [<strong>0, 1</strong>]</p>
+</blockquote>
+<h3 id="个人题解"><a href="#个人题解" class="headerlink" title="个人题解"></a>个人题解</h3><ul>
+<li>使用C++的<code>map</code>，键： <code>target - 遍历过的元素值</code>  值：<code>遍历过的元素值索引</code></li>
+<li>时间复杂度 <code>O(nlogn)</code></li>
+<li>空间复杂度<code>O(n)</code></li>
+<li>C++中<code>map</code>使用红黑树实现，<code>hash_map</code>使用哈希表实现，<code>hash_map</code>相对来说查找元素更快</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">twoSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; numMap;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">        <span class="keyword">int</span> t,i;</span><br><span class="line">        i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); it++)</span><br><span class="line">        &#123;</span><br><span class="line">            t = target - *it;</span><br><span class="line">            <span class="keyword">if</span>(numMap.find(*it) != numMap.end())  <span class="comment">// 之前有元素 + *it = target</span></span><br><span class="line">            &#123;</span><br><span class="line">                v.push_back(numMap[*it]);</span><br><span class="line">                v.push_back(i);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                numMap[t] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="官方题解"><a href="#官方题解" class="headerlink" title="官方题解"></a>官方题解</h3><h4 id="方法一：暴力法"><a href="#方法一：暴力法" class="headerlink" title="方法一：暴力法"></a>方法一：暴力法</h4><p>暴力法很简单，遍历每个元素 x，并查找是否存在一个值与 target−x 相等的目标元素。</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; nums.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[j] == target - nums[i]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, j &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n^2)</code><br>对于每个元素，我们试图通过遍历数组的其余部分来寻找它所对应的目标元素，这将耗费 O(n)的时间。因此时间复杂度为 <code>O(n^2)</code>。</li>
+<li>空间复杂度：<code>O(1)</code>。</li>
+</ul>
+<h4 id="方法二：两遍哈希表"><a href="#方法二：两遍哈希表" class="headerlink" title="方法二：两遍哈希表"></a>方法二：两遍哈希表</h4><p>为了对运行时间复杂度进行优化，我们需要一种更有效的方法来检查数组中是否存在目标元素。如果存在，我们需要找出它的索引。保持数组中的每个元素与其索引相互对应的最好方法是什么？哈希表。</p>
+<p>通过以空间换取速度的方式，我们可以将查找时间从 O(n) 降低到 O(1)。哈希表正是为此目的而构建的，它支持以 <em>近似</em> 恒定的时间进行快速查找。我用“近似”来描述，是因为一旦出现冲突，查找用时可能会退化到 O(n)。但只要你仔细地挑选哈希函数，在哈希表中进行查找的用时应当被摊销为 O(1)。</p>
+<p>一个简单的实现使用了两次迭代。在第一次迭代中，我们将每个元素的值和它的索引添加到表中。然后，在第二次迭代中，我们将检查每个元素所对应的目标元素<code>target−nums[i]</code>是否存在于表中。注意，该目标元素不能是 <code>nums[i]</code> 本身！</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n) </code><br>我们把包含有 n个元素的列表遍历两次。由于哈希表将查找时间缩短到 O(1) ，所以时间复杂度为 O(n)。</li>
+<li>空间复杂度：<code>O(n) </code><br>所需的额外空间取决于哈希表中存储的元素数量，该表中存储了 n个元素。</li>
+</ul>
+<h4 id="方法三：一遍哈希表"><a href="#方法三：一遍哈希表" class="headerlink" title="方法三：一遍哈希表"></a>方法三：一遍哈希表</h4><p>事实证明，我们可以一次完成。在进行迭代并将元素插入到表中的同时，我们还会回过头来检查表中是否已经存在当前元素所对应的目标元素。如果它存在，那我们已经找到了对应解，并立即将其返回。</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; map.get(complement), i &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n)</code>，<br>我们只遍历了包含有 n 个元素的列表一次。在表中进行的每次查找只花费 O(1)的时间。</li>
+<li>空间复杂度：<code>O(n)</code>，<br>所需的额外空间取决于哈希表中存储的元素数量，该表最多需要存储 n个元素。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LeetCode-002-两数相加</title>
     <url>/posts/b190b0aa/</url>
     <content><![CDATA[<blockquote>
@@ -829,80 +903,6 @@ docker部署</code></pre>
 <p><strong>拓展</strong></p>
 <p>如果链表中的数字不是按逆序存储的呢？例如：</p>
 <p>(3→4→2)+(4→6→5)=8→0→7</p>
-]]></content>
-      <categories>
-        <category>算法</category>
-      </categories>
-      <tags>
-        <tag>leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeetCode-001-两数之和</title>
-    <url>/posts/a239384e/</url>
-    <content><![CDATA[<blockquote>
-<p>题目链接：<a href="https://leetcode-cn.com/problems/two-sum/">https://leetcode-cn.com/problems/two-sum/</a></p>
-</blockquote>
-<a id="more"></a>
-
-<blockquote>
-<p>难度：简单</p>
-</blockquote>
-<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
-<p>你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。</p>
-<p><strong>示例</strong>:</p>
-<blockquote>
-<p>给定 nums = [2, 7, 11, 15], target = 9</p>
-<p>因为 nums[<strong>0</strong>] + nums[<strong>1</strong>] = 2 + 7 = 9<br>所以返回 [<strong>0, 1</strong>]</p>
-</blockquote>
-<h3 id="个人题解"><a href="#个人题解" class="headerlink" title="个人题解"></a>个人题解</h3><ul>
-<li>使用C++的<code>map</code>，键： <code>target - 遍历过的元素值</code>  值：<code>遍历过的元素值索引</code></li>
-<li>时间复杂度 <code>O(nlogn)</code></li>
-<li>空间复杂度<code>O(n)</code></li>
-<li>C++中<code>map</code>使用红黑树实现，<code>hash_map</code>使用哈希表实现，<code>hash_map</code>相对来说查找元素更快</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">twoSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; numMap;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">        <span class="keyword">int</span> t,i;</span><br><span class="line">        i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); it++)</span><br><span class="line">        &#123;</span><br><span class="line">            t = target - *it;</span><br><span class="line">            <span class="keyword">if</span>(numMap.find(*it) != numMap.end())  <span class="comment">// 之前有元素 + *it = target</span></span><br><span class="line">            &#123;</span><br><span class="line">                v.push_back(numMap[*it]);</span><br><span class="line">                v.push_back(i);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                numMap[t] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="官方题解"><a href="#官方题解" class="headerlink" title="官方题解"></a>官方题解</h3><h4 id="方法一：暴力法"><a href="#方法一：暴力法" class="headerlink" title="方法一：暴力法"></a>方法一：暴力法</h4><p>暴力法很简单，遍历每个元素 x，并查找是否存在一个值与 target−x 相等的目标元素。</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; nums.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[j] == target - nums[i]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, j &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n^2)</code><br>对于每个元素，我们试图通过遍历数组的其余部分来寻找它所对应的目标元素，这将耗费 O(n)的时间。因此时间复杂度为 <code>O(n^2)</code>。</li>
-<li>空间复杂度：<code>O(1)</code>。</li>
-</ul>
-<h4 id="方法二：两遍哈希表"><a href="#方法二：两遍哈希表" class="headerlink" title="方法二：两遍哈希表"></a>方法二：两遍哈希表</h4><p>为了对运行时间复杂度进行优化，我们需要一种更有效的方法来检查数组中是否存在目标元素。如果存在，我们需要找出它的索引。保持数组中的每个元素与其索引相互对应的最好方法是什么？哈希表。</p>
-<p>通过以空间换取速度的方式，我们可以将查找时间从 O(n) 降低到 O(1)。哈希表正是为此目的而构建的，它支持以 <em>近似</em> 恒定的时间进行快速查找。我用“近似”来描述，是因为一旦出现冲突，查找用时可能会退化到 O(n)。但只要你仔细地挑选哈希函数，在哈希表中进行查找的用时应当被摊销为 O(1)。</p>
-<p>一个简单的实现使用了两次迭代。在第一次迭代中，我们将每个元素的值和它的索引添加到表中。然后，在第二次迭代中，我们将检查每个元素所对应的目标元素<code>target−nums[i]</code>是否存在于表中。注意，该目标元素不能是 <code>nums[i]</code> 本身！</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n) </code><br>我们把包含有 n个元素的列表遍历两次。由于哈希表将查找时间缩短到 O(1) ，所以时间复杂度为 O(n)。</li>
-<li>空间复杂度：<code>O(n) </code><br>所需的额外空间取决于哈希表中存储的元素数量，该表中存储了 n个元素。</li>
-</ul>
-<h4 id="方法三：一遍哈希表"><a href="#方法三：一遍哈希表" class="headerlink" title="方法三：一遍哈希表"></a>方法三：一遍哈希表</h4><p>事实证明，我们可以一次完成。在进行迭代并将元素插入到表中的同时，我们还会回过头来检查表中是否已经存在当前元素所对应的目标元素。如果它存在，那我们已经找到了对应解，并立即将其返回。</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; map.get(complement), i &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n)</code>，<br>我们只遍历了包含有 n 个元素的列表一次。在表中进行的每次查找只花费 O(1)的时间。</li>
-<li>空间复杂度：<code>O(n)</code>，<br>所需的额外空间取决于哈希表中存储的元素数量，该表最多需要存储 n个元素。</li>
-</ul>
 ]]></content>
       <categories>
         <category>算法</category>
@@ -1767,62 +1767,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>Telegram-cli安装教程</title>
-    <url>/posts/e82je8eeq/</url>
-    <content><![CDATA[<blockquote>
-<p>Telegram是著名的加密聊天软件，它的命令行版本为Telegram-cli。</p>
-</blockquote>
-<a id="more"></a>
-<blockquote>
-<p>详情请见github项目地址：<a href="https://github.com/vysheng/tg/">https://github.com/vysheng/tg/</a></p>
-</blockquote>
-<p>​    在没有图形界面的linux服务器上面，安装<code>Telegram-cli</code>无疑是最合适的。我接触Telegram-cli的最初目的是在服务器上写个脚本，用于每天的群组签到。这里记录下Telegram-cli的安装过程。</p>
-<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><ul>
-<li>OS：centos7</li>
-<li>安装方式：编译安装</li>
-<li>其他系统的安装教程可以看github项目中README</li>
-<li>据说centos7可以使用yum直接安装，但目前暂未找到yum源</li>
-</ul>
-<h2 id="安装Telegram-cli"><a href="#安装Telegram-cli" class="headerlink" title="安装Telegram-cli"></a>安装Telegram-cli</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --recursive https://github.com/vysheng/tg.git &amp;&amp; <span class="built_in">cd</span> tg</span><br><span class="line">yum -y install lua-devel openssl-devel libconfig-devel readline-devel libevent-devel jansson-devel python-devel</span><br><span class="line">./configure</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
-
-<p>​    依次运行上述命令后，telegram-cli已经安装完成，可执行文件在当前目录下的<code>bin/telegram-cli</code></p>
-<h2 id="登录Telegram-cli"><a href="#登录Telegram-cli" class="headerlink" title="登录Telegram-cli"></a>登录Telegram-cli</h2><p>在登录Telegram-cli之前需要在<code>https://my.telegram.org/apps</code>获取pub密钥。我选择创建的application类型为desktop。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200329170931.png"></p>
-<p>将<code>Public keys</code>复制，回到服务器端。执行以下命令，将密钥保存到<code>mytg-server.pub</code>文件中。</p>
-<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">vim mytg-<span class="keyword">server</span>.pub</span><br></pre></td></tr></table></figure>
-
-<p>上述操作完毕之后，就可以登录了。</p>
-<p>执行命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -k mytg-server.pub</span><br></pre></td></tr></table></figure>
-
-<p>之后会让你输入电话号码和验证码，登录就是了。</p>
-<p>登录完毕后可以按<code>ctrl-c</code>键退出，或者使用命令<code>quit</code>或<code>safe_quit</code>退出。</p>
-<h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><p>如果之前登录过，后面就不需要重新登录，这里发送消息测试一下。</p>
-<ol>
-<li><p>交互命令行模式</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W</span><br></pre></td></tr></table></figure>
-
-<p>执行上述命令进入命令行模式。</p>
-<ul>
-<li>向用户或群组发送消息：<code>msg &lt;username/channelname&gt; &lt;msg&gt;</code></li>
-</ul>
-</li>
-<li><p>直接发消息</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W -e <span class="string">&quot;msg &lt;username/channelname&gt; &lt;msg&gt;&quot;</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<p>:warning: 用户名或者群组名包含<code>空格</code>或者<code>#</code>​字符需要替换为<code>_</code></p>
-<p>其他使用方法可以见我的另一篇博客</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>telegram</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>StarUML3.x破解教程</title>
     <url>/posts/b785abd2/</url>
     <content><![CDATA[<blockquote>
@@ -1899,6 +1843,62 @@ docker部署</code></pre>
 </ul>
 <hr>
 <p><strong>更多命令尚待学习….</strong></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>telegram</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Telegram-cli安装教程</title>
+    <url>/posts/e82je8eeq/</url>
+    <content><![CDATA[<blockquote>
+<p>Telegram是著名的加密聊天软件，它的命令行版本为Telegram-cli。</p>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<p>详情请见github项目地址：<a href="https://github.com/vysheng/tg/">https://github.com/vysheng/tg/</a></p>
+</blockquote>
+<p>​    在没有图形界面的linux服务器上面，安装<code>Telegram-cli</code>无疑是最合适的。我接触Telegram-cli的最初目的是在服务器上写个脚本，用于每天的群组签到。这里记录下Telegram-cli的安装过程。</p>
+<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><ul>
+<li>OS：centos7</li>
+<li>安装方式：编译安装</li>
+<li>其他系统的安装教程可以看github项目中README</li>
+<li>据说centos7可以使用yum直接安装，但目前暂未找到yum源</li>
+</ul>
+<h2 id="安装Telegram-cli"><a href="#安装Telegram-cli" class="headerlink" title="安装Telegram-cli"></a>安装Telegram-cli</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --recursive https://github.com/vysheng/tg.git &amp;&amp; <span class="built_in">cd</span> tg</span><br><span class="line">yum -y install lua-devel openssl-devel libconfig-devel readline-devel libevent-devel jansson-devel python-devel</span><br><span class="line">./configure</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>​    依次运行上述命令后，telegram-cli已经安装完成，可执行文件在当前目录下的<code>bin/telegram-cli</code></p>
+<h2 id="登录Telegram-cli"><a href="#登录Telegram-cli" class="headerlink" title="登录Telegram-cli"></a>登录Telegram-cli</h2><p>在登录Telegram-cli之前需要在<code>https://my.telegram.org/apps</code>获取pub密钥。我选择创建的application类型为desktop。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200329170931.png"></p>
+<p>将<code>Public keys</code>复制，回到服务器端。执行以下命令，将密钥保存到<code>mytg-server.pub</code>文件中。</p>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">vim mytg-<span class="keyword">server</span>.pub</span><br></pre></td></tr></table></figure>
+
+<p>上述操作完毕之后，就可以登录了。</p>
+<p>执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -k mytg-server.pub</span><br></pre></td></tr></table></figure>
+
+<p>之后会让你输入电话号码和验证码，登录就是了。</p>
+<p>登录完毕后可以按<code>ctrl-c</code>键退出，或者使用命令<code>quit</code>或<code>safe_quit</code>退出。</p>
+<h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><p>如果之前登录过，后面就不需要重新登录，这里发送消息测试一下。</p>
+<ol>
+<li><p>交互命令行模式</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W</span><br></pre></td></tr></table></figure>
+
+<p>执行上述命令进入命令行模式。</p>
+<ul>
+<li>向用户或群组发送消息：<code>msg &lt;username/channelname&gt; &lt;msg&gt;</code></li>
+</ul>
+</li>
+<li><p>直接发消息</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W -e <span class="string">&quot;msg &lt;username/channelname&gt; &lt;msg&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>:warning: 用户名或者群组名包含<code>空格</code>或者<code>#</code>​字符需要替换为<code>_</code></p>
+<p>其他使用方法可以见我的另一篇博客</p>
 ]]></content>
       <categories>
         <category>linux</category>
@@ -2068,54 +2068,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>centos防火墙设置</title>
-    <url>/posts/751f4e41/</url>
-    <content><![CDATA[<blockquote>
-<p>iptables防火墙和firewalld防火墙</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><ol>
-<li><p>CentOS7 默认的防火墙 不是<code>iptables</code>, 而是<code>firewalld</code>.</p>
-</li>
-<li><p>一些软件的端口号要放开来提供服务，如：<code>22</code>，<code>80</code>等常用端口</p>
-</li>
-</ol>
-<h1 id="firewalld防火墙"><a href="#firewalld防火墙" class="headerlink" title="firewalld防火墙"></a>firewalld防火墙</h1><p><strong>说明</strong>：很多人用<code>CentOS 7</code>时会发现<code>CentOS 6</code>系列中的<code>iptables</code>相关命令不能用了，因为<code>Centos 7</code>使用<code>firewalld</code>代替了原来的<code>iptables</code>。所以<code>iptables</code>相关命令是不能直接使用的，这里说下开放设置端口及<code>firewalld</code>常用命令。</p>
-<p><strong>1、关闭防火墙</strong></p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">systemctl</span> <span class="selector-tag">stop</span> <span class="selector-tag">firewalld</span><span class="selector-class">.service</span>           </span><br><span class="line"><span class="selector-tag">systemctl</span> <span class="selector-tag">disable</span> <span class="selector-tag">firewalld</span><span class="selector-class">.service</span>        </span><br></pre></td></tr></table></figure>
-
-<p><strong>2、开启端口</strong></p>
-<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">firewall-cmd <span class="attribute">--zone</span>=public <span class="attribute">--add-port</span>=80/tcp --permanent</span><br></pre></td></tr></table></figure>
-
-<p>命令含义：</p>
-<figure class="highlight dsconfig"><table><tr><td class="code"><pre><span class="line"><span class="built_in">--zone</span> <span class="comment">#作用域</span></span><br><span class="line"><span class="built_in">--add-port=80/tcp</span> <span class="comment">#添加端口，格式为：端口/通讯协议</span></span><br><span class="line"><span class="built_in">--permanent</span> <span class="comment">#永久生效，没有此参数重启后失效</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>3、重启防火墙</strong></p>
-<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line">systemctl restart firewall-<span class="keyword">cmd</span><span class="bash"> </span></span><br></pre></td></tr></table></figure>
-
-<p><strong>4. 常用命令介绍</strong></p>
-<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --state                           <span class="comment">##查看防火墙状态，是否是running</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --reload                          <span class="comment">##重新载入配置，比如添加规则之后，需要执行此命令</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --get-zones                       <span class="comment">##列出支持的zone</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --get-services                    <span class="comment">##列出支持的服务，在列表中的服务是放行的</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --query-service ftp               <span class="comment">##查看ftp服务是否支持，返回yes或者no</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --add-service=ftp                 <span class="comment">##临时开放ftp服务</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --add-service=ftp --permanent     <span class="comment">##永久开放ftp服务</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --remove-service=ftp --permanent  <span class="comment">##永久移除ftp服务</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --add-port=80/tcp --permanent     <span class="comment">##永久添加80端口 </span></span></span><br><span class="line">iptables -L -n                                 <span class="comment">##查看规则，这个命令是和iptables的相同的</span></span><br><span class="line">man firewall-<span class="keyword">cmd</span><span class="bash">                               <span class="comment">##查看帮助</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="iptables防火墙常用命令"><a href="#iptables防火墙常用命令" class="headerlink" title="iptables防火墙常用命令"></a>iptables防火墙常用命令</h1><h2 id="关闭firewalld"><a href="#关闭firewalld" class="headerlink" title="关闭firewalld"></a>关闭firewalld</h2><h3 id="1-关闭firewalld"><a href="#1-关闭firewalld" class="headerlink" title="1. 关闭firewalld"></a>1. 关闭firewalld</h3><figure class="highlight gauss"><table><tr><td class="code"><pre><span class="line">systemctl <span class="keyword">stop</span> firewalld.service <span class="meta">#停止firewall</span></span><br><span class="line">systemctl <span class="keyword">disable</span> firewalld.service <span class="meta">#禁止firewall开机启动</span></span><br></pre></td></tr></table></figure>
-<h3 id="2-安装iptables"><a href="#2-安装iptables" class="headerlink" title="2. 安装iptables"></a>2. 安装iptables</h3><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum <span class="keyword">install</span> iptables-services <span class="comment">#安装</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="3-配置防火墙文件"><a href="#3-配置防火墙文件" class="headerlink" title="3. 配置防火墙文件"></a>3. 配置防火墙文件</h3><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vi <span class="regexp">/etc/</span>sysconfig/iptables <span class="comment">#编辑防火墙配置文件</span></span><br></pre></td></tr></table></figure>
-<p>如下图所示，方框内两条语句分别开启了端口80和3306<br>具体添加代码：</p>
-<figure class="highlight pf"><table><tr><td class="code"><pre><span class="line">-A INPUT -m <span class="keyword">state</span> --state NEW -m tcp -p tcp --dport <span class="number">3306</span> -j ACCEPT</span><br><span class="line">-A INPUT -m <span class="keyword">state</span> --state NEW -m tcp -p tcp --dport <span class="number">80</span> -j ACCEPT</span><br></pre></td></tr></table></figure>
-<h3 id="4-重启防火墙使配置生效"><a href="#4-重启防火墙使配置生效" class="headerlink" title="4. 重启防火墙使配置生效"></a>4. 重启防火墙使配置生效</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl restart iptables.service <span class="comment">#重启防火墙使配置生效</span></span><br><span class="line">systemctl <span class="built_in">enable</span> iptables.service <span class="comment">#设置防火墙开机启动</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="iptables命令"><a href="#iptables命令" class="headerlink" title="iptables命令"></a>iptables命令</h2><h3 id="1-开启与关闭"><a href="#1-开启与关闭" class="headerlink" title="1. 开启与关闭"></a>1. 开启与关闭</h3><figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">systemctl restart iptables.service <span class="comment">#重启防火墙使配置生效</span></span><br><span class="line">systemctl enable iptables.service <span class="comment">#设置防火墙开机启动</span></span><br><span class="line">systemctl restart iptables <span class="comment">#重启</span></span><br><span class="line">systemctl <span class="literal">start</span> iptables.service <span class="comment">#开启iptables防火墙</span></span><br><span class="line">systemctl <span class="literal">stop</span> iptables.service <span class="comment">#关闭iptables防火墙</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="2-常用操作"><a href="#2-常用操作" class="headerlink" title="2. 常用操作"></a>2. 常用操作</h3><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">service</span> iptables status <span class="comment">#查看防火墙状态</span></span><br><span class="line">yum update iptables  <span class="comment">#升级</span></span><br><span class="line">iptables -L -n <span class="comment">#查看防火墙现有规则！！</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="3-其他"><a href="#3-其他" class="headerlink" title="3. 其他"></a>3. 其他</h3><figure class="highlight hsp"><table><tr><td class="code"><pre><span class="line"> <span class="meta">#查看iptables现有规则</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -L -n</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#先允许所有,不然有可能会杯具</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -P INPUT ACCEPT</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#清空所有默认规则</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -F</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#清空所有自定义规则</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -X</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#所有计数器归<span class="number">0</span></span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -Z</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#允许来自于lo接口的数据包(本地访问)</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -A INPUT -i lo -j ACCEPT</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#开放<span class="number">22</span>端口</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p tcp --dport <span class="number">22</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#开放<span class="number">21</span>端口(FTP)</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p tcp --dport <span class="number">21</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#开放<span class="number">80</span>端口(HTTP)</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p tcp --dport <span class="number">80</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#开放<span class="number">443</span>端口(HTTPS)</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p tcp --dport <span class="number">443</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> ...</span><br><span class="line"></span><br><span class="line">  ====&gt;  按照实际要求：是否加下面的：</span><br><span class="line"> ------------------------------------------------------------------- </span><br><span class="line"></span><br><span class="line"> <span class="meta">#允许ping</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p icmp --icmp-type <span class="number">8</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#允许接受本机请求之后的返回数据 RELATED,是为FTP设置的</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -m state --state  RELATED,ESTABLISHED -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#其他入站一律丢弃</span></span><br><span class="line"> iptables -P <span class="keyword">INPUT</span> DROP</span><br><span class="line"></span><br><span class="line"> <span class="meta">#所有出站一律绿灯</span></span><br><span class="line"> iptables -P OUTPUT ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#所有转发一律丢弃</span></span><br><span class="line"> iptables -P FORWARD DROP</span><br><span class="line"></span><br><span class="line">  -------------------------------------------------------------------</span><br><span class="line">  </span><br><span class="line"><span class="meta">#如果要添加内网ip信任（接受其所有TCP请求）</span></span><br><span class="line">iptables -A <span class="keyword">INPUT</span> -p tcp -s <span class="number">45.96</span><span class="number">.174</span><span class="number">.68</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"><span class="meta">#过滤所有非以上规则的请求</span></span><br><span class="line">iptables -P <span class="keyword">INPUT</span> DROP</span><br><span class="line"></span><br><span class="line"><span class="meta">#要封停一个IP，使用下面这条命令：</span></span><br><span class="line">iptables -I <span class="keyword">INPUT</span> -s ***.***.***.*** -j DROP</span><br><span class="line"></span><br><span class="line"><span class="meta">#要解封一个IP，使用下面这条命令:</span></span><br><span class="line">iptables -D <span class="keyword">INPUT</span> -s ***.***.***.*** -j DROP</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>WebDriver下载地址</title>
     <url>/posts/6b450c9b/</url>
     <content><![CDATA[<blockquote>
@@ -2195,6 +2147,54 @@ docker部署</code></pre>
       <tags>
         <tag>cron</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>centos防火墙设置</title>
+    <url>/posts/751f4e41/</url>
+    <content><![CDATA[<blockquote>
+<p>iptables防火墙和firewalld防火墙</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><ol>
+<li><p>CentOS7 默认的防火墙 不是<code>iptables</code>, 而是<code>firewalld</code>.</p>
+</li>
+<li><p>一些软件的端口号要放开来提供服务，如：<code>22</code>，<code>80</code>等常用端口</p>
+</li>
+</ol>
+<h1 id="firewalld防火墙"><a href="#firewalld防火墙" class="headerlink" title="firewalld防火墙"></a>firewalld防火墙</h1><p><strong>说明</strong>：很多人用<code>CentOS 7</code>时会发现<code>CentOS 6</code>系列中的<code>iptables</code>相关命令不能用了，因为<code>Centos 7</code>使用<code>firewalld</code>代替了原来的<code>iptables</code>。所以<code>iptables</code>相关命令是不能直接使用的，这里说下开放设置端口及<code>firewalld</code>常用命令。</p>
+<p><strong>1、关闭防火墙</strong></p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">systemctl</span> <span class="selector-tag">stop</span> <span class="selector-tag">firewalld</span><span class="selector-class">.service</span>           </span><br><span class="line"><span class="selector-tag">systemctl</span> <span class="selector-tag">disable</span> <span class="selector-tag">firewalld</span><span class="selector-class">.service</span>        </span><br></pre></td></tr></table></figure>
+
+<p><strong>2、开启端口</strong></p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">firewall-cmd <span class="attribute">--zone</span>=public <span class="attribute">--add-port</span>=80/tcp --permanent</span><br></pre></td></tr></table></figure>
+
+<p>命令含义：</p>
+<figure class="highlight dsconfig"><table><tr><td class="code"><pre><span class="line"><span class="built_in">--zone</span> <span class="comment">#作用域</span></span><br><span class="line"><span class="built_in">--add-port=80/tcp</span> <span class="comment">#添加端口，格式为：端口/通讯协议</span></span><br><span class="line"><span class="built_in">--permanent</span> <span class="comment">#永久生效，没有此参数重启后失效</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3、重启防火墙</strong></p>
+<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line">systemctl restart firewall-<span class="keyword">cmd</span><span class="bash"> </span></span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 常用命令介绍</strong></p>
+<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --state                           <span class="comment">##查看防火墙状态，是否是running</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --reload                          <span class="comment">##重新载入配置，比如添加规则之后，需要执行此命令</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --get-zones                       <span class="comment">##列出支持的zone</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --get-services                    <span class="comment">##列出支持的服务，在列表中的服务是放行的</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --query-service ftp               <span class="comment">##查看ftp服务是否支持，返回yes或者no</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --add-service=ftp                 <span class="comment">##临时开放ftp服务</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --add-service=ftp --permanent     <span class="comment">##永久开放ftp服务</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --remove-service=ftp --permanent  <span class="comment">##永久移除ftp服务</span></span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --add-port=80/tcp --permanent     <span class="comment">##永久添加80端口 </span></span></span><br><span class="line">iptables -L -n                                 <span class="comment">##查看规则，这个命令是和iptables的相同的</span></span><br><span class="line">man firewall-<span class="keyword">cmd</span><span class="bash">                               <span class="comment">##查看帮助</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="iptables防火墙常用命令"><a href="#iptables防火墙常用命令" class="headerlink" title="iptables防火墙常用命令"></a>iptables防火墙常用命令</h1><h2 id="关闭firewalld"><a href="#关闭firewalld" class="headerlink" title="关闭firewalld"></a>关闭firewalld</h2><h3 id="1-关闭firewalld"><a href="#1-关闭firewalld" class="headerlink" title="1. 关闭firewalld"></a>1. 关闭firewalld</h3><figure class="highlight gauss"><table><tr><td class="code"><pre><span class="line">systemctl <span class="keyword">stop</span> firewalld.service <span class="meta">#停止firewall</span></span><br><span class="line">systemctl <span class="keyword">disable</span> firewalld.service <span class="meta">#禁止firewall开机启动</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-安装iptables"><a href="#2-安装iptables" class="headerlink" title="2. 安装iptables"></a>2. 安装iptables</h3><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum <span class="keyword">install</span> iptables-services <span class="comment">#安装</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-配置防火墙文件"><a href="#3-配置防火墙文件" class="headerlink" title="3. 配置防火墙文件"></a>3. 配置防火墙文件</h3><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vi <span class="regexp">/etc/</span>sysconfig/iptables <span class="comment">#编辑防火墙配置文件</span></span><br></pre></td></tr></table></figure>
+<p>如下图所示，方框内两条语句分别开启了端口80和3306<br>具体添加代码：</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><span class="line">-A INPUT -m <span class="keyword">state</span> --state NEW -m tcp -p tcp --dport <span class="number">3306</span> -j ACCEPT</span><br><span class="line">-A INPUT -m <span class="keyword">state</span> --state NEW -m tcp -p tcp --dport <span class="number">80</span> -j ACCEPT</span><br></pre></td></tr></table></figure>
+<h3 id="4-重启防火墙使配置生效"><a href="#4-重启防火墙使配置生效" class="headerlink" title="4. 重启防火墙使配置生效"></a>4. 重启防火墙使配置生效</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl restart iptables.service <span class="comment">#重启防火墙使配置生效</span></span><br><span class="line">systemctl <span class="built_in">enable</span> iptables.service <span class="comment">#设置防火墙开机启动</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="iptables命令"><a href="#iptables命令" class="headerlink" title="iptables命令"></a>iptables命令</h2><h3 id="1-开启与关闭"><a href="#1-开启与关闭" class="headerlink" title="1. 开启与关闭"></a>1. 开启与关闭</h3><figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">systemctl restart iptables.service <span class="comment">#重启防火墙使配置生效</span></span><br><span class="line">systemctl enable iptables.service <span class="comment">#设置防火墙开机启动</span></span><br><span class="line">systemctl restart iptables <span class="comment">#重启</span></span><br><span class="line">systemctl <span class="literal">start</span> iptables.service <span class="comment">#开启iptables防火墙</span></span><br><span class="line">systemctl <span class="literal">stop</span> iptables.service <span class="comment">#关闭iptables防火墙</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-常用操作"><a href="#2-常用操作" class="headerlink" title="2. 常用操作"></a>2. 常用操作</h3><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">service</span> iptables status <span class="comment">#查看防火墙状态</span></span><br><span class="line">yum update iptables  <span class="comment">#升级</span></span><br><span class="line">iptables -L -n <span class="comment">#查看防火墙现有规则！！</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-其他"><a href="#3-其他" class="headerlink" title="3. 其他"></a>3. 其他</h3><figure class="highlight hsp"><table><tr><td class="code"><pre><span class="line"> <span class="meta">#查看iptables现有规则</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -L -n</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#先允许所有,不然有可能会杯具</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -P INPUT ACCEPT</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#清空所有默认规则</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -F</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#清空所有自定义规则</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -X</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#所有计数器归<span class="number">0</span></span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -Z</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#允许来自于lo接口的数据包(本地访问)</span></span><br><span class="line"> [root@localhost ~]<span class="meta"># iptables -A INPUT -i lo -j ACCEPT</span></span><br><span class="line"></span><br><span class="line"> <span class="meta">#开放<span class="number">22</span>端口</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p tcp --dport <span class="number">22</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#开放<span class="number">21</span>端口(FTP)</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p tcp --dport <span class="number">21</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#开放<span class="number">80</span>端口(HTTP)</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p tcp --dport <span class="number">80</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#开放<span class="number">443</span>端口(HTTPS)</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p tcp --dport <span class="number">443</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> ...</span><br><span class="line"></span><br><span class="line">  ====&gt;  按照实际要求：是否加下面的：</span><br><span class="line"> ------------------------------------------------------------------- </span><br><span class="line"></span><br><span class="line"> <span class="meta">#允许ping</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -p icmp --icmp-type <span class="number">8</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#允许接受本机请求之后的返回数据 RELATED,是为FTP设置的</span></span><br><span class="line"> iptables -A <span class="keyword">INPUT</span> -m state --state  RELATED,ESTABLISHED -j ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#其他入站一律丢弃</span></span><br><span class="line"> iptables -P <span class="keyword">INPUT</span> DROP</span><br><span class="line"></span><br><span class="line"> <span class="meta">#所有出站一律绿灯</span></span><br><span class="line"> iptables -P OUTPUT ACCEPT</span><br><span class="line"></span><br><span class="line"> <span class="meta">#所有转发一律丢弃</span></span><br><span class="line"> iptables -P FORWARD DROP</span><br><span class="line"></span><br><span class="line">  -------------------------------------------------------------------</span><br><span class="line">  </span><br><span class="line"><span class="meta">#如果要添加内网ip信任（接受其所有TCP请求）</span></span><br><span class="line">iptables -A <span class="keyword">INPUT</span> -p tcp -s <span class="number">45.96</span><span class="number">.174</span><span class="number">.68</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"><span class="meta">#过滤所有非以上规则的请求</span></span><br><span class="line">iptables -P <span class="keyword">INPUT</span> DROP</span><br><span class="line"></span><br><span class="line"><span class="meta">#要封停一个IP，使用下面这条命令：</span></span><br><span class="line">iptables -I <span class="keyword">INPUT</span> -s ***.***.***.*** -j DROP</span><br><span class="line"></span><br><span class="line"><span class="meta">#要解封一个IP，使用下面这条命令:</span></span><br><span class="line">iptables -D <span class="keyword">INPUT</span> -s ***.***.***.*** -j DROP</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
   </entry>
   <entry>
     <title>docker安装forsaken mail</title>
@@ -2312,6 +2312,39 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>hexo本地项目迁移(更换文件夹)</title>
+    <url>/posts/ae561650/</url>
+    <content><![CDATA[<blockquote>
+<p>有时候, 我们可能需要将本地hexo博客项目备份, 或者将本地项目换个文件夹.<br>但是如果我们直接将文件夹移动位置时会发现移动后输入hexo s启动报错,所以我们有必要知道如何将本地项目更换文件夹.<br>如果能做到这一点, 我们还可以备份到另一台电脑, 在其他环境重新编辑部署hexo博客.</p>
+</blockquote>
+<a id="more"></a>
+
+<blockquote>
+<p>进入正题, 简单的三个步骤: </p>
+</blockquote>
+<ol>
+<li><p>在新环境下新建文件夹<br> 新建的文件夹用来放置之前的项目<br> 注意: <strong>不要用hexo init初始化</strong></p>
+</li>
+<li><p>复制原先项目文件<br> 这里我们只需要复制除了.deploy_git, node_modules, public三个文件夹之外, 其他的文件全部复制到新建文件夹里面.</p>
+</li>
+<li><p>安装所需插件(node_modules)<br>在新建文件夹内, 右键git bash here<br>输入命令:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install //已经安装阿里镜像的可以用cnpm install</span><br></pre></td></tr></table></figure>
+<p>这一步是根据package.json文件安装需要的模块, 具体文件内容可以自己打开看看.</p>
+</li>
+</ol>
+<p>这样我们就完成了项目迁移!</p>
+<blockquote>
+<p>如果想知道如何迁移到其他电脑,可以参考这个博客:<br><a href="https://andyvj.coding.me/2019/02/19/190219-03/">hexo 迁移更换电脑，或多电脑终端更新博客</a></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker部署typecho+mysql</title>
     <url>/posts/63d1dc7a/</url>
     <content><![CDATA[<p>本篇文章记录docker部署typecho的过程，并将typecho容器和mysql容器进行链接。</p>
@@ -2403,36 +2436,51 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>hexo本地项目迁移(更换文件夹)</title>
-    <url>/posts/ae561650/</url>
+    <title>linux下部署selenium环境</title>
+    <url>/posts/65c4a6d8/</url>
     <content><![CDATA[<blockquote>
-<p>有时候, 我们可能需要将本地hexo博客项目备份, 或者将本地项目换个文件夹.<br>但是如果我们直接将文件夹移动位置时会发现移动后输入hexo s启动报错,所以我们有必要知道如何将本地项目更换文件夹.<br>如果能做到这一点, 我们还可以备份到另一台电脑, 在其他环境重新编辑部署hexo博客.</p>
+<p>记录在linux服务器上搭建selenium环境，用于Python爬虫</p>
 </blockquote>
 <a id="more"></a>
 
-<blockquote>
-<p>进入正题, 简单的三个步骤: </p>
-</blockquote>
-<ol>
-<li><p>在新环境下新建文件夹<br> 新建的文件夹用来放置之前的项目<br> 注意: <strong>不要用hexo init初始化</strong></p>
-</li>
-<li><p>复制原先项目文件<br> 这里我们只需要复制除了.deploy_git, node_modules, public三个文件夹之外, 其他的文件全部复制到新建文件夹里面.</p>
-</li>
-<li><p>安装所需插件(node_modules)<br>在新建文件夹内, 右键git bash here<br>输入命令:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install //已经安装阿里镜像的可以用cnpm install</span><br></pre></td></tr></table></figure>
-<p>这一步是根据package.json文件安装需要的模块, 具体文件内容可以自己打开看看.</p>
+<h1 id="Centos7"><a href="#Centos7" class="headerlink" title="Centos7"></a>Centos7</h1><ol>
+<li><p>添加 yum 信息</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">vim</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">yum</span><span class="selector-class">.repos</span><span class="selector-class">.d</span>/<span class="selector-tag">google-chrome</span><span class="selector-class">.repo</span></span><br></pre></td></tr></table></figure>
+
+<p>向文件中添加以下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[google-chrome]</span></span><br><span class="line"><span class="attr">name</span>=google-chrome</span><br><span class="line"><span class="attr">baseurl</span>=http://dl.google.com/linux/chrome/rpm/stable/<span class="variable">$basearch</span></span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=https://dl-ssl.google.com/linux/linux_signing_key.pub</span><br></pre></td></tr></table></figure>
+
+
+
 </li>
 </ol>
-<p>这样我们就完成了项目迁移!</p>
-<blockquote>
-<p>如果想知道如何迁移到其他电脑,可以参考这个博客:<br><a href="https://andyvj.coding.me/2019/02/19/190219-03/">hexo 迁移更换电脑，或多电脑终端更新博客</a></p>
-</blockquote>
+<ol start="2">
+<li><p>安装chrome</p>
+<p>Google官方源安装：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> google-chrome-stable</span><br></pre></td></tr></table></figure>
+
+<p>Google官方源可能在中国无法使用，导致安装失败或者在国内无法更新，可以添加以下参数来安装：　　</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">yum -y install google-chrome-<span class="keyword">stable</span> <span class="comment">--nogpgcheck</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加 chrome 到环境变量中</p>
+<p>找到chrome路径，并做个软连接，方便使用:</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">which google-chrome-stable</span><br><span class="line">ln -s xxx <span class="regexp">/bin/</span>chrome <span class="comment"># xxx为chrome可执行文件路径</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载webdriver</p>
+<p>以chromedriver为例，<a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a> ,选择对应版本的driver</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-11/20201108234442.png"></p>
+<p>Python代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">chromeOptions = webdriver.ChromeOptions()</span><br><span class="line"><span class="comment"># 加载无窗口浏览器</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line"><span class="comment">#chromeOptions.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--lang=en_US&#x27;</span>)</span><br><span class="line"><span class="comment"># 以根用户打身份运行Chrome，使用-no-sandbox标记重新运行Chrome,禁止沙箱启动</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--no-sandbox&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(options=chromeOptions, executable_path=driver_path) <span class="comment">#driver_path为driver路径</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
 ]]></content>
       <categories>
-        <category>博客</category>
+        <category>爬虫</category>
       </categories>
       <tags>
-        <tag>hexo</tag>
+        <tag>selenium</tag>
       </tags>
   </entry>
   <entry>
@@ -2514,54 +2562,6 @@ docker部署</code></pre>
       <categories>
         <category>linux</category>
       </categories>
-  </entry>
-  <entry>
-    <title>linux下部署selenium环境</title>
-    <url>/posts/65c4a6d8/</url>
-    <content><![CDATA[<blockquote>
-<p>记录在linux服务器上搭建selenium环境，用于Python爬虫</p>
-</blockquote>
-<a id="more"></a>
-
-<h1 id="Centos7"><a href="#Centos7" class="headerlink" title="Centos7"></a>Centos7</h1><ol>
-<li><p>添加 yum 信息</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">vim</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">yum</span><span class="selector-class">.repos</span><span class="selector-class">.d</span>/<span class="selector-tag">google-chrome</span><span class="selector-class">.repo</span></span><br></pre></td></tr></table></figure>
-
-<p>向文件中添加以下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[google-chrome]</span></span><br><span class="line"><span class="attr">name</span>=google-chrome</span><br><span class="line"><span class="attr">baseurl</span>=http://dl.google.com/linux/chrome/rpm/stable/<span class="variable">$basearch</span></span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=https://dl-ssl.google.com/linux/linux_signing_key.pub</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<ol start="2">
-<li><p>安装chrome</p>
-<p>Google官方源安装：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> google-chrome-stable</span><br></pre></td></tr></table></figure>
-
-<p>Google官方源可能在中国无法使用，导致安装失败或者在国内无法更新，可以添加以下参数来安装：　　</p>
-<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">yum -y install google-chrome-<span class="keyword">stable</span> <span class="comment">--nogpgcheck</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加 chrome 到环境变量中</p>
-<p>找到chrome路径，并做个软连接，方便使用:</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">which google-chrome-stable</span><br><span class="line">ln -s xxx <span class="regexp">/bin/</span>chrome <span class="comment"># xxx为chrome可执行文件路径</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载webdriver</p>
-<p>以chromedriver为例，<a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a> ,选择对应版本的driver</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-11/20201108234442.png"></p>
-<p>Python代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">chromeOptions = webdriver.ChromeOptions()</span><br><span class="line"><span class="comment"># 加载无窗口浏览器</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line"><span class="comment">#chromeOptions.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--lang=en_US&#x27;</span>)</span><br><span class="line"><span class="comment"># 以根用户打身份运行Chrome，使用-no-sandbox标记重新运行Chrome,禁止沙箱启动</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--no-sandbox&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(options=chromeOptions, executable_path=driver_path) <span class="comment">#driver_path为driver路径</span></span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>selenium</tag>
-      </tags>
   </entry>
   <entry>
     <title>linux学习02 - 基本概念和操作</title>
@@ -3139,6 +3139,51 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>npm命令总结</title>
+    <url>/posts/dj8392A/</url>
+    <content><![CDATA[<blockquote>
+<p>总结npm命令</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="npm安装模块"><a href="#npm安装模块" class="headerlink" title="npm安装模块"></a>npm安装模块</h3><ul>
+<li>【npm install xxx】利用 npm 安装xxx模块到当前命令行所在目录；</li>
+<li>【npm install -g xxx】利用npm安装全局模块xxx；</li>
+<li>【npm install xxx】安装但不写入package.json；</li>
+<li>【npm install xxx –save】 安装并写入package.json的”dependencies”中；</li>
+<li>【npm install xxx –save-dev】安装并写入package.json的”devDependencies”中。</li>
+</ul>
+<h3 id="npm-删除模块"><a href="#npm-删除模块" class="headerlink" title="npm 删除模块"></a>npm 删除模块</h3><ul>
+<li>【npm uninstall xxx】删除xxx模块；</li>
+<li>【npm uninstall -g xxx】删除全局模块xxx</li>
+</ul>
+<h3 id="查看npm全局安装过哪些模块"><a href="#查看npm全局安装过哪些模块" class="headerlink" title="查看npm全局安装过哪些模块"></a>查看npm全局安装过哪些模块</h3><ul>
+<li>【npm list -g –depth 0】</li>
+</ul>
+<h3 id="查看npm全局配置"><a href="#查看npm全局配置" class="headerlink" title="查看npm全局配置"></a>查看npm全局配置</h3><ul>
+<li>【npm config ls】</li>
+</ul>
+<h3 id="修改npm全局安装路径"><a href="#修改npm全局安装路径" class="headerlink" title="修改npm全局安装路径"></a>修改npm全局安装路径</h3><ul>
+<li>【npm config set prefix *】 如：npm config set prefix “D:\Test”</li>
+</ul>
+<h3 id="npm设置代理"><a href="#npm设置代理" class="headerlink" title="npm设置代理"></a>npm设置代理</h3><ul>
+<li>【npm config set proxy=<a href="http://127.0.0.1:8087】">http://127.0.0.1:8087】</a></li>
+<li>【npm config set registry=<a href="http://registry.npmjs.org】/">http://registry.npmjs.org】</a></li>
+<li>【npm config delete proxy】</li>
+<li>【npm config delete https-proxy】</li>
+</ul>
+<h3 id="win10关闭node进程"><a href="#win10关闭node进程" class="headerlink" title="win10关闭node进程"></a>win10关闭node进程</h3><ul>
+<li>【taskkill /F  /IM node.exe】 win10中git终端ctrl+c无法关闭node进程的解决方案</li>
+</ul>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>命令总结</tag>
+        <tag>npm</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux服务器上传文件到onedrive</title>
     <url>/posts/83e8a4ac/</url>
     <content><![CDATA[<blockquote>
@@ -3204,51 +3249,6 @@ docker部署</code></pre>
       <categories>
         <category>linux</category>
       </categories>
-  </entry>
-  <entry>
-    <title>npm命令总结</title>
-    <url>/posts/dj8392A/</url>
-    <content><![CDATA[<blockquote>
-<p>总结npm命令</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="npm安装模块"><a href="#npm安装模块" class="headerlink" title="npm安装模块"></a>npm安装模块</h3><ul>
-<li>【npm install xxx】利用 npm 安装xxx模块到当前命令行所在目录；</li>
-<li>【npm install -g xxx】利用npm安装全局模块xxx；</li>
-<li>【npm install xxx】安装但不写入package.json；</li>
-<li>【npm install xxx –save】 安装并写入package.json的”dependencies”中；</li>
-<li>【npm install xxx –save-dev】安装并写入package.json的”devDependencies”中。</li>
-</ul>
-<h3 id="npm-删除模块"><a href="#npm-删除模块" class="headerlink" title="npm 删除模块"></a>npm 删除模块</h3><ul>
-<li>【npm uninstall xxx】删除xxx模块；</li>
-<li>【npm uninstall -g xxx】删除全局模块xxx</li>
-</ul>
-<h3 id="查看npm全局安装过哪些模块"><a href="#查看npm全局安装过哪些模块" class="headerlink" title="查看npm全局安装过哪些模块"></a>查看npm全局安装过哪些模块</h3><ul>
-<li>【npm list -g –depth 0】</li>
-</ul>
-<h3 id="查看npm全局配置"><a href="#查看npm全局配置" class="headerlink" title="查看npm全局配置"></a>查看npm全局配置</h3><ul>
-<li>【npm config ls】</li>
-</ul>
-<h3 id="修改npm全局安装路径"><a href="#修改npm全局安装路径" class="headerlink" title="修改npm全局安装路径"></a>修改npm全局安装路径</h3><ul>
-<li>【npm config set prefix *】 如：npm config set prefix “D:\Test”</li>
-</ul>
-<h3 id="npm设置代理"><a href="#npm设置代理" class="headerlink" title="npm设置代理"></a>npm设置代理</h3><ul>
-<li>【npm config set proxy=<a href="http://127.0.0.1:8087】">http://127.0.0.1:8087】</a></li>
-<li>【npm config set registry=<a href="http://registry.npmjs.org】/">http://registry.npmjs.org】</a></li>
-<li>【npm config delete proxy】</li>
-<li>【npm config delete https-proxy】</li>
-</ul>
-<h3 id="win10关闭node进程"><a href="#win10关闭node进程" class="headerlink" title="win10关闭node进程"></a>win10关闭node进程</h3><ul>
-<li>【taskkill /F  /IM node.exe】 win10中git终端ctrl+c无法关闭node进程的解决方案</li>
-</ul>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>命令总结</tag>
-        <tag>npm</tag>
-      </tags>
   </entry>
   <entry>
     <title>python项目库依赖文件生成</title>
@@ -3479,23 +3479,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>win10查看连过的WIFI密码</title>
-    <url>/posts/22bb2050/</url>
-    <content><![CDATA[<blockquote>
-<p>在win10上查看连过的WIFI密码，这里通过cmd命令的方式查看.</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="1-查看单个WIFI的密码"><a href="#1-查看单个WIFI的密码" class="headerlink" title="1. 查看单个WIFI的密码"></a>1. 查看单个WIFI的密码</h3><p>注意下面的WIFI名指定为需要查询的WIFI名</p>
-<figure class="highlight bash"><figcaption><span>查看单个WIFI密码.bat</span></figcaption><table><tr><td class="code"><pre><span class="line">netsh wlan show profile name=<span class="string">&quot;WIFI名&quot;</span> key=clear</span><br></pre></td></tr></table></figure>
-<p>结果中的关键内容就是WIFI密码</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210455.png"></p>
-<h3 id="2-查看所有连过的WIFI名"><a href="#2-查看所有连过的WIFI名" class="headerlink" title="2. 查看所有连过的WIFI名"></a>2. 查看所有连过的WIFI名</h3><p>这里与上一条命令不同的是WIFI名换成了通配符 “*”，不过这个不能直接查看密码,再利用上面的命令进行查看密码</p>
-<figure class="highlight bash"><figcaption><span>查看所有WIFI密码.bat</span></figcaption><table><tr><td class="code"><pre><span class="line">netsh wlan show profile * key=clear</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>技巧</category>
-      </categories>
-  </entry>
-  <entry>
     <title>xshell密钥登录服务器的配置过程</title>
     <url>/posts/344ac519/</url>
     <content><![CDATA[<ul>
@@ -3543,6 +3526,23 @@ docker部署</code></pre>
       <tags>
         <tag>安全</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>win10查看连过的WIFI密码</title>
+    <url>/posts/22bb2050/</url>
+    <content><![CDATA[<blockquote>
+<p>在win10上查看连过的WIFI密码，这里通过cmd命令的方式查看.</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="1-查看单个WIFI的密码"><a href="#1-查看单个WIFI的密码" class="headerlink" title="1. 查看单个WIFI的密码"></a>1. 查看单个WIFI的密码</h3><p>注意下面的WIFI名指定为需要查询的WIFI名</p>
+<figure class="highlight bash"><figcaption><span>查看单个WIFI密码.bat</span></figcaption><table><tr><td class="code"><pre><span class="line">netsh wlan show profile name=<span class="string">&quot;WIFI名&quot;</span> key=clear</span><br></pre></td></tr></table></figure>
+<p>结果中的关键内容就是WIFI密码</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210455.png"></p>
+<h3 id="2-查看所有连过的WIFI名"><a href="#2-查看所有连过的WIFI名" class="headerlink" title="2. 查看所有连过的WIFI名"></a>2. 查看所有连过的WIFI名</h3><p>这里与上一条命令不同的是WIFI名换成了通配符 “*”，不过这个不能直接查看密码,再利用上面的命令进行查看密码</p>
+<figure class="highlight bash"><figcaption><span>查看所有WIFI密码.bat</span></figcaption><table><tr><td class="code"><pre><span class="line">netsh wlan show profile * key=clear</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>技巧</category>
+      </categories>
   </entry>
   <entry>
     <title>修改linux服务器默认编码为utf8</title>
