@@ -1,45 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Caddy安装和常用命令</title>
-    <url>/posts/d392dh/</url>
-    <content><![CDATA[<blockquote>
-<p>记录Caddy的相关内容</p>
-</blockquote>
-<a id="more"></a>
-<p><code>实验环境</code>：Centos7</p>
-<h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h2><h3 id="centos"><a href="#centos" class="headerlink" title="centos"></a>centos</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install epel-release <span class="comment">#添加源</span></span><br><span class="line">yum -y install caddy</span><br></pre></td></tr></table></figure>
-
-<h3 id="ubuntu16-04"><a href="#ubuntu16-04" class="headerlink" title="ubuntu16.04+"></a>ubuntu16.04+</h3><ul>
-<li>安装和配置<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl https://getcaddy.com | bash</span><br><span class="line">sudo mkdir /etc/caddy</span><br><span class="line">sudo chown -R root:www-data /etc/caddy</span><br><span class="line">sudo mkdir /etc/ssl/caddy</span><br><span class="line">sudo chown -R www-data:root /etc/ssl/caddy</span><br><span class="line">sudo chmod 0770 /etc/ssl/caddy</span><br><span class="line">sudo touch /etc/caddy/Caddyfile</span><br><span class="line">sudo mkdir /var/www</span><br><span class="line">sudo chown www-data: /var/www</span><br></pre></td></tr></table></figure></li>
-<li>添加caddy到service<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/caddy.service</span><br></pre></td></tr></table></figure>
-用vim将下面内容写入到文件中<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"><span class="attr">Description</span>=Caddy HTTP/<span class="number">2</span> web server</span><br><span class="line"><span class="attr">Documentation</span>=https://caddyserver.com/docs</span><br><span class="line"><span class="attr">After</span>=network-<span class="literal">on</span>line.target</span><br><span class="line"><span class="attr">Wants</span>=network-<span class="literal">on</span>line.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"><span class="attr">Restart</span>=<span class="literal">on</span>-failure</span><br><span class="line"><span class="attr">StartLimitInterval</span>=<span class="number">86400</span></span><br><span class="line"><span class="attr">StartLimitBurst</span>=<span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="attr">User</span>=www-data</span><br><span class="line"><span class="attr">Group</span>=www-data</span><br><span class="line"><span class="comment">; Letsencrypt-issued certificates will be written to this directory.</span></span><br><span class="line"><span class="attr">Environment</span>=CADDYPATH=/etc/ssl/caddy</span><br><span class="line"></span><br><span class="line"><span class="attr">ExecStart</span>=/usr/local/bin/caddy -log stdout -agree=<span class="literal">true</span> -conf=/etc/caddy/Caddyfile -root=/var/tmp</span><br><span class="line"><span class="attr">ExecReload</span>=/bin/kill -USR1 <span class="variable">$MAINPID</span></span><br><span class="line"></span><br><span class="line"><span class="attr">LimitNOFILE</span>=<span class="number">1048576</span></span><br><span class="line"><span class="attr">LimitNPROC</span>=<span class="number">64</span></span><br><span class="line"></span><br><span class="line"><span class="attr">PrivateTmp</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">PrivateDevices</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">ProtectHome</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">ProtectSystem</span>=full</span><br><span class="line"><span class="attr">ReadWriteDirectories</span>=/etc/ssl/caddy</span><br><span class="line"></span><br><span class="line"><span class="comment">; The following additional security directives only work with systemd v229 or later.</span></span><br><span class="line"><span class="comment">; They further retrict privileges that can be gained by caddy. Uncomment if you like.</span></span><br><span class="line"><span class="comment">; Note that you may have to add capabilities required by any plugins in use.</span></span><br><span class="line"><span class="comment">;CapabilityBoundingSet=CAP_NET_BIND_SERVICE</span></span><br><span class="line"><span class="comment">;AmbientCapabilities=CAP_NET_BIND_SERVICE</span></span><br><span class="line"><span class="comment">;NoNewPrivileges=true</span></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="2-配置文件默认路径"><a href="#2-配置文件默认路径" class="headerlink" title="2. 配置文件默认路径"></a>2. 配置文件默认路径</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="regexp">/etc/</span>caddy<span class="regexp">/conf.d/</span>Caddyfile.conf</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-配置文件格式模板"><a href="#3-配置文件格式模板" class="headerlink" title="3.配置文件格式模板"></a>3.配置文件格式模板</h2><ul>
-<li>注意符号后面含有<code>空格</code></li>
-<li>以下配置主要支持在本地某个端口含有服务，将端口与域名映射起来</li>
-</ul>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="attribute">https</span>:<span class="comment">//blog.xxx.xx &#123;</span></span><br><span class="line"> gzip</span><br><span class="line"> tls xxx<span class="variable">@gmail</span>.com</span><br><span class="line"> proxy / <span class="attribute">localhost</span>:<span class="number">2888</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中：</p>
-<ol>
-<li>注意网址替换为自己的网址</li>
-<li>邮箱是用于SSL证书注册邮箱</li>
-<li>2888为端口号，需要替换为服务对应的端口号</li>
-</ol>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>命令总结</tag>
-        <tag>caddy</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CentOS 7安装fail2ban+Firewall防止SSH爆破与CC攻击</title>
     <url>/posts/191dc2a0/</url>
     <content><![CDATA[<blockquote>
@@ -105,59 +66,43 @@
       </tags>
   </entry>
   <entry>
-    <title>Centos7使用rclone挂载谷歌团队盘</title>
-    <url>/posts/45226759/</url>
+    <title>Caddy安装和常用命令</title>
+    <url>/posts/d392dh/</url>
     <content><![CDATA[<blockquote>
-<p>国外服务器文件上传和下载有时很慢，本地与服务器直接传输文件效率很低，这里通过将国外云盘作为中转的方式包含很多优点。</p>
+<p>记录Caddy的相关内容</p>
 </blockquote>
 <a id="more"></a>
-<p>主要优势如下：</p>
-<ul>
-<li>国外服务器与国外云盘之间文件传输效率高</li>
-<li>本地与国外云盘之间文件传输可以通过xx工具提高下载速度</li>
-<li>大容量云盘可以存储大量数据（谷歌团队盘有1PB空间）</li>
-</ul>
-<p>首先非常感谢参考博客：<a href="https://omo.moe/archives/103/">https://omo.moe/archives/103/</a></p>
-<h2 id="安装环境配置"><a href="#安装环境配置" class="headerlink" title="安装环境配置"></a>安装环境配置</h2><p>在服务器执行以下命令，安装环境</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install wget unzip screen fuse fuse-devel</span><br><span class="line">wget https://downloads.rclone.org/rclone-current-linux-amd64.zip</span><br><span class="line">unzip rclone-current-linux-amd64.zip</span><br><span class="line">chmod 0755 ./rclone-*/rclone</span><br><span class="line">cp ./rclone-*/rclone /usr/bin/</span><br><span class="line">rm -rf ./rclone-*</span><br></pre></td></tr></table></figure>
+<p><code>实验环境</code>：Centos7</p>
+<h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h2><h3 id="centos"><a href="#centos" class="headerlink" title="centos"></a>centos</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install epel-release <span class="comment">#添加源</span></span><br><span class="line">yum -y install caddy</span><br></pre></td></tr></table></figure>
 
-<h2 id="身份认证"><a href="#身份认证" class="headerlink" title="身份认证"></a>身份认证</h2><p>执行命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone config</span><br></pre></td></tr></table></figure>
+<h3 id="ubuntu16-04"><a href="#ubuntu16-04" class="headerlink" title="ubuntu16.04+"></a>ubuntu16.04+</h3><ul>
+<li>安装和配置<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl https://getcaddy.com | bash</span><br><span class="line">sudo mkdir /etc/caddy</span><br><span class="line">sudo chown -R root:www-data /etc/caddy</span><br><span class="line">sudo mkdir /etc/ssl/caddy</span><br><span class="line">sudo chown -R www-data:root /etc/ssl/caddy</span><br><span class="line">sudo chmod 0770 /etc/ssl/caddy</span><br><span class="line">sudo touch /etc/caddy/Caddyfile</span><br><span class="line">sudo mkdir /var/www</span><br><span class="line">sudo chown www-data: /var/www</span><br></pre></td></tr></table></figure></li>
+<li>添加caddy到service<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/caddy.service</span><br></pre></td></tr></table></figure>
+用vim将下面内容写入到文件中<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"><span class="attr">Description</span>=Caddy HTTP/<span class="number">2</span> web server</span><br><span class="line"><span class="attr">Documentation</span>=https://caddyserver.com/docs</span><br><span class="line"><span class="attr">After</span>=network-<span class="literal">on</span>line.target</span><br><span class="line"><span class="attr">Wants</span>=network-<span class="literal">on</span>line.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"><span class="attr">Restart</span>=<span class="literal">on</span>-failure</span><br><span class="line"><span class="attr">StartLimitInterval</span>=<span class="number">86400</span></span><br><span class="line"><span class="attr">StartLimitBurst</span>=<span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="attr">User</span>=www-data</span><br><span class="line"><span class="attr">Group</span>=www-data</span><br><span class="line"><span class="comment">; Letsencrypt-issued certificates will be written to this directory.</span></span><br><span class="line"><span class="attr">Environment</span>=CADDYPATH=/etc/ssl/caddy</span><br><span class="line"></span><br><span class="line"><span class="attr">ExecStart</span>=/usr/local/bin/caddy -log stdout -agree=<span class="literal">true</span> -conf=/etc/caddy/Caddyfile -root=/var/tmp</span><br><span class="line"><span class="attr">ExecReload</span>=/bin/kill -USR1 <span class="variable">$MAINPID</span></span><br><span class="line"></span><br><span class="line"><span class="attr">LimitNOFILE</span>=<span class="number">1048576</span></span><br><span class="line"><span class="attr">LimitNPROC</span>=<span class="number">64</span></span><br><span class="line"></span><br><span class="line"><span class="attr">PrivateTmp</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">PrivateDevices</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">ProtectHome</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">ProtectSystem</span>=full</span><br><span class="line"><span class="attr">ReadWriteDirectories</span>=/etc/ssl/caddy</span><br><span class="line"></span><br><span class="line"><span class="comment">; The following additional security directives only work with systemd v229 or later.</span></span><br><span class="line"><span class="comment">; They further retrict privileges that can be gained by caddy. Uncomment if you like.</span></span><br><span class="line"><span class="comment">; Note that you may have to add capabilities required by any plugins in use.</span></span><br><span class="line"><span class="comment">;CapabilityBoundingSet=CAP_NET_BIND_SERVICE</span></span><br><span class="line"><span class="comment">;AmbientCapabilities=CAP_NET_BIND_SERVICE</span></span><br><span class="line"><span class="comment">;NoNewPrivileges=true</span></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure>
 
-<p>如下图，name为最后挂载的盘名。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png"></p>
-<p>如下图，可以看到可以选择各种网盘进行挂载，这里选择第13个<code>google drive</code>(具体序号需联系实际)</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105448.png"></p>
-<p>如下图，配置<code>权限</code>等功能，主要看英文介绍，图中空白处直接按确认选择默认</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105741.png"></p>
-<p>如下图，将链接复制到浏览器打开，获取<code>认证码</code>。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110051.png"></p>
-<p>选择Team Drive的编号，最后退出</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110457.png"></p>
-<h2 id="挂载云盘"><a href="#挂载云盘" class="headerlink" title="挂载云盘"></a>挂载云盘</h2><ul>
-<li><p>在服务器创建目录，用于目录映射</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mkdir /root/Gdrive</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>输入以下命令，需要注意参数</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone mount wellod:folder /root/Gdrive --allow-other --allow-non-empty --vfs-cache-mode writes &amp;</span><br></pre></td></tr></table></figure>
+</ul>
+<h2 id="2-配置文件默认路径"><a href="#2-配置文件默认路径" class="headerlink" title="2. 配置文件默认路径"></a>2. 配置文件默认路径</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="regexp">/etc/</span>caddy<span class="regexp">/conf.d/</span>Caddyfile.conf</span><br></pre></td></tr></table></figure>
 
+<h2 id="3-配置文件格式模板"><a href="#3-配置文件格式模板" class="headerlink" title="3.配置文件格式模板"></a>3.配置文件格式模板</h2><ul>
+<li>注意符号后面含有<code>空格</code></li>
+<li>以下配置主要支持在本地某个端口含有服务，将端口与域名映射起来</li>
+</ul>
+<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="attribute">https</span>:<span class="comment">//blog.xxx.xx &#123;</span></span><br><span class="line"> gzip</span><br><span class="line"> tls xxx<span class="variable">@gmail</span>.com</span><br><span class="line"> proxy / <span class="attribute">localhost</span>:<span class="number">2888</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
 <ol>
-<li><code>wellod:floder</code>：wellod为第一步中输入的name, folder为云盘中的文件夹名</li>
-<li><code>/root/Gdrive</code>：服务器相对于云盘的映射地址</li>
+<li>注意网址替换为自己的网址</li>
+<li>邮箱是用于SSL证书注册邮箱</li>
+<li>2888为端口号，需要替换为服务对应的端口号</li>
 </ol>
-</li>
-<li><p>查看挂载是否成功</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401111343.png"></p>
-<p>成功就如上图所示。</p>
-</li>
-<li><p>文件上传和下载</p>
-<p>使用<code>cp</code>命令即可，也可以使用<code>rclone copy</code>等命令操作。</p>
-</li>
-</ul>
 ]]></content>
       <categories>
-        <category>linux</category>
+        <category>工具</category>
       </categories>
+      <tags>
+        <tag>命令总结</tag>
+        <tag>caddy</tag>
+      </tags>
   </entry>
   <entry>
     <title>Cron表达式</title>
@@ -289,6 +234,91 @@
       </categories>
   </entry>
   <entry>
+    <title>Centos7使用rclone挂载谷歌团队盘</title>
+    <url>/posts/45226759/</url>
+    <content><![CDATA[<blockquote>
+<p>国外服务器文件上传和下载有时很慢，本地与服务器直接传输文件效率很低，这里通过将国外云盘作为中转的方式包含很多优点。</p>
+</blockquote>
+<a id="more"></a>
+<p>主要优势如下：</p>
+<ul>
+<li>国外服务器与国外云盘之间文件传输效率高</li>
+<li>本地与国外云盘之间文件传输可以通过xx工具提高下载速度</li>
+<li>大容量云盘可以存储大量数据（谷歌团队盘有1PB空间）</li>
+</ul>
+<p>首先非常感谢参考博客：<a href="https://omo.moe/archives/103/">https://omo.moe/archives/103/</a></p>
+<h2 id="安装环境配置"><a href="#安装环境配置" class="headerlink" title="安装环境配置"></a>安装环境配置</h2><p>在服务器执行以下命令，安装环境</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install wget unzip screen fuse fuse-devel</span><br><span class="line">wget https://downloads.rclone.org/rclone-current-linux-amd64.zip</span><br><span class="line">unzip rclone-current-linux-amd64.zip</span><br><span class="line">chmod 0755 ./rclone-*/rclone</span><br><span class="line">cp ./rclone-*/rclone /usr/bin/</span><br><span class="line">rm -rf ./rclone-*</span><br></pre></td></tr></table></figure>
+
+<h2 id="身份认证"><a href="#身份认证" class="headerlink" title="身份认证"></a>身份认证</h2><p>执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone config</span><br></pre></td></tr></table></figure>
+
+<p>如下图，name为最后挂载的盘名。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png"></p>
+<p>如下图，可以看到可以选择各种网盘进行挂载，这里选择第13个<code>google drive</code>(具体序号需联系实际)</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105448.png"></p>
+<p>如下图，配置<code>权限</code>等功能，主要看英文介绍，图中空白处直接按确认选择默认</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105741.png"></p>
+<p>如下图，将链接复制到浏览器打开，获取<code>认证码</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110051.png"></p>
+<p>选择Team Drive的编号，最后退出</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110457.png"></p>
+<h2 id="挂载云盘"><a href="#挂载云盘" class="headerlink" title="挂载云盘"></a>挂载云盘</h2><ul>
+<li><p>在服务器创建目录，用于目录映射</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mkdir /root/Gdrive</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>输入以下命令，需要注意参数</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone mount wellod:folder /root/Gdrive --allow-other --allow-non-empty --vfs-cache-mode writes &amp;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>wellod:floder</code>：wellod为第一步中输入的name, folder为云盘中的文件夹名</li>
+<li><code>/root/Gdrive</code>：服务器相对于云盘的映射地址</li>
+</ol>
+</li>
+<li><p>查看挂载是否成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401111343.png"></p>
+<p>成功就如上图所示。</p>
+</li>
+<li><p>文件上传和下载</p>
+<p>使用<code>cp</code>命令即可，也可以使用<code>rclone copy</code>等命令操作。</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Github+Hexo win10搭建个人博客教程(3) - 安装主题</title>
+    <url>/posts/21542/</url>
+    <content><![CDATA[<blockquote>
+<p>刚开始接触hexo博客, 疯狂的换主题, 这里记录一下hexo博客如何更换主题的方法</p>
+</blockquote>
+<h2 id="寻找主题"><a href="#寻找主题" class="headerlink" title="寻找主题:"></a>寻找主题:</h2><p>我们可以到<a href="https://hexo.io/themes/">Hexo官网主题</a>上面寻找自己喜欢的主题,其中大部分主题都是可以预览的.</p>
+<p>如图:</p>
+<a id="more"></a>    
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204909.png"><br>点击1处一般会跳转到该主题的预览网址,点击2处一般跳转到该主题的github项目地址.</p>
+<h2 id="获取主题"><a href="#获取主题" class="headerlink" title="获取主题"></a>获取主题</h2><p>当我们挑选好主题之后,进入到github项目地址, 有时一些主题项目会教你怎么添加该主题, 这里介绍通用的方法.<br>首先复制该项目的地址,如图, 点击该处复制地址:<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204933.png"></p>
+<p>进入cmd管理员界面, 进入当前博客项目地址:<br>输入以下命令,themes/antiquity是主题的保存位置:</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">git clone https:<span class="regexp">//gi</span>thub.com<span class="regexp">/yiluyanxia/</span>hexo-theme-antiquity.git themes/antiquity </span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410205020.png"><br>之后编辑该项目的_config.yml文件,修改对应的主题,如图<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410205040.png"></p>
+<h2 id="在win10上测试主题"><a href="#在win10上测试主题" class="headerlink" title="在win10上测试主题"></a>在win10上测试主题</h2><p>进入cmd管理员界面,依次输入:</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo clean</span></span><br><span class="line"><span class="attribute">hexo g</span></span><br><span class="line"><span class="attribute">hexo s</span></span><br></pre></td></tr></table></figure>
+<p>这样主题就添加好啦!<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410205116.png"></p>
+<h2 id="部署到github"><a href="#部署到github" class="headerlink" title="部署到github"></a>部署到github</h2><p>命令如下</p>
+<figure class="highlight sas"><table><tr><td class="code"><pre><span class="line">hexo clean <span class="variable">&amp;&amp;</span> hexo g <span class="variable">&amp;&amp;</span> hexo d</span><br></pre></td></tr></table></figure>
+
+<h2 id="五-更新主题"><a href="#五-更新主题" class="headerlink" title="五. 更新主题"></a>五. 更新主题</h2><p>到主题目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> themes/antiquity </span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>博客</tag>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Github+Hexo win10搭建个人博客教程(1) - 配置相关环境</title>
     <url>/posts/45982/</url>
     <content><![CDATA[<blockquote>
@@ -350,36 +380,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Github+Hexo win10搭建个人博客教程(3) - 安装主题</title>
-    <url>/posts/21542/</url>
-    <content><![CDATA[<blockquote>
-<p>刚开始接触hexo博客, 疯狂的换主题, 这里记录一下hexo博客如何更换主题的方法</p>
-</blockquote>
-<h2 id="寻找主题"><a href="#寻找主题" class="headerlink" title="寻找主题:"></a>寻找主题:</h2><p>我们可以到<a href="https://hexo.io/themes/">Hexo官网主题</a>上面寻找自己喜欢的主题,其中大部分主题都是可以预览的.</p>
-<p>如图:</p>
-<a id="more"></a>    
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204909.png"><br>点击1处一般会跳转到该主题的预览网址,点击2处一般跳转到该主题的github项目地址.</p>
-<h2 id="获取主题"><a href="#获取主题" class="headerlink" title="获取主题"></a>获取主题</h2><p>当我们挑选好主题之后,进入到github项目地址, 有时一些主题项目会教你怎么添加该主题, 这里介绍通用的方法.<br>首先复制该项目的地址,如图, 点击该处复制地址:<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204933.png"></p>
-<p>进入cmd管理员界面, 进入当前博客项目地址:<br>输入以下命令,themes/antiquity是主题的保存位置:</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">git clone https:<span class="regexp">//gi</span>thub.com<span class="regexp">/yiluyanxia/</span>hexo-theme-antiquity.git themes/antiquity </span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410205020.png"><br>之后编辑该项目的_config.yml文件,修改对应的主题,如图<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410205040.png"></p>
-<h2 id="在win10上测试主题"><a href="#在win10上测试主题" class="headerlink" title="在win10上测试主题"></a>在win10上测试主题</h2><p>进入cmd管理员界面,依次输入:</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo clean</span></span><br><span class="line"><span class="attribute">hexo g</span></span><br><span class="line"><span class="attribute">hexo s</span></span><br></pre></td></tr></table></figure>
-<p>这样主题就添加好啦!<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410205116.png"></p>
-<h2 id="部署到github"><a href="#部署到github" class="headerlink" title="部署到github"></a>部署到github</h2><p>命令如下</p>
-<figure class="highlight sas"><table><tr><td class="code"><pre><span class="line">hexo clean <span class="variable">&amp;&amp;</span> hexo g <span class="variable">&amp;&amp;</span> hexo d</span><br></pre></td></tr></table></figure>
-
-<h2 id="五-更新主题"><a href="#五-更新主题" class="headerlink" title="五. 更新主题"></a>五. 更新主题</h2><p>到主题目录下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> themes/antiquity </span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>博客</tag>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Git常用命令总结</title>
     <url>/posts/dwqdwq/</url>
     <content><![CDATA[<blockquote>
@@ -420,8 +420,12 @@
 <figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">fatal</span>: NotSupportedException encountered.</span><br><span class="line">   <span class="attribute">ServicePointManager</span> 不支持具有 socks<span class="number">5</span> 方案的代理。</span><br></pre></td></tr></table></figure>
 
 <p>下面设置需要密码的代理</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git config --global http.proxy http://username:passwd@127.0.0.1:1080</span><br><span class="line">git config --global http.proxy socks5://username:passwd@127.0.0.1:1080</span><br></pre></td></tr></table></figure></li>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git config --global http.proxy http://username:passwd@127.0.0.1:1080</span><br><span class="line">git config --global http.proxy socks5://username:passwd@127.0.0.1:1080</span><br></pre></td></tr></table></figure>
+
+</li>
 </ul>
+<h2 id="Git删除所有commit记录"><a href="#Git删除所有commit记录" class="headerlink" title="Git删除所有commit记录"></a>Git删除所有commit记录</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git checkout --orphan latest_branch # 基于当前分支建立新分支latest_branch</span><br><span class="line">git add -A</span><br><span class="line">git commit -am &quot;first commit&quot;</span><br><span class="line">git branch -D master # 删除master分支</span><br><span class="line">git branch -m master # 重命名latest_branch分支为master</span><br><span class="line">git push -f origin master # 强制推送</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>工具</category>
@@ -608,6 +612,80 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>LeetCode-001-两数之和</title>
+    <url>/posts/a239384e/</url>
+    <content><![CDATA[<blockquote>
+<p>题目链接：<a href="https://leetcode-cn.com/problems/two-sum/">https://leetcode-cn.com/problems/two-sum/</a></p>
+</blockquote>
+<a id="more"></a>
+
+<blockquote>
+<p>难度：简单</p>
+</blockquote>
+<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
+<p>你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。</p>
+<p><strong>示例</strong>:</p>
+<blockquote>
+<p>给定 nums = [2, 7, 11, 15], target = 9</p>
+<p>因为 nums[<strong>0</strong>] + nums[<strong>1</strong>] = 2 + 7 = 9<br>所以返回 [<strong>0, 1</strong>]</p>
+</blockquote>
+<h3 id="个人题解"><a href="#个人题解" class="headerlink" title="个人题解"></a>个人题解</h3><ul>
+<li>使用C++的<code>map</code>，键： <code>target - 遍历过的元素值</code>  值：<code>遍历过的元素值索引</code></li>
+<li>时间复杂度 <code>O(nlogn)</code></li>
+<li>空间复杂度<code>O(n)</code></li>
+<li>C++中<code>map</code>使用红黑树实现，<code>hash_map</code>使用哈希表实现，<code>hash_map</code>相对来说查找元素更快</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">twoSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; numMap;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">        <span class="keyword">int</span> t,i;</span><br><span class="line">        i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); it++)</span><br><span class="line">        &#123;</span><br><span class="line">            t = target - *it;</span><br><span class="line">            <span class="keyword">if</span>(numMap.find(*it) != numMap.end())  <span class="comment">// 之前有元素 + *it = target</span></span><br><span class="line">            &#123;</span><br><span class="line">                v.push_back(numMap[*it]);</span><br><span class="line">                v.push_back(i);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                numMap[t] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="官方题解"><a href="#官方题解" class="headerlink" title="官方题解"></a>官方题解</h3><h4 id="方法一：暴力法"><a href="#方法一：暴力法" class="headerlink" title="方法一：暴力法"></a>方法一：暴力法</h4><p>暴力法很简单，遍历每个元素 x，并查找是否存在一个值与 target−x 相等的目标元素。</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; nums.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[j] == target - nums[i]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, j &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n^2)</code><br>对于每个元素，我们试图通过遍历数组的其余部分来寻找它所对应的目标元素，这将耗费 O(n)的时间。因此时间复杂度为 <code>O(n^2)</code>。</li>
+<li>空间复杂度：<code>O(1)</code>。</li>
+</ul>
+<h4 id="方法二：两遍哈希表"><a href="#方法二：两遍哈希表" class="headerlink" title="方法二：两遍哈希表"></a>方法二：两遍哈希表</h4><p>为了对运行时间复杂度进行优化，我们需要一种更有效的方法来检查数组中是否存在目标元素。如果存在，我们需要找出它的索引。保持数组中的每个元素与其索引相互对应的最好方法是什么？哈希表。</p>
+<p>通过以空间换取速度的方式，我们可以将查找时间从 O(n) 降低到 O(1)。哈希表正是为此目的而构建的，它支持以 <em>近似</em> 恒定的时间进行快速查找。我用“近似”来描述，是因为一旦出现冲突，查找用时可能会退化到 O(n)。但只要你仔细地挑选哈希函数，在哈希表中进行查找的用时应当被摊销为 O(1)。</p>
+<p>一个简单的实现使用了两次迭代。在第一次迭代中，我们将每个元素的值和它的索引添加到表中。然后，在第二次迭代中，我们将检查每个元素所对应的目标元素<code>target−nums[i]</code>是否存在于表中。注意，该目标元素不能是 <code>nums[i]</code> 本身！</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n) </code><br>我们把包含有 n个元素的列表遍历两次。由于哈希表将查找时间缩短到 O(1) ，所以时间复杂度为 O(n)。</li>
+<li>空间复杂度：<code>O(n) </code><br>所需的额外空间取决于哈希表中存储的元素数量，该表中存储了 n个元素。</li>
+</ul>
+<h4 id="方法三：一遍哈希表"><a href="#方法三：一遍哈希表" class="headerlink" title="方法三：一遍哈希表"></a>方法三：一遍哈希表</h4><p>事实证明，我们可以一次完成。在进行迭代并将元素插入到表中的同时，我们还会回过头来检查表中是否已经存在当前元素所对应的目标元素。如果它存在，那我们已经找到了对应解，并立即将其返回。</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; map.get(complement), i &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n)</code>，<br>我们只遍历了包含有 n 个元素的列表一次。在表中进行的每次查找只花费 O(1)的时间。</li>
+<li>空间复杂度：<code>O(n)</code>，<br>所需的额外空间取决于哈希表中存储的元素数量，该表最多需要存储 n个元素。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>KMP算法</title>
     <url>/posts/2da0528d/</url>
     <content><![CDATA[<h3 id="问题引入"><a href="#问题引入" class="headerlink" title="问题引入"></a>问题引入</h3><pre><code>给出字符串str1, 字符串str2, len(str1) &gt; len(str2), 求出str2在str1中的位置, 如果不存在输出-1;
@@ -752,80 +830,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>kmp</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeetCode-001-两数之和</title>
-    <url>/posts/a239384e/</url>
-    <content><![CDATA[<blockquote>
-<p>题目链接：<a href="https://leetcode-cn.com/problems/two-sum/">https://leetcode-cn.com/problems/two-sum/</a></p>
-</blockquote>
-<a id="more"></a>
-
-<blockquote>
-<p>难度：简单</p>
-</blockquote>
-<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
-<p>你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。</p>
-<p><strong>示例</strong>:</p>
-<blockquote>
-<p>给定 nums = [2, 7, 11, 15], target = 9</p>
-<p>因为 nums[<strong>0</strong>] + nums[<strong>1</strong>] = 2 + 7 = 9<br>所以返回 [<strong>0, 1</strong>]</p>
-</blockquote>
-<h3 id="个人题解"><a href="#个人题解" class="headerlink" title="个人题解"></a>个人题解</h3><ul>
-<li>使用C++的<code>map</code>，键： <code>target - 遍历过的元素值</code>  值：<code>遍历过的元素值索引</code></li>
-<li>时间复杂度 <code>O(nlogn)</code></li>
-<li>空间复杂度<code>O(n)</code></li>
-<li>C++中<code>map</code>使用红黑树实现，<code>hash_map</code>使用哈希表实现，<code>hash_map</code>相对来说查找元素更快</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">twoSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; numMap;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">        <span class="keyword">int</span> t,i;</span><br><span class="line">        i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); it++)</span><br><span class="line">        &#123;</span><br><span class="line">            t = target - *it;</span><br><span class="line">            <span class="keyword">if</span>(numMap.find(*it) != numMap.end())  <span class="comment">// 之前有元素 + *it = target</span></span><br><span class="line">            &#123;</span><br><span class="line">                v.push_back(numMap[*it]);</span><br><span class="line">                v.push_back(i);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                numMap[t] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="官方题解"><a href="#官方题解" class="headerlink" title="官方题解"></a>官方题解</h3><h4 id="方法一：暴力法"><a href="#方法一：暴力法" class="headerlink" title="方法一：暴力法"></a>方法一：暴力法</h4><p>暴力法很简单，遍历每个元素 x，并查找是否存在一个值与 target−x 相等的目标元素。</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; nums.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[j] == target - nums[i]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, j &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n^2)</code><br>对于每个元素，我们试图通过遍历数组的其余部分来寻找它所对应的目标元素，这将耗费 O(n)的时间。因此时间复杂度为 <code>O(n^2)</code>。</li>
-<li>空间复杂度：<code>O(1)</code>。</li>
-</ul>
-<h4 id="方法二：两遍哈希表"><a href="#方法二：两遍哈希表" class="headerlink" title="方法二：两遍哈希表"></a>方法二：两遍哈希表</h4><p>为了对运行时间复杂度进行优化，我们需要一种更有效的方法来检查数组中是否存在目标元素。如果存在，我们需要找出它的索引。保持数组中的每个元素与其索引相互对应的最好方法是什么？哈希表。</p>
-<p>通过以空间换取速度的方式，我们可以将查找时间从 O(n) 降低到 O(1)。哈希表正是为此目的而构建的，它支持以 <em>近似</em> 恒定的时间进行快速查找。我用“近似”来描述，是因为一旦出现冲突，查找用时可能会退化到 O(n)。但只要你仔细地挑选哈希函数，在哈希表中进行查找的用时应当被摊销为 O(1)。</p>
-<p>一个简单的实现使用了两次迭代。在第一次迭代中，我们将每个元素的值和它的索引添加到表中。然后，在第二次迭代中，我们将检查每个元素所对应的目标元素<code>target−nums[i]</code>是否存在于表中。注意，该目标元素不能是 <code>nums[i]</code> 本身！</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n) </code><br>我们把包含有 n个元素的列表遍历两次。由于哈希表将查找时间缩短到 O(1) ，所以时间复杂度为 O(n)。</li>
-<li>空间复杂度：<code>O(n) </code><br>所需的额外空间取决于哈希表中存储的元素数量，该表中存储了 n个元素。</li>
-</ul>
-<h4 id="方法三：一遍哈希表"><a href="#方法三：一遍哈希表" class="headerlink" title="方法三：一遍哈希表"></a>方法三：一遍哈希表</h4><p>事实证明，我们可以一次完成。在进行迭代并将元素插入到表中的同时，我们还会回过头来检查表中是否已经存在当前元素所对应的目标元素。如果它存在，那我们已经找到了对应解，并立即将其返回。</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; map.get(complement), i &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n)</code>，<br>我们只遍历了包含有 n 个元素的列表一次。在表中进行的每次查找只花费 O(1)的时间。</li>
-<li>空间复杂度：<code>O(n)</code>，<br>所需的额外空间取决于哈希表中存储的元素数量，该表最多需要存储 n个元素。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>算法</category>
-      </categories>
-      <tags>
-        <tag>leetcode</tag>
       </tags>
   </entry>
   <entry>
@@ -1919,6 +1923,54 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>WebDriver下载地址</title>
+    <url>/posts/6b450c9b/</url>
+    <content><![CDATA[<blockquote>
+<p>在使用python的selenium库实现python爬虫时, 需要安装一些浏览器的driver, 每次安装时都需要寻找下载地址, 这里将各浏览器driver的下载地址记录下来, 方便以后查询.</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="各driver下载地址"><a href="#各driver下载地址" class="headerlink" title="各driver下载地址"></a>各driver下载地址</h3><h4 id="1-chrome浏览器"><a href="#1-chrome浏览器" class="headerlink" title="1. chrome浏览器"></a>1. chrome浏览器</h4><ul>
+<li><a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a></li>
+</ul>
+<h4 id="2-Firefox浏览器"><a href="#2-Firefox浏览器" class="headerlink" title="2. Firefox浏览器"></a>2. Firefox浏览器</h4><ul>
+<li><a href="https://github.com/mozilla/geckodriver/releases/">下载地址</a></li>
+</ul>
+<h4 id="3-IE浏览器"><a href="#3-IE浏览器" class="headerlink" title="3. IE浏览器"></a>3. IE浏览器</h4><ul>
+<li><a href="https://selenium-release.storage.googleapis.com/index.html">下载地址</a></li>
+</ul>
+<h4 id="4-PhantomJS"><a href="#4-PhantomJS" class="headerlink" title="4. PhantomJS"></a>4. PhantomJS</h4><ul>
+<li><a href="https://phantomjs.org/download.html">下载地址</a></li>
+</ul>
+<blockquote>
+<p>这个webdriver已经被selenium弃用了, 使用时会显示相关的警告信息.</p>
+<p>可以替代的有chrome和Firefox的无头浏览器.</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以chromedriver为例, 展示其使用方法</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">browser = webdriver.Chrome() // FireFox(), Ie(), PhantomJS()</span><br><span class="line">broswer.get(<span class="string">&#x27;https://baidu.com&#x27;</span>) //网址</span><br><span class="line">print(broswer.page_source)</span><br><span class="line">browser.close()</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<h3 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h3><blockquote>
+<p>按照对应浏览器版本下载driver, 下载后放在具有环境变量的路径内, 如果不知道如何操作, 直接将driver.exe放在python安装路径下</p>
+</blockquote>
+<h3 id="无头浏览器"><a href="#无头浏览器" class="headerlink" title="无头浏览器"></a>无头浏览器</h3><blockquote>
+<p>chrome和 Firfox都具有类似PhantomJS的功能</p>
+</blockquote>
+<ul>
+<li><p>使用方法如下:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">chrome_options = Options()</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(chrome_options=chrome_options)</span><br><span class="line">driver.get(<span class="string">&quot;https://baidu.com/&quot;</span>)</span><br><span class="line">print(driver.page_source)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>爬虫</category>
+      </categories>
+      <tags>
+        <tag>webdriver</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TopK问题多解法</title>
     <url>/posts/41d979e5/</url>
     <content><![CDATA[<blockquote>
@@ -2079,87 +2131,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>WebDriver下载地址</title>
-    <url>/posts/6b450c9b/</url>
-    <content><![CDATA[<blockquote>
-<p>在使用python的selenium库实现python爬虫时, 需要安装一些浏览器的driver, 每次安装时都需要寻找下载地址, 这里将各浏览器driver的下载地址记录下来, 方便以后查询.</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="各driver下载地址"><a href="#各driver下载地址" class="headerlink" title="各driver下载地址"></a>各driver下载地址</h3><h4 id="1-chrome浏览器"><a href="#1-chrome浏览器" class="headerlink" title="1. chrome浏览器"></a>1. chrome浏览器</h4><ul>
-<li><a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a></li>
-</ul>
-<h4 id="2-Firefox浏览器"><a href="#2-Firefox浏览器" class="headerlink" title="2. Firefox浏览器"></a>2. Firefox浏览器</h4><ul>
-<li><a href="https://github.com/mozilla/geckodriver/releases/">下载地址</a></li>
-</ul>
-<h4 id="3-IE浏览器"><a href="#3-IE浏览器" class="headerlink" title="3. IE浏览器"></a>3. IE浏览器</h4><ul>
-<li><a href="https://selenium-release.storage.googleapis.com/index.html">下载地址</a></li>
-</ul>
-<h4 id="4-PhantomJS"><a href="#4-PhantomJS" class="headerlink" title="4. PhantomJS"></a>4. PhantomJS</h4><ul>
-<li><a href="https://phantomjs.org/download.html">下载地址</a></li>
-</ul>
-<blockquote>
-<p>这个webdriver已经被selenium弃用了, 使用时会显示相关的警告信息.</p>
-<p>可以替代的有chrome和Firefox的无头浏览器.</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以chromedriver为例, 展示其使用方法</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">browser = webdriver.Chrome() // FireFox(), Ie(), PhantomJS()</span><br><span class="line">broswer.get(<span class="string">&#x27;https://baidu.com&#x27;</span>) //网址</span><br><span class="line">print(broswer.page_source)</span><br><span class="line">browser.close()</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<h3 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h3><blockquote>
-<p>按照对应浏览器版本下载driver, 下载后放在具有环境变量的路径内, 如果不知道如何操作, 直接将driver.exe放在python安装路径下</p>
-</blockquote>
-<h3 id="无头浏览器"><a href="#无头浏览器" class="headerlink" title="无头浏览器"></a>无头浏览器</h3><blockquote>
-<p>chrome和 Firfox都具有类似PhantomJS的功能</p>
-</blockquote>
-<ul>
-<li><p>使用方法如下:</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">chrome_options = Options()</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(chrome_options=chrome_options)</span><br><span class="line">driver.get(<span class="string">&quot;https://baidu.com/&quot;</span>)</span><br><span class="line">print(driver.page_source)</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>webdriver</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>crontab定时任务发邮件的问题</title>
-    <url>/posts/a50980cb/</url>
-    <content><![CDATA[<p>在用 crontab -e 命令创建定时任务后，发现定时任务中的发邮件并未执行。</p>
-<a id="more"></a>
-
-<p>通过上网查询，可以看crontab的日志。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tail /var/<span class="built_in">log</span>/cron</span><br></pre></td></tr></table></figure>
-
-<p>执行结果如下图：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-06/20200622132839.png"></p>
-<p>发现发送邮件报错为 mailed 284 bytes of output but got status 0x004b#012</p>
-<br>
-
-<p>通过查询资料，最终解决方案如下</p>
-<p>文字说明：修改 <code>/etc/postfix/main.cf</code>文件，将其中的 inet_interfaces 设置为all。</p>
-<p>操作：</p>
-<p>执行命令, 修改文件内容</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /etc/postfix/main.cf</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-06/20200622133227.png"></p>
-<p>最终可以解决，但并不知道原理，不知道会不会影响系统安全性。</p>
-<p>参考执行</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nohup  python3 -u /root/services/ISL.py  &gt;&gt; /root/services/ISL.log 2&gt;&amp;1  &amp;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>cron</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>centos防火墙设置</title>
     <url>/posts/751f4e41/</url>
     <content><![CDATA[<blockquote>
@@ -2206,6 +2177,39 @@ docker部署</code></pre>
       <categories>
         <category>linux</category>
       </categories>
+  </entry>
+  <entry>
+    <title>crontab定时任务发邮件的问题</title>
+    <url>/posts/a50980cb/</url>
+    <content><![CDATA[<p>在用 crontab -e 命令创建定时任务后，发现定时任务中的发邮件并未执行。</p>
+<a id="more"></a>
+
+<p>通过上网查询，可以看crontab的日志。命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tail /var/<span class="built_in">log</span>/cron</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下图：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-06/20200622132839.png"></p>
+<p>发现发送邮件报错为 mailed 284 bytes of output but got status 0x004b#012</p>
+<br>
+
+<p>通过查询资料，最终解决方案如下</p>
+<p>文字说明：修改 <code>/etc/postfix/main.cf</code>文件，将其中的 inet_interfaces 设置为all。</p>
+<p>操作：</p>
+<p>执行命令, 修改文件内容</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /etc/postfix/main.cf</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-06/20200622133227.png"></p>
+<p>最终可以解决，但并不知道原理，不知道会不会影响系统安全性。</p>
+<p>参考执行</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nohup  python3 -u /root/services/ISL.py  &gt;&gt; /root/services/ISL.log 2&gt;&amp;1  &amp;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>cron</tag>
+      </tags>
   </entry>
   <entry>
     <title>docker安装forsaken mail</title>
@@ -2323,6 +2327,39 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>hexo本地项目迁移(更换文件夹)</title>
+    <url>/posts/ae561650/</url>
+    <content><![CDATA[<blockquote>
+<p>有时候, 我们可能需要将本地hexo博客项目备份, 或者将本地项目换个文件夹.<br>但是如果我们直接将文件夹移动位置时会发现移动后输入hexo s启动报错,所以我们有必要知道如何将本地项目更换文件夹.<br>如果能做到这一点, 我们还可以备份到另一台电脑, 在其他环境重新编辑部署hexo博客.</p>
+</blockquote>
+<a id="more"></a>
+
+<blockquote>
+<p>进入正题, 简单的三个步骤: </p>
+</blockquote>
+<ol>
+<li><p>在新环境下新建文件夹<br> 新建的文件夹用来放置之前的项目<br> 注意: <strong>不要用hexo init初始化</strong></p>
+</li>
+<li><p>复制原先项目文件<br> 这里我们只需要复制除了.deploy_git, node_modules, public三个文件夹之外, 其他的文件全部复制到新建文件夹里面.</p>
+</li>
+<li><p>安装所需插件(node_modules)<br>在新建文件夹内, 右键git bash here<br>输入命令:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install //已经安装阿里镜像的可以用cnpm install</span><br></pre></td></tr></table></figure>
+<p>这一步是根据package.json文件安装需要的模块, 具体文件内容可以自己打开看看.</p>
+</li>
+</ol>
+<p>这样我们就完成了项目迁移!</p>
+<blockquote>
+<p>如果想知道如何迁移到其他电脑,可以参考这个博客:<br><a href="https://andyvj.coding.me/2019/02/19/190219-03/">hexo 迁移更换电脑，或多电脑终端更新博客</a></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker部署typecho+mysql</title>
     <url>/posts/63d1dc7a/</url>
     <content><![CDATA[<p>本篇文章记录docker部署typecho的过程，并将typecho容器和mysql容器进行链接。</p>
@@ -2414,39 +2451,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>hexo本地项目迁移(更换文件夹)</title>
-    <url>/posts/ae561650/</url>
-    <content><![CDATA[<blockquote>
-<p>有时候, 我们可能需要将本地hexo博客项目备份, 或者将本地项目换个文件夹.<br>但是如果我们直接将文件夹移动位置时会发现移动后输入hexo s启动报错,所以我们有必要知道如何将本地项目更换文件夹.<br>如果能做到这一点, 我们还可以备份到另一台电脑, 在其他环境重新编辑部署hexo博客.</p>
-</blockquote>
-<a id="more"></a>
-
-<blockquote>
-<p>进入正题, 简单的三个步骤: </p>
-</blockquote>
-<ol>
-<li><p>在新环境下新建文件夹<br> 新建的文件夹用来放置之前的项目<br> 注意: <strong>不要用hexo init初始化</strong></p>
-</li>
-<li><p>复制原先项目文件<br> 这里我们只需要复制除了.deploy_git, node_modules, public三个文件夹之外, 其他的文件全部复制到新建文件夹里面.</p>
-</li>
-<li><p>安装所需插件(node_modules)<br>在新建文件夹内, 右键git bash here<br>输入命令:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install //已经安装阿里镜像的可以用cnpm install</span><br></pre></td></tr></table></figure>
-<p>这一步是根据package.json文件安装需要的模块, 具体文件内容可以自己打开看看.</p>
-</li>
-</ol>
-<p>这样我们就完成了项目迁移!</p>
-<blockquote>
-<p>如果想知道如何迁移到其他电脑,可以参考这个博客:<br><a href="https://andyvj.coding.me/2019/02/19/190219-03/">hexo 迁移更换电脑，或多电脑终端更新博客</a></p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux下部署selenium环境</title>
     <url>/posts/65c4a6d8/</url>
     <content><![CDATA[<blockquote>
@@ -2493,86 +2497,6 @@ docker部署</code></pre>
       <tags>
         <tag>selenium</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>linux学习01 - linux系统简介</title>
-    <url>/posts/51bc6a9b/</url>
-    <content><![CDATA[<blockquote>
-<p>linux学习01：linux系统简介<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
-</blockquote>
-<a id="more"></a>
-
-
-
-<h4 id="linux为何物"><a href="#linux为何物" class="headerlink" title="linux为何物"></a>linux为何物</h4><p>Linux 就是一个操作系统，就像你多少已经了解的 Windows（xp，7，8）和 Mac OS 。至于操作系统是什么，就不用过多解释了，如果你学习过前面的入门课程，应该会有个基本概念了，这里简单介绍一下操作系统在整个计算机系统中的角色。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210541.png"></p>
-<p>我们的 Linux 主要是系统调用和内核那两层。当然直观地看，我们使用的操作系统还包含一些在其上运行的应用程序，比如文本编辑器、浏览器、电子邮件等。</p>
-<h4 id="linux历史简介"><a href="#linux历史简介" class="headerlink" title="linux历史简介"></a>linux历史简介</h4><p>操作系统始于二十世纪五十年代，当时的操作系统能运行批处理程序。批处理程序不需要用户的交互，它从文件或者穿孔卡片读取数据，然后输出到另外一个文件或者打印机。</p>
-<p>二十世纪六十年代初，交互式操作系统开始流行。它不仅仅可以交互，还能使多个用户从不同的终端同时操作主机。这样的操作系统被称作分时操作系统，它的出现对批处理操作系统是个极大的挑战。许多人尝试开发分时操作系统， 其中包括一些大学的研究项目和商业项目。当时有个项目叫做 Multics ，它的技术在当时很具有创新性。 Multics 项目的开发并不顺利，它花费了远超过预计的资金，却没有在操作系统市场上占到多少份额。而参加该项目的一个开发团体——贝尔实验室退出了这个项目。他们在退出后开发了他们自己的一个操作系统—— UNIX 。</p>
-<p>UNIX 最初免费发布并因此在大学里受到欢迎。后来，UNIX 实现了 TCP/IP 协议栈，成为了早期工作站的操作系统的一个流行选择。</p>
-<p>1990 年，UNIX 在服务器市场上尤其是大学校园中成为主流操作系统，许多校园都有 UNIX 主机，当然还包括一些研究它的计算机系的学生。这些学生都渴望能在自己的电脑上运行 UNIX 。不幸的是，从那时候开始，UNIX 开始变得商业化，它的价格也变得非常昂贵。而唯一低廉的选择就是 MINIX，这是一个功能有限的类似 UNIX 的操作系统，作者 Andrew Tanenbaum 开发它的目的是用于教学。</p>
-<p>1991 年 10 月，Linus Torvalds（Linux 之父）在赫尔辛基大学接触 UNIX，他希望能在自己的电脑上运行一个类似的操作系统。可是 UNIX 的商业版本非常昂贵，于是他从 MINIX 开始入手，计划开发一个比 MINIX 性能更好的操作系统。很快他就开始了自己的开发工作。他第一次发行的版本迅速吸引了一些黑客。尽管最初的 Linux 并没有多少用处，但由于一些黑客的加入使它很快就具有了许多吸引人的特性，甚至一些对操作系统开发不感兴趣的人也开始关注它。</p>
-<p>Linux 本身只是操作系统的内核。内核是使其它程序能够运行的基础。它实现了多任务和硬件管理，用户或者系统管理员交互运行的所有程序实际上都运行在内核之上。其中有些程序是必需的，比如说，命令行解释器（shell），它用于用户交互和编写 shell 脚本。 Linux 没有自己去开发这些应用程序，而是使用已有的自由软件。这减少了搭建开发环境所需花费的工作量。实际上，他经常改写内核，使得那些程序能够更容易地在 Linux 上运行。许多重要的软件，包括 C 编译器，都来自于自由软件基金 GNU 项目。GNU 项目开始于 1984 年，目的是为了开发一个完全类似于 UNIX 的免费操作系统。为了表扬 GNU 对 Linux 的贡献，许多人把 Linux 称为 GNU/Linux（GNU 有自己的内核）。</p>
-<p>1992－1993 年，Linux 内核具备了挑战 UNIX 的所有本质特性，包括 TCP/IP 网络，图形界面系统（X window )，Linux 同样也吸引了许多行业的关注。一些小的公司开始开发和发行 Linux，有几十个 Linux 用户社区成立。1994 年，Linux 杂志也开始发行。</p>
-<p>Linux 内核 1.0 在 1994 年 3 月发布，内核的发布要经历许多开发周期，直至达到一个稳定的版本。</p>
-<p>下面列举一些 Linux 诞生大事件：</p>
-<ul>
-<li><p>1965 年，Bell 实验室、MIT、GE（通用电气公司）准备开发 Multics 系统，为了同时支持 300 个终端访问主机，但是 1969 年失败了；</p>
-<blockquote>
-<p>那时候并没有鼠标、键盘，输入设备，只有卡片机。因此，如果要测试某个程序，则需要将读卡纸插入卡片机，如果有错误，还需要重新来过；Multics：Multiplexed Information and Computing Service；</p>
-</blockquote>
-</li>
-<li><p>1969 年，Ken Thompson（C语言之父）利用汇编语言开发了 File Server System（Unics，即 UNIX 的原型）；</p>
-<blockquote>
-<p>因为汇编语言对于硬件的依赖性，因此只能针对特定硬件； 只是为了移植一款“太空旅游”的游戏；</p>
-</blockquote>
-</li>
-<li><p>1973 年，Dennis Ritchie 和 Ken Thompson 发明了 C 语言，而后写出了 UNIX 的内核；</p>
-<blockquote>
-<p>将 B 语言改成 C 语言，由此产生了 C 语言之父；90% 的代码是 C 语言写的，10% 的代码用汇编语言写的，因此移植时只要修改那 10% 的代码即可；</p>
-</blockquote>
-</li>
-<li><p>1977 年，Berkeley 大学的 Bill Joy 针对他的机器修改了 UNIX 源码，称为BSD（Berkeley Software Distribution）；</p>
-<blockquote>
-<p>Bill Joy 是 Sun 公司的创始人；</p>
-</blockquote>
-</li>
-<li><p>  1979 年，UNIX 发布 System V，用于个人计算机；</p>
-</li>
-<li><p>  1984 年，因为 UNIX 规定“不能对学生提供源码”，Tanenbaum 老师自己编写兼容于 UNIX 的 Minix，用于教学；</p>
-</li>
-<li><p>1984 年，Stallman 开始 GNU（GNU’s Not Unix）项目，创办 FSF（Free Software Foundation）基金会；</p>
-<blockquote>
-<p>产品：GCC、Emacs、Bash Shell、GLIBC；倡导“自由软件”；GNU 的软件缺乏一个开放的平台运行，只能在 UNIX 上运行；自由软件指用户可以对软件做任何修改，甚至再发行，但是始终要挂着 GPL 的版权；自由软件是可以卖的，但是不能只卖软件，而是卖服务、手册等；</p>
-</blockquote>
-</li>
-<li><p>  1985 年，为了避免 GNU 开发的自由软件被其他人用作专利软件，因此创建 GPL（General Public License）版权声明；</p>
-</li>
-<li><p>  1988 年，MIT 为了开发 GUI，成立了研发 XFree86 的组织；</p>
-</li>
-<li><p>  1991 年，芬兰赫尔辛基大学的研究生 Linus Torvalds 基于 gcc、bash 开发了针对 386 机器的 Linux 内核；</p>
-</li>
-<li><p>  1994 年，Torvalds 发布 Linux-v1.0；</p>
-</li>
-<li><p>  1996 年，Torvalds 发布 Linux-v2.0，确定了 Linux 的吉祥物：企鹅。</p>
-</li>
-</ul>
-<p>UNIX进化史（UNIX大家族族谱1969-2013）：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210553.png"></p>
-<h4 id="学习路线"><a href="#学习路线" class="headerlink" title="学习路线"></a>学习路线</h4><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210608.png"></p>
-<h4 id="图形界面"><a href="#图形界面" class="headerlink" title="图形界面"></a>图形界面</h4><p>相对于现在的 Windows 系统，UNIX/Linux 本身是没有图形界面的，我们通常在 UNIX/Linux 发行版上看到的图形界面实际都只是运行在 Linux 系统之上的一套软件，类似 Windows95 之前的 Windows 的图形界面实则也只是运行在 DOS 环境的一套软件。而 Linux 上的这套软件以前是 XFree86，现在则是 xorg（X.Org），而这套软件又是通过 X 窗口系统（X Window System，也常被称为 X11 或 X）实现的，X 本身只是工具包及架构协议，而 xorg 便是 X 架构规范的一个实现体，也就是说它是实现了 X 协议规范的一个提供图形界面服务的服务器，就像实现了 http 协议提供 web 服务的 Apache 。如果只有服务器也是不能实现一个完整的桌面环境的，当然还需要一个客户端，我们称为 X Client，像如下几个大家熟知也最流行的实现了客户端功能的桌面环境 <strong>KDE</strong>，<strong>GNOME</strong>，<strong>XFCE</strong>，<strong>LXDE</strong> 。其中就有你看到的，实验楼目前使用的 <strong>XFCE</strong> 桌面环境，部分老用户可能可以回想起，实验楼之前使用的环境是 <strong>LXDE</strong> 。这也意味着在 Linux 上你可以自己选择安装不同的桌面环境，甚至可以定制自己的专属桌面。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210619.png"></p>
-<p>这里讲这么多，主要是为了帮助你更好地理解 Linux 的桌面环境是一个怎样的概念，以及它跟 Windows 操作系统桌面的差异，实际它们之间是有着本质的差别的，希望清楚这些内容之后可以让你忽略那些体验上的差异，专心把精力放到 Linux 系统本身或者你正准备学习的某一门技术之上，这门实验课后面的内容和实验楼的其它课程便是为了帮助你实现以上两个目标。</p>
-<h4 id="终端的概念"><a href="#终端的概念" class="headerlink" title="终端的概念"></a>终端的概念</h4><p>通常我们在使用 Linux 时，并不是直接与系统打交道，而是通过一个叫做 Shell 的中间程序来完成的，在图形界面下为了实现让我们在一个窗口中完成用户输入和显示输出，Linux 系统还提供了一个叫做终端模拟器的程序（Terminal）。 下面是几个比较常见的终端模拟器： gnome-terminal，Konsole，xterm，rxvt，kvt，nxterm 和 eterm 。目前我们的实验中的终端程序是 xfce 桌面环境自带的 xfce-terminal 。不过要注意的是这里所说的终端（Terminal）和控制台（Console）是有区别的。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210631.png"></p>
-<p> 终端本质上是对应着 Linux 上的 /dev/tty 设备，Linux 的多用户登陆就是通过不同的 /dev/tty 设备完成的，Linux 默认提供了 6 个纯命令行界面的 “terminal”（准确的说这里应该是 6 个 virtual consoles）来让用户登录。在物理机系统上你可以通过使用<code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F6]</code>进行切换，不过在我们的在线实验环境中可能无法切换，因为特殊功能按键会被你的主机系统劫持。当你切换到其中一个终端后想要切换回图形界面，你可以按下<code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F7]</code>来完成。</p>
-<h4 id="shell"><a href="#shell" class="headerlink" title="shell"></a>shell</h4><p>通常在图形界面中对实际体验带来差异的不是上述的不同发行版的各种终端模拟器，而是这个 Shell（壳）。有壳就有核，这里的核就是指 UNIX/Linux 内核，Shell 是指“提供给使用者使用界面”的软件（命令解析器），类似于 DOS 下的 command（命令行）和后来的 cmd.exe 。普通意义上的 Shell 就是可以接受用户输入命令的程序。它之所以被称作 Shell 是因为它隐藏了操作系统底层的细节。同样的 UNIX/Linux 下的图形用户界面 GNOME 和 KDE，有时也被叫做“虚拟 shell”或“图形 shell”。</p>
-<p>UNIX/Linux 操作系统下的 Shell 既是用户交互的界面，也是控制系统的脚本语言。当然这一点也有别于 Windows 下的命令行，虽然该命令行也提供了很简单的控制语句。在 Windows 操作系统下，有些用户从来都不会直接使用 Shell，然而在 UNIX 系列操作系统下，Shell 仍然是控制系统启动、X11 启动和很多其它实用工具的脚本解释程序。</p>
-<p>在 UNIX/Linux 中比较流行的常见的 Shell 有 bash、zsh、ksh、csh 等等，Ubuntu 终端默认使用的是 bash，默认的桌面环境是 GNOME 或者 Unity（基于 GNOME），但我们的环境中使用的分别是 zsh 和 xfce。</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
   </entry>
   <entry>
     <title>linux学习02 - 基本概念和操作</title>
@@ -2793,6 +2717,86 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>linux学习01 - linux系统简介</title>
+    <url>/posts/51bc6a9b/</url>
+    <content><![CDATA[<blockquote>
+<p>linux学习01：linux系统简介<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
+</blockquote>
+<a id="more"></a>
+
+
+
+<h4 id="linux为何物"><a href="#linux为何物" class="headerlink" title="linux为何物"></a>linux为何物</h4><p>Linux 就是一个操作系统，就像你多少已经了解的 Windows（xp，7，8）和 Mac OS 。至于操作系统是什么，就不用过多解释了，如果你学习过前面的入门课程，应该会有个基本概念了，这里简单介绍一下操作系统在整个计算机系统中的角色。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210541.png"></p>
+<p>我们的 Linux 主要是系统调用和内核那两层。当然直观地看，我们使用的操作系统还包含一些在其上运行的应用程序，比如文本编辑器、浏览器、电子邮件等。</p>
+<h4 id="linux历史简介"><a href="#linux历史简介" class="headerlink" title="linux历史简介"></a>linux历史简介</h4><p>操作系统始于二十世纪五十年代，当时的操作系统能运行批处理程序。批处理程序不需要用户的交互，它从文件或者穿孔卡片读取数据，然后输出到另外一个文件或者打印机。</p>
+<p>二十世纪六十年代初，交互式操作系统开始流行。它不仅仅可以交互，还能使多个用户从不同的终端同时操作主机。这样的操作系统被称作分时操作系统，它的出现对批处理操作系统是个极大的挑战。许多人尝试开发分时操作系统， 其中包括一些大学的研究项目和商业项目。当时有个项目叫做 Multics ，它的技术在当时很具有创新性。 Multics 项目的开发并不顺利，它花费了远超过预计的资金，却没有在操作系统市场上占到多少份额。而参加该项目的一个开发团体——贝尔实验室退出了这个项目。他们在退出后开发了他们自己的一个操作系统—— UNIX 。</p>
+<p>UNIX 最初免费发布并因此在大学里受到欢迎。后来，UNIX 实现了 TCP/IP 协议栈，成为了早期工作站的操作系统的一个流行选择。</p>
+<p>1990 年，UNIX 在服务器市场上尤其是大学校园中成为主流操作系统，许多校园都有 UNIX 主机，当然还包括一些研究它的计算机系的学生。这些学生都渴望能在自己的电脑上运行 UNIX 。不幸的是，从那时候开始，UNIX 开始变得商业化，它的价格也变得非常昂贵。而唯一低廉的选择就是 MINIX，这是一个功能有限的类似 UNIX 的操作系统，作者 Andrew Tanenbaum 开发它的目的是用于教学。</p>
+<p>1991 年 10 月，Linus Torvalds（Linux 之父）在赫尔辛基大学接触 UNIX，他希望能在自己的电脑上运行一个类似的操作系统。可是 UNIX 的商业版本非常昂贵，于是他从 MINIX 开始入手，计划开发一个比 MINIX 性能更好的操作系统。很快他就开始了自己的开发工作。他第一次发行的版本迅速吸引了一些黑客。尽管最初的 Linux 并没有多少用处，但由于一些黑客的加入使它很快就具有了许多吸引人的特性，甚至一些对操作系统开发不感兴趣的人也开始关注它。</p>
+<p>Linux 本身只是操作系统的内核。内核是使其它程序能够运行的基础。它实现了多任务和硬件管理，用户或者系统管理员交互运行的所有程序实际上都运行在内核之上。其中有些程序是必需的，比如说，命令行解释器（shell），它用于用户交互和编写 shell 脚本。 Linux 没有自己去开发这些应用程序，而是使用已有的自由软件。这减少了搭建开发环境所需花费的工作量。实际上，他经常改写内核，使得那些程序能够更容易地在 Linux 上运行。许多重要的软件，包括 C 编译器，都来自于自由软件基金 GNU 项目。GNU 项目开始于 1984 年，目的是为了开发一个完全类似于 UNIX 的免费操作系统。为了表扬 GNU 对 Linux 的贡献，许多人把 Linux 称为 GNU/Linux（GNU 有自己的内核）。</p>
+<p>1992－1993 年，Linux 内核具备了挑战 UNIX 的所有本质特性，包括 TCP/IP 网络，图形界面系统（X window )，Linux 同样也吸引了许多行业的关注。一些小的公司开始开发和发行 Linux，有几十个 Linux 用户社区成立。1994 年，Linux 杂志也开始发行。</p>
+<p>Linux 内核 1.0 在 1994 年 3 月发布，内核的发布要经历许多开发周期，直至达到一个稳定的版本。</p>
+<p>下面列举一些 Linux 诞生大事件：</p>
+<ul>
+<li><p>1965 年，Bell 实验室、MIT、GE（通用电气公司）准备开发 Multics 系统，为了同时支持 300 个终端访问主机，但是 1969 年失败了；</p>
+<blockquote>
+<p>那时候并没有鼠标、键盘，输入设备，只有卡片机。因此，如果要测试某个程序，则需要将读卡纸插入卡片机，如果有错误，还需要重新来过；Multics：Multiplexed Information and Computing Service；</p>
+</blockquote>
+</li>
+<li><p>1969 年，Ken Thompson（C语言之父）利用汇编语言开发了 File Server System（Unics，即 UNIX 的原型）；</p>
+<blockquote>
+<p>因为汇编语言对于硬件的依赖性，因此只能针对特定硬件； 只是为了移植一款“太空旅游”的游戏；</p>
+</blockquote>
+</li>
+<li><p>1973 年，Dennis Ritchie 和 Ken Thompson 发明了 C 语言，而后写出了 UNIX 的内核；</p>
+<blockquote>
+<p>将 B 语言改成 C 语言，由此产生了 C 语言之父；90% 的代码是 C 语言写的，10% 的代码用汇编语言写的，因此移植时只要修改那 10% 的代码即可；</p>
+</blockquote>
+</li>
+<li><p>1977 年，Berkeley 大学的 Bill Joy 针对他的机器修改了 UNIX 源码，称为BSD（Berkeley Software Distribution）；</p>
+<blockquote>
+<p>Bill Joy 是 Sun 公司的创始人；</p>
+</blockquote>
+</li>
+<li><p>  1979 年，UNIX 发布 System V，用于个人计算机；</p>
+</li>
+<li><p>  1984 年，因为 UNIX 规定“不能对学生提供源码”，Tanenbaum 老师自己编写兼容于 UNIX 的 Minix，用于教学；</p>
+</li>
+<li><p>1984 年，Stallman 开始 GNU（GNU’s Not Unix）项目，创办 FSF（Free Software Foundation）基金会；</p>
+<blockquote>
+<p>产品：GCC、Emacs、Bash Shell、GLIBC；倡导“自由软件”；GNU 的软件缺乏一个开放的平台运行，只能在 UNIX 上运行；自由软件指用户可以对软件做任何修改，甚至再发行，但是始终要挂着 GPL 的版权；自由软件是可以卖的，但是不能只卖软件，而是卖服务、手册等；</p>
+</blockquote>
+</li>
+<li><p>  1985 年，为了避免 GNU 开发的自由软件被其他人用作专利软件，因此创建 GPL（General Public License）版权声明；</p>
+</li>
+<li><p>  1988 年，MIT 为了开发 GUI，成立了研发 XFree86 的组织；</p>
+</li>
+<li><p>  1991 年，芬兰赫尔辛基大学的研究生 Linus Torvalds 基于 gcc、bash 开发了针对 386 机器的 Linux 内核；</p>
+</li>
+<li><p>  1994 年，Torvalds 发布 Linux-v1.0；</p>
+</li>
+<li><p>  1996 年，Torvalds 发布 Linux-v2.0，确定了 Linux 的吉祥物：企鹅。</p>
+</li>
+</ul>
+<p>UNIX进化史（UNIX大家族族谱1969-2013）：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210553.png"></p>
+<h4 id="学习路线"><a href="#学习路线" class="headerlink" title="学习路线"></a>学习路线</h4><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210608.png"></p>
+<h4 id="图形界面"><a href="#图形界面" class="headerlink" title="图形界面"></a>图形界面</h4><p>相对于现在的 Windows 系统，UNIX/Linux 本身是没有图形界面的，我们通常在 UNIX/Linux 发行版上看到的图形界面实际都只是运行在 Linux 系统之上的一套软件，类似 Windows95 之前的 Windows 的图形界面实则也只是运行在 DOS 环境的一套软件。而 Linux 上的这套软件以前是 XFree86，现在则是 xorg（X.Org），而这套软件又是通过 X 窗口系统（X Window System，也常被称为 X11 或 X）实现的，X 本身只是工具包及架构协议，而 xorg 便是 X 架构规范的一个实现体，也就是说它是实现了 X 协议规范的一个提供图形界面服务的服务器，就像实现了 http 协议提供 web 服务的 Apache 。如果只有服务器也是不能实现一个完整的桌面环境的，当然还需要一个客户端，我们称为 X Client，像如下几个大家熟知也最流行的实现了客户端功能的桌面环境 <strong>KDE</strong>，<strong>GNOME</strong>，<strong>XFCE</strong>，<strong>LXDE</strong> 。其中就有你看到的，实验楼目前使用的 <strong>XFCE</strong> 桌面环境，部分老用户可能可以回想起，实验楼之前使用的环境是 <strong>LXDE</strong> 。这也意味着在 Linux 上你可以自己选择安装不同的桌面环境，甚至可以定制自己的专属桌面。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210619.png"></p>
+<p>这里讲这么多，主要是为了帮助你更好地理解 Linux 的桌面环境是一个怎样的概念，以及它跟 Windows 操作系统桌面的差异，实际它们之间是有着本质的差别的，希望清楚这些内容之后可以让你忽略那些体验上的差异，专心把精力放到 Linux 系统本身或者你正准备学习的某一门技术之上，这门实验课后面的内容和实验楼的其它课程便是为了帮助你实现以上两个目标。</p>
+<h4 id="终端的概念"><a href="#终端的概念" class="headerlink" title="终端的概念"></a>终端的概念</h4><p>通常我们在使用 Linux 时，并不是直接与系统打交道，而是通过一个叫做 Shell 的中间程序来完成的，在图形界面下为了实现让我们在一个窗口中完成用户输入和显示输出，Linux 系统还提供了一个叫做终端模拟器的程序（Terminal）。 下面是几个比较常见的终端模拟器： gnome-terminal，Konsole，xterm，rxvt，kvt，nxterm 和 eterm 。目前我们的实验中的终端程序是 xfce 桌面环境自带的 xfce-terminal 。不过要注意的是这里所说的终端（Terminal）和控制台（Console）是有区别的。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210631.png"></p>
+<p> 终端本质上是对应着 Linux 上的 /dev/tty 设备，Linux 的多用户登陆就是通过不同的 /dev/tty 设备完成的，Linux 默认提供了 6 个纯命令行界面的 “terminal”（准确的说这里应该是 6 个 virtual consoles）来让用户登录。在物理机系统上你可以通过使用<code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F6]</code>进行切换，不过在我们的在线实验环境中可能无法切换，因为特殊功能按键会被你的主机系统劫持。当你切换到其中一个终端后想要切换回图形界面，你可以按下<code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F7]</code>来完成。</p>
+<h4 id="shell"><a href="#shell" class="headerlink" title="shell"></a>shell</h4><p>通常在图形界面中对实际体验带来差异的不是上述的不同发行版的各种终端模拟器，而是这个 Shell（壳）。有壳就有核，这里的核就是指 UNIX/Linux 内核，Shell 是指“提供给使用者使用界面”的软件（命令解析器），类似于 DOS 下的 command（命令行）和后来的 cmd.exe 。普通意义上的 Shell 就是可以接受用户输入命令的程序。它之所以被称作 Shell 是因为它隐藏了操作系统底层的细节。同样的 UNIX/Linux 下的图形用户界面 GNOME 和 KDE，有时也被叫做“虚拟 shell”或“图形 shell”。</p>
+<p>UNIX/Linux 操作系统下的 Shell 既是用户交互的界面，也是控制系统的脚本语言。当然这一点也有别于 Windows 下的命令行，虽然该命令行也提供了很简单的控制语句。在 Windows 操作系统下，有些用户从来都不会直接使用 Shell，然而在 UNIX 系列操作系统下，Shell 仍然是控制系统启动、X11 启动和很多其它实用工具的脚本解释程序。</p>
+<p>在 UNIX/Linux 中比较流行的常见的 Shell 有 bash、zsh、ksh、csh 等等，Ubuntu 终端默认使用的是 bash，默认的桌面环境是 GNOME 或者 Unity（基于 GNOME），但我们的环境中使用的分别是 zsh 和 xfce。</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>linux学习03 - 用户及权限管理</title>
     <url>/posts/68370406/</url>
     <content><![CDATA[<blockquote>
@@ -2993,6 +2997,26 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>linux常用命令总结</title>
+    <url>/posts/1d063ae7/</url>
+    <content><![CDATA[<blockquote>
+<p>在操作linux搭建网站时，经常会使用一些命令。这里记下一些常用的命令，便于记忆。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="1-systemctl"><a href="#1-systemctl" class="headerlink" title="1. systemctl"></a>1. systemctl</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start xxx     // 开启服务</span><br><span class="line">systemctl stop xxx      // 停止服务</span><br><span class="line">systemctl restart xxx   // 重启服务</span><br><span class="line">systemctl <span class="built_in">enable</span> xxx    // 设置服务开机自启</span><br><span class="line">systemctl <span class="built_in">disable</span> xxx   // 取消服务开机自启</span><br><span class="line">systemctl status xxx    // 查看服务运行状态</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="2-端口查看"><a href="#2-端口查看" class="headerlink" title="2. 端口查看"></a>2. 端口查看</h1><h2 id="3-1-查看所有端口占用情况"><a href="#3-1-查看所有端口占用情况" class="headerlink" title="3.1 查看所有端口占用情况"></a>3.1 查看所有端口占用情况</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">lsof -i -P</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-查看某个端口被那个进程占用"><a href="#3-2-查看某个端口被那个进程占用" class="headerlink" title="3.2 查看某个端口被那个进程占用"></a>3.2 查看某个端口被那个进程占用</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">netstat -anp |grep port //查看端口为port</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>命令总结</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux学习04 - linux目录结构及文件基本操作</title>
     <url>/posts/caf6d338/</url>
     <content><![CDATA[<blockquote>
@@ -3128,26 +3152,6 @@ docker部署</code></pre>
       <categories>
         <category>linux</category>
       </categories>
-  </entry>
-  <entry>
-    <title>linux常用命令总结</title>
-    <url>/posts/1d063ae7/</url>
-    <content><![CDATA[<blockquote>
-<p>在操作linux搭建网站时，经常会使用一些命令。这里记下一些常用的命令，便于记忆。</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="1-systemctl"><a href="#1-systemctl" class="headerlink" title="1. systemctl"></a>1. systemctl</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start xxx     // 开启服务</span><br><span class="line">systemctl stop xxx      // 停止服务</span><br><span class="line">systemctl restart xxx   // 重启服务</span><br><span class="line">systemctl <span class="built_in">enable</span> xxx    // 设置服务开机自启</span><br><span class="line">systemctl <span class="built_in">disable</span> xxx   // 取消服务开机自启</span><br><span class="line">systemctl status xxx    // 查看服务运行状态</span><br></pre></td></tr></table></figure>
-
-
-<h1 id="2-端口查看"><a href="#2-端口查看" class="headerlink" title="2. 端口查看"></a>2. 端口查看</h1><h2 id="3-1-查看所有端口占用情况"><a href="#3-1-查看所有端口占用情况" class="headerlink" title="3.1 查看所有端口占用情况"></a>3.1 查看所有端口占用情况</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">lsof -i -P</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-2-查看某个端口被那个进程占用"><a href="#3-2-查看某个端口被那个进程占用" class="headerlink" title="3.2 查看某个端口被那个进程占用"></a>3.2 查看某个端口被那个进程占用</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">netstat -anp |grep port //查看端口为port</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>命令总结</tag>
-      </tags>
   </entry>
   <entry>
     <title>linux服务器上传文件到百度网盘</title>
@@ -3597,6 +3601,58 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>搭建文件服务器</title>
+    <url>/posts/3937af73/</url>
+    <content><![CDATA[<blockquote>
+<p>记录搭建文件服务器的几种方式</p>
+</blockquote>
+<a id="more"></a>
+
+<h1 id="一、配置nginx文件搭建简单文件服务器"><a href="#一、配置nginx文件搭建简单文件服务器" class="headerlink" title="一、配置nginx文件搭建简单文件服务器"></a>一、配置nginx文件搭建简单文件服务器</h1><ol>
+<li>安装</li>
+</ol>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> nginx</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建并编辑配置文件</li>
+</ol>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/etc/</span>nginx<span class="regexp">/conf.d/</span>file_server.conf</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>配置文件内容模板</li>
+</ol>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">  <span class="attribute">listen</span> <span class="number">2020</span>; </span><br><span class="line">  <span class="attribute">server_name</span> localhost; <span class="comment">#ip或者服务器的域名</span></span><br><span class="line">  <span class="attribute">charset</span> utf-<span class="number">8</span>; <span class="comment"># 避免中文乱码 </span></span><br><span class="line">  <span class="attribute">root</span> /var/file_server; <span class="comment"># 存放文件的目录 </span></span><br><span class="line">  <span class="attribute">location</span> / &#123; </span><br><span class="line">    <span class="attribute">autoindex</span> <span class="literal">on</span>; <span class="comment"># 索引 </span></span><br><span class="line">    <span class="attribute">autoindex_exact_size</span> <span class="literal">on</span>; <span class="comment"># 显示文件大小 </span></span><br><span class="line">    <span class="attribute">autoindex_localtime</span> <span class="literal">on</span>; <span class="comment"># 显示文件时间 </span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>启动nginx</li>
+</ol>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">systemctl <span class="literal">start</span> nginx</span><br></pre></td></tr></table></figure>
+
+<p>创建成功演示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-05/20200821000816.png"></p>
+<h1 id="二、使用github项目中的FileBrowser"><a href="#二、使用github项目中的FileBrowser" class="headerlink" title="二、使用github项目中的FileBrowser"></a>二、使用github项目中的FileBrowser</h1><p><strong>项目地址</strong>: <a href="https://github.com/filebrowser/filebrowser/">https://github.com/filebrowser/filebrowser/</a></p>
+<p>由于docker配置比较简单并且易于管理，所以选择docker安装filebrowser。</p>
+<p>命令参考：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server<span class="regexp">/:/</span>srv \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/filebrowser.db:/</span>database.db \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/.filebrowser.json:/</span>.filebrowser.json \</span><br><span class="line">    -p <span class="number">2020</span>:<span class="number">80</span> \</span><br><span class="line">    -d \</span><br><span class="line">    filebrowser/filebrowser</span><br></pre></td></tr></table></figure>
+
+<p>上述命令指定映射的需要显示文件的系统路径为<code>/var/file_server/</code></p>
+<p>运行上述命令前，需要将其中<code>/var/file_server_log/filebrowser.db</code>和<code>/var/file_server_log/.filebrowser.json</code>这两个文件先创建好，否则会报错。</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/var/</span>file_server_log/filebrowser.db</span><br><span class="line">touch <span class="regexp">/var/</span>file_server_log/.filebrowser.json</span><br></pre></td></tr></table></figure>
+
+<p>同时，.filebrowser.json 内容需要初始化一下，官方给出的内容如下：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;port&quot;</span>: <span class="number">80</span>,</span><br><span class="line">  <span class="attr">&quot;baseURL&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;address&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;log&quot;</span>: <span class="string">&quot;stdout&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;database&quot;</span>: <span class="string">&quot;/database.db&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;root&quot;</span>: <span class="string">&quot;/srv&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建成功演示如下图，第一次登陆时账号密码可以任意填写，作为新建的管理员账户。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-08/20200821000901.png"></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>文件服务器</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>在阿里服务器上利用宝塔面板+GIT搭建hexo博客</title>
     <url>/posts/3739s4/</url>
     <content><![CDATA[<blockquote>
@@ -3691,58 +3747,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>搭建文件服务器</title>
-    <url>/posts/3937af73/</url>
-    <content><![CDATA[<blockquote>
-<p>记录搭建文件服务器的几种方式</p>
-</blockquote>
-<a id="more"></a>
-
-<h1 id="一、配置nginx文件搭建简单文件服务器"><a href="#一、配置nginx文件搭建简单文件服务器" class="headerlink" title="一、配置nginx文件搭建简单文件服务器"></a>一、配置nginx文件搭建简单文件服务器</h1><ol>
-<li>安装</li>
-</ol>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> nginx</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>创建并编辑配置文件</li>
-</ol>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/etc/</span>nginx<span class="regexp">/conf.d/</span>file_server.conf</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>配置文件内容模板</li>
-</ol>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">  <span class="attribute">listen</span> <span class="number">2020</span>; </span><br><span class="line">  <span class="attribute">server_name</span> localhost; <span class="comment">#ip或者服务器的域名</span></span><br><span class="line">  <span class="attribute">charset</span> utf-<span class="number">8</span>; <span class="comment"># 避免中文乱码 </span></span><br><span class="line">  <span class="attribute">root</span> /var/file_server; <span class="comment"># 存放文件的目录 </span></span><br><span class="line">  <span class="attribute">location</span> / &#123; </span><br><span class="line">    <span class="attribute">autoindex</span> <span class="literal">on</span>; <span class="comment"># 索引 </span></span><br><span class="line">    <span class="attribute">autoindex_exact_size</span> <span class="literal">on</span>; <span class="comment"># 显示文件大小 </span></span><br><span class="line">    <span class="attribute">autoindex_localtime</span> <span class="literal">on</span>; <span class="comment"># 显示文件时间 </span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="4">
-<li>启动nginx</li>
-</ol>
-<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">systemctl <span class="literal">start</span> nginx</span><br></pre></td></tr></table></figure>
-
-<p>创建成功演示：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-05/20200821000816.png"></p>
-<h1 id="二、使用github项目中的FileBrowser"><a href="#二、使用github项目中的FileBrowser" class="headerlink" title="二、使用github项目中的FileBrowser"></a>二、使用github项目中的FileBrowser</h1><p><strong>项目地址</strong>: <a href="https://github.com/filebrowser/filebrowser/">https://github.com/filebrowser/filebrowser/</a></p>
-<p>由于docker配置比较简单并且易于管理，所以选择docker安装filebrowser。</p>
-<p>命令参考：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server<span class="regexp">/:/</span>srv \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/filebrowser.db:/</span>database.db \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/.filebrowser.json:/</span>.filebrowser.json \</span><br><span class="line">    -p <span class="number">2020</span>:<span class="number">80</span> \</span><br><span class="line">    -d \</span><br><span class="line">    filebrowser/filebrowser</span><br></pre></td></tr></table></figure>
-
-<p>上述命令指定映射的需要显示文件的系统路径为<code>/var/file_server/</code></p>
-<p>运行上述命令前，需要将其中<code>/var/file_server_log/filebrowser.db</code>和<code>/var/file_server_log/.filebrowser.json</code>这两个文件先创建好，否则会报错。</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/var/</span>file_server_log/filebrowser.db</span><br><span class="line">touch <span class="regexp">/var/</span>file_server_log/.filebrowser.json</span><br></pre></td></tr></table></figure>
-
-<p>同时，.filebrowser.json 内容需要初始化一下，官方给出的内容如下：</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;port&quot;</span>: <span class="number">80</span>,</span><br><span class="line">  <span class="attr">&quot;baseURL&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;address&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;log&quot;</span>: <span class="string">&quot;stdout&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;database&quot;</span>: <span class="string">&quot;/database.db&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;root&quot;</span>: <span class="string">&quot;/srv&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>创建成功演示如下图，第一次登陆时账号密码可以任意填写，作为新建的管理员账户。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-08/20200821000901.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>文件服务器</tag>
       </tags>
   </entry>
   <entry>
