@@ -31,7 +31,7 @@
 <meta property="og:description" content="把GIT的一些常用命令记录下来, 方便查看.">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-01-19T15:38:25.000Z">
-<meta property="article:modified_time" content="2020-07-27T02:53:30.057Z">
+<meta property="article:modified_time" content="2020-12-04T04:08:02.059Z">
 <meta property="article:author" content="kervias">
 <meta property="article:tag" content="命令总结">
 <meta name="twitter:card" content="summary">
@@ -217,7 +217,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E9%85%8D%E7%BD%AE%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">GIT配置命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E6%8E%A8%E9%80%81%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">GIT推送命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E6%9C%AC%E5%9C%B0%E4%BB%A3%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">GIT本地代理</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E9%85%8D%E7%BD%AE%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">GIT配置命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E6%8E%A8%E9%80%81%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">GIT推送命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-remote"><span class="nav-number">3.</span> <span class="nav-text">Git remote</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-Proxy"><span class="nav-number">4.</span> <span class="nav-text">Git Proxy</span></a></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -339,7 +339,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-07-27 10:53:30" itemprop="dateModified" datetime="2020-07-27T10:53:30+08:00">2020-07-27</time>
+        <time title="修改时间：2020-12-04 12:08:02" itemprop="dateModified" datetime="2020-12-04T12:08:02+08:00">2020-12-04</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -372,32 +372,43 @@
 <p>把GIT的一些常用命令记录下来, 方便查看.</p>
 </blockquote>
 <a id="more"></a>
-<h2 id="GIT配置命令"><a href="#GIT配置命令" class="headerlink" title="GIT配置命令"></a>GIT配置命令</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git branch  <span class="regexp">//</span>查看本地分支</span><br><span class="line">git remote -v <span class="regexp">//</span>查看remote</span><br><span class="line">git remote show origin <span class="regexp">//</span>详细查看remote</span><br><span class="line">git remote add origin [address] addres为远程仓库地址</span><br><span class="line">git config --list  <span class="regexp">//</span>查看配置信息(包括用户名和邮箱)</span><br></pre></td></tr></table></figure>
+<h2 id="GIT配置命令"><a href="#GIT配置命令" class="headerlink" title="GIT配置命令"></a>GIT配置命令</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name &quot;bryan sun&quot;</span><br><span class="line">git config --global user.email &quot;hitsjt@gmail.com&quot;</span><br><span class="line">git config --list  # 查看配置信息(包括用户名和邮箱)</span><br><span class="line">git branch  # 查看本地分支</span><br></pre></td></tr></table></figure>
 
-<h2 id="GIT推送命令"><a href="#GIT推送命令" class="headerlink" title="GIT推送命令"></a>GIT推送命令</h2><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">git</span> <span class="keyword">add</span> .</span><br><span class="line"><span class="symbol">git</span> commit -m <span class="string">&quot;更新日志&quot;</span></span><br><span class="line"><span class="symbol">git</span> <span class="keyword">push</span> origin master</span><br></pre></td></tr></table></figure>
+<h2 id="GIT推送命令"><a href="#GIT推送命令" class="headerlink" title="GIT推送命令"></a>GIT推送命令</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;commit&quot;</span></span><br><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
 
+<h2 id="Git-remote"><a href="#Git-remote" class="headerlink" title="Git remote"></a>Git remote</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git remote -v # 查看所有远程仓库</span><br><span class="line">git remote show [远程仓库名] # 详细查看某个远程仓库</span><br><span class="line">git remote add [远程仓库名] [远程仓库地址] # 添加远程仓库</span><br><span class="line">git remote remove [远程仓库名] # 移除某个远程仓库</span><br><span class="line">git remote rename [现在的仓库名] [新的仓库名] # 重命名某个远程仓库</span><br><span class="line">git remote rm [远程仓库名]</span><br></pre></td></tr></table></figure>
 
-<h2 id="GIT本地代理"><a href="#GIT本地代理" class="headerlink" title="GIT本地代理"></a>GIT本地代理</h2><p><strong>将你的proxy server地址代替以下的127.0.0.1</strong></p>
-<ul>
+<h2 id="Git-Proxy"><a href="#Git-Proxy" class="headerlink" title="Git Proxy"></a>Git Proxy</h2><ul>
 <li><p>http类型代理</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy [http:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>](http:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>/) （这条即可）  </span><br><span class="line">git config --global https.proxy [https:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>](https:<span class="regexp">//</span><span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1080</span>/)</span><br></pre></td></tr></table></figure></li>
-<li><p>socks5类型代理  </p>
-<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> http<span class="variable">.proxy</span> ‘socks5:<span class="comment">//127.0.0.1:1080’ （这条即可）  </span></span><br><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> https<span class="variable">.proxy</span> ‘socks5:<span class="comment">//127.0.0.1:1080’</span></span><br></pre></td></tr></table></figure>
-<p>注：使用socks5代理进行git push时会出现</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">fatal</span>: NotSupportedException encountered.</span><br><span class="line">   <span class="attribute">ServicePointManager</span> 不支持具有 socks<span class="number">5</span> 方案的代理。</span><br></pre></td></tr></table></figure>
-<p>这样的错误，而需要输入用户名和密码，建议使用http代理。</p>
-</li>
-<li><p>查当前的代理配置</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git<span class="built_in"> config </span>--global --<span class="builtin-name">get</span> http.proxy  </span><br><span class="line">git<span class="built_in"> config </span>--global --<span class="builtin-name">get</span> https.proxy</span><br></pre></td></tr></table></figure></li>
-<li><p>取消设置代理</p>
-<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --<span class="keyword">global</span> --<span class="keyword">unset</span> <span class="keyword">http</span>.proxy  </span><br><span class="line">git config --<span class="keyword">global</span> --<span class="keyword">unset</span> https.proxy</span><br></pre></td></tr></table></figure></li>
-<li><p>设置使用需账户密码验证的代理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy <span class="string">&#x27;http://127.0.0.1:1080&#x27;</span></span><br><span class="line">git config --global https.proxy <span class="string">&#x27;http://127.0.0.1:1080&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
 </li>
 </ul>
-<p><strong>http类型代理</strong>  </p>
-<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --<span class="keyword">global</span> <span class="keyword">http</span>.proxy <span class="keyword">http</span>://username:passwd@<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">1080</span></span><br></pre></td></tr></table></figure>
-<p><strong>socks5类型代理</strong>  </p>
-<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="keyword">config</span> --<span class="keyword">global</span> http<span class="variable">.proxy</span> socks5:<span class="comment">//username:passwd@127.0.0.1:1080</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>socks5类型代理  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">git config --global https.proxy <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>查当前的代理配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global --get http.proxy  </span><br><span class="line">git config --global --get https.proxy</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>取消设置代理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global --<span class="built_in">unset</span> http.proxy  </span><br><span class="line">git config --global --<span class="built_in">unset</span> https.proxy</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置使用需账户密码验证的代理</p>
+<p>如果出现错误如下，则需要添加用户名和密码</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">fatal</span>: NotSupportedException encountered.</span><br><span class="line">   <span class="attribute">ServicePointManager</span> 不支持具有 socks<span class="number">5</span> 方案的代理。</span><br></pre></td></tr></table></figure>
+
+<p>下面设置需要密码的代理</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy http://username:passwd@127.0.0.1:1080</span><br><span class="line">git config --global http.proxy socks5://username:passwd@127.0.0.1:1080</span><br></pre></td></tr></table></figure></li>
+</ul>
+
     </div>
 
     
