@@ -1,45 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Caddy安装和常用命令</title>
-    <url>/posts/d392dh/</url>
-    <content><![CDATA[<blockquote>
-<p>记录Caddy的相关内容</p>
-</blockquote>
-<a id="more"></a>
-<p><code>实验环境</code>：Centos7</p>
-<h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h2><h3 id="centos"><a href="#centos" class="headerlink" title="centos"></a>centos</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install epel-release <span class="comment">#添加源</span></span><br><span class="line">yum -y install caddy</span><br></pre></td></tr></table></figure>
-
-<h3 id="ubuntu16-04"><a href="#ubuntu16-04" class="headerlink" title="ubuntu16.04+"></a>ubuntu16.04+</h3><ul>
-<li>安装和配置<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl https://getcaddy.com | bash</span><br><span class="line">sudo mkdir /etc/caddy</span><br><span class="line">sudo chown -R root:www-data /etc/caddy</span><br><span class="line">sudo mkdir /etc/ssl/caddy</span><br><span class="line">sudo chown -R www-data:root /etc/ssl/caddy</span><br><span class="line">sudo chmod 0770 /etc/ssl/caddy</span><br><span class="line">sudo touch /etc/caddy/Caddyfile</span><br><span class="line">sudo mkdir /var/www</span><br><span class="line">sudo chown www-data: /var/www</span><br></pre></td></tr></table></figure></li>
-<li>添加caddy到service<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/caddy.service</span><br></pre></td></tr></table></figure>
-用vim将下面内容写入到文件中<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"><span class="attr">Description</span>=Caddy HTTP/<span class="number">2</span> web server</span><br><span class="line"><span class="attr">Documentation</span>=https://caddyserver.com/docs</span><br><span class="line"><span class="attr">After</span>=network-<span class="literal">on</span>line.target</span><br><span class="line"><span class="attr">Wants</span>=network-<span class="literal">on</span>line.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"><span class="attr">Restart</span>=<span class="literal">on</span>-failure</span><br><span class="line"><span class="attr">StartLimitInterval</span>=<span class="number">86400</span></span><br><span class="line"><span class="attr">StartLimitBurst</span>=<span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="attr">User</span>=www-data</span><br><span class="line"><span class="attr">Group</span>=www-data</span><br><span class="line"><span class="comment">; Letsencrypt-issued certificates will be written to this directory.</span></span><br><span class="line"><span class="attr">Environment</span>=CADDYPATH=/etc/ssl/caddy</span><br><span class="line"></span><br><span class="line"><span class="attr">ExecStart</span>=/usr/local/bin/caddy -log stdout -agree=<span class="literal">true</span> -conf=/etc/caddy/Caddyfile -root=/var/tmp</span><br><span class="line"><span class="attr">ExecReload</span>=/bin/kill -USR1 <span class="variable">$MAINPID</span></span><br><span class="line"></span><br><span class="line"><span class="attr">LimitNOFILE</span>=<span class="number">1048576</span></span><br><span class="line"><span class="attr">LimitNPROC</span>=<span class="number">64</span></span><br><span class="line"></span><br><span class="line"><span class="attr">PrivateTmp</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">PrivateDevices</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">ProtectHome</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">ProtectSystem</span>=full</span><br><span class="line"><span class="attr">ReadWriteDirectories</span>=/etc/ssl/caddy</span><br><span class="line"></span><br><span class="line"><span class="comment">; The following additional security directives only work with systemd v229 or later.</span></span><br><span class="line"><span class="comment">; They further retrict privileges that can be gained by caddy. Uncomment if you like.</span></span><br><span class="line"><span class="comment">; Note that you may have to add capabilities required by any plugins in use.</span></span><br><span class="line"><span class="comment">;CapabilityBoundingSet=CAP_NET_BIND_SERVICE</span></span><br><span class="line"><span class="comment">;AmbientCapabilities=CAP_NET_BIND_SERVICE</span></span><br><span class="line"><span class="comment">;NoNewPrivileges=true</span></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="2-配置文件默认路径"><a href="#2-配置文件默认路径" class="headerlink" title="2. 配置文件默认路径"></a>2. 配置文件默认路径</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="regexp">/etc/</span>caddy<span class="regexp">/conf.d/</span>Caddyfile.conf</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-配置文件格式模板"><a href="#3-配置文件格式模板" class="headerlink" title="3.配置文件格式模板"></a>3.配置文件格式模板</h2><ul>
-<li>注意符号后面含有<code>空格</code></li>
-<li>以下配置主要支持在本地某个端口含有服务，将端口与域名映射起来</li>
-</ul>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="attribute">https</span>:<span class="comment">//blog.xxx.xx &#123;</span></span><br><span class="line"> gzip</span><br><span class="line"> tls xxx<span class="variable">@gmail</span>.com</span><br><span class="line"> proxy / <span class="attribute">localhost</span>:<span class="number">2888</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中：</p>
-<ol>
-<li>注意网址替换为自己的网址</li>
-<li>邮箱是用于SSL证书注册邮箱</li>
-<li>2888为端口号，需要替换为服务对应的端口号</li>
-</ol>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>命令总结</tag>
-        <tag>caddy</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CentOS 7安装fail2ban+Firewall防止SSH爆破与CC攻击</title>
     <url>/posts/191dc2a0/</url>
     <content><![CDATA[<blockquote>
@@ -158,6 +119,45 @@
       <categories>
         <category>linux</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Caddy安装和常用命令</title>
+    <url>/posts/d392dh/</url>
+    <content><![CDATA[<blockquote>
+<p>记录Caddy的相关内容</p>
+</blockquote>
+<a id="more"></a>
+<p><code>实验环境</code>：Centos7</p>
+<h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h2><h3 id="centos"><a href="#centos" class="headerlink" title="centos"></a>centos</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install epel-release <span class="comment">#添加源</span></span><br><span class="line">yum -y install caddy</span><br></pre></td></tr></table></figure>
+
+<h3 id="ubuntu16-04"><a href="#ubuntu16-04" class="headerlink" title="ubuntu16.04+"></a>ubuntu16.04+</h3><ul>
+<li>安装和配置<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl https://getcaddy.com | bash</span><br><span class="line">sudo mkdir /etc/caddy</span><br><span class="line">sudo chown -R root:www-data /etc/caddy</span><br><span class="line">sudo mkdir /etc/ssl/caddy</span><br><span class="line">sudo chown -R www-data:root /etc/ssl/caddy</span><br><span class="line">sudo chmod 0770 /etc/ssl/caddy</span><br><span class="line">sudo touch /etc/caddy/Caddyfile</span><br><span class="line">sudo mkdir /var/www</span><br><span class="line">sudo chown www-data: /var/www</span><br></pre></td></tr></table></figure></li>
+<li>添加caddy到service<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/caddy.service</span><br></pre></td></tr></table></figure>
+用vim将下面内容写入到文件中<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"><span class="attr">Description</span>=Caddy HTTP/<span class="number">2</span> web server</span><br><span class="line"><span class="attr">Documentation</span>=https://caddyserver.com/docs</span><br><span class="line"><span class="attr">After</span>=network-<span class="literal">on</span>line.target</span><br><span class="line"><span class="attr">Wants</span>=network-<span class="literal">on</span>line.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"><span class="attr">Restart</span>=<span class="literal">on</span>-failure</span><br><span class="line"><span class="attr">StartLimitInterval</span>=<span class="number">86400</span></span><br><span class="line"><span class="attr">StartLimitBurst</span>=<span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="attr">User</span>=www-data</span><br><span class="line"><span class="attr">Group</span>=www-data</span><br><span class="line"><span class="comment">; Letsencrypt-issued certificates will be written to this directory.</span></span><br><span class="line"><span class="attr">Environment</span>=CADDYPATH=/etc/ssl/caddy</span><br><span class="line"></span><br><span class="line"><span class="attr">ExecStart</span>=/usr/local/bin/caddy -log stdout -agree=<span class="literal">true</span> -conf=/etc/caddy/Caddyfile -root=/var/tmp</span><br><span class="line"><span class="attr">ExecReload</span>=/bin/kill -USR1 <span class="variable">$MAINPID</span></span><br><span class="line"></span><br><span class="line"><span class="attr">LimitNOFILE</span>=<span class="number">1048576</span></span><br><span class="line"><span class="attr">LimitNPROC</span>=<span class="number">64</span></span><br><span class="line"></span><br><span class="line"><span class="attr">PrivateTmp</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">PrivateDevices</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">ProtectHome</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">ProtectSystem</span>=full</span><br><span class="line"><span class="attr">ReadWriteDirectories</span>=/etc/ssl/caddy</span><br><span class="line"></span><br><span class="line"><span class="comment">; The following additional security directives only work with systemd v229 or later.</span></span><br><span class="line"><span class="comment">; They further retrict privileges that can be gained by caddy. Uncomment if you like.</span></span><br><span class="line"><span class="comment">; Note that you may have to add capabilities required by any plugins in use.</span></span><br><span class="line"><span class="comment">;CapabilityBoundingSet=CAP_NET_BIND_SERVICE</span></span><br><span class="line"><span class="comment">;AmbientCapabilities=CAP_NET_BIND_SERVICE</span></span><br><span class="line"><span class="comment">;NoNewPrivileges=true</span></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="2-配置文件默认路径"><a href="#2-配置文件默认路径" class="headerlink" title="2. 配置文件默认路径"></a>2. 配置文件默认路径</h2><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="regexp">/etc/</span>caddy<span class="regexp">/conf.d/</span>Caddyfile.conf</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-配置文件格式模板"><a href="#3-配置文件格式模板" class="headerlink" title="3.配置文件格式模板"></a>3.配置文件格式模板</h2><ul>
+<li>注意符号后面含有<code>空格</code></li>
+<li>以下配置主要支持在本地某个端口含有服务，将端口与域名映射起来</li>
+</ul>
+<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="attribute">https</span>:<span class="comment">//blog.xxx.xx &#123;</span></span><br><span class="line"> gzip</span><br><span class="line"> tls xxx<span class="variable">@gmail</span>.com</span><br><span class="line"> proxy / <span class="attribute">localhost</span>:<span class="number">2888</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ol>
+<li>注意网址替换为自己的网址</li>
+<li>邮箱是用于SSL证书注册邮箱</li>
+<li>2888为端口号，需要替换为服务对应的端口号</li>
+</ol>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>命令总结</tag>
+        <tag>caddy</tag>
+      </tags>
   </entry>
   <entry>
     <title>Cron表达式</title>
@@ -435,6 +435,56 @@
       </tags>
   </entry>
   <entry>
+    <title>Halo博客H2数据库查询</title>
+    <url>/posts/2d3051dc/</url>
+    <content><![CDATA[<blockquote>
+<p>记录一下Halo博客中如何操作H2数据库。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="0-Halo博客数据库文件路径"><a href="#0-Halo博客数据库文件路径" class="headerlink" title="0. Halo博客数据库文件路径"></a>0. Halo博客数据库文件路径</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162738.png"></p>
+<h1 id="1-使用Halo提供的h2-console"><a href="#1-使用Halo提供的h2-console" class="headerlink" title="1. 使用Halo提供的h2-console"></a>1. 使用Halo提供的h2-console</h1><h2 id="1-1-打开h2-console功能"><a href="#1-1-打开h2-console功能" class="headerlink" title="1.1 打开h2-console功能"></a>1.1 打开h2-console功能</h2><pre><code> 修改Halo博客的配置文件(~/.halo/application.yaml)，具体如下图</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162751.png"></p>
+<pre>
+1. 将false改为true
+2. 设置完毕后重启容器
+</pre>
+<h2 id="1-2-访问网址"><a href="#1-2-访问网址" class="headerlink" title="1.2 访问网址"></a>1.2 访问网址</h2><pre><code> 网址：博客域名/h2-console</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162807.png"></p>
+<p>需要注意一下<code>JDBC URL</code>的填写，用户名和密码在配置文件中已有说明</p>
+<h2 id="1-3-测试"><a href="#1-3-测试" class="headerlink" title="1.3 测试"></a>1.3 测试</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> MENUS </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162838.png"></p>
+<h1 id="2-在本地主机上使用数据库可视化工具"><a href="#2-在本地主机上使用数据库可视化工具" class="headerlink" title="2. 在本地主机上使用数据库可视化工具"></a>2. 在本地主机上使用数据库可视化工具</h1><blockquote>
+<p>在使用jdbc驱动版本选择时有坑，下面本人提供了一个版本，测试可用</p>
+</blockquote>
+<h2 id="2-1-工具介绍"><a href="#2-1-工具介绍" class="headerlink" title="2.1 工具介绍"></a>2.1 工具介绍</h2><pre><code>DBeaver 6.3.3(网址：https://dbeaver.io/)</code></pre>
+<h2 id="2-2-jdbc驱动jar包"><a href="#2-2-jdbc驱动jar包" class="headerlink" title="2.2 jdbc驱动jar包"></a>2.2 jdbc驱动jar包</h2><pre><code>下载下来，后面需要用到</code></pre>
+<p>/upload/2020/1/h2-2019-03-13-d5148978df7745808925f6f2ec3671b8.zip</p>
+<h2 id="2-3-创建数据库连接"><a href="#2-3-创建数据库连接" class="headerlink" title="2.3 创建数据库连接"></a>2.3 创建数据库连接</h2><ul>
+<li>新建数据库连接</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162902.png"></p>
+<ul>
+<li><p>选择H2 embedded<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162924.png"></p>
+</li>
+<li><p>选择db文件<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162943.png"></p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163001.png"></p>
+<p><strong>注意将后面的.mv.db删除掉</strong><br>用户名和密码就是配置文件中的H2用户名和密码</p>
+<h2 id="2-6-编辑驱动设置"><a href="#2-6-编辑驱动设置" class="headerlink" title="2.6 编辑驱动设置"></a>2.6 编辑驱动设置</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163038.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163114.png"></p>
+<h2 id="2-5-连接"><a href="#2-5-连接" class="headerlink" title="2.5 连接"></a>2.5 连接</h2><p>创建连接完毕后，连接数据库<br>可以看出Public中的存在的表<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163139.png"></p>
+<h2 id="2-6-测试"><a href="#2-6-测试" class="headerlink" title="2.6 测试"></a>2.6 测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163152.png"></p>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>halo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Halo博客修改密码</title>
     <url>/posts/f2aea09c/</url>
     <content><![CDATA[<blockquote>
@@ -495,48 +545,65 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>Halo博客H2数据库查询</title>
-    <url>/posts/2d3051dc/</url>
+    <title>Halo博客服务器迁移</title>
+    <url>/posts/e2efb148/</url>
     <content><![CDATA[<blockquote>
-<p>记录一下Halo博客中如何操作H2数据库。</p>
+<p>由于本人使用国外的VPS搭建博客，总是感觉万一哪天服务器挂了数据就会丢失，所以记录一下关于halo博客的备份工作。</p>
 </blockquote>
 <a id="more"></a>
-<h1 id="0-Halo博客数据库文件路径"><a href="#0-Halo博客数据库文件路径" class="headerlink" title="0. Halo博客数据库文件路径"></a>0. Halo博客数据库文件路径</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162738.png"></p>
-<h1 id="1-使用Halo提供的h2-console"><a href="#1-使用Halo提供的h2-console" class="headerlink" title="1. 使用Halo提供的h2-console"></a>1. 使用Halo提供的h2-console</h1><h2 id="1-1-打开h2-console功能"><a href="#1-1-打开h2-console功能" class="headerlink" title="1.1 打开h2-console功能"></a>1.1 打开h2-console功能</h2><pre><code> 修改Halo博客的配置文件(~/.halo/application.yaml)，具体如下图</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162751.png"></p>
-<pre>
-1. 将false改为true
-2. 设置完毕后重启容器
-</pre>
-<h2 id="1-2-访问网址"><a href="#1-2-访问网址" class="headerlink" title="1.2 访问网址"></a>1.2 访问网址</h2><pre><code> 网址：博客域名/h2-console</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162807.png"></p>
-<p>需要注意一下<code>JDBC URL</code>的填写，用户名和密码在配置文件中已有说明</p>
-<h2 id="1-3-测试"><a href="#1-3-测试" class="headerlink" title="1.3 测试"></a>1.3 测试</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> MENUS </span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162838.png"></p>
-<h1 id="2-在本地主机上使用数据库可视化工具"><a href="#2-在本地主机上使用数据库可视化工具" class="headerlink" title="2. 在本地主机上使用数据库可视化工具"></a>2. 在本地主机上使用数据库可视化工具</h1><blockquote>
-<p>在使用jdbc驱动版本选择时有坑，下面本人提供了一个版本，测试可用</p>
+<h1 id="1-环境参数"><a href="#1-环境参数" class="headerlink" title="1. 环境参数"></a>1. 环境参数</h1><ul>
+<li>halo版本：v1.2.0</li>
+<li>数据库：H2</li>
+<li>部署工具: Docker version 19.03.5, build 633a0ea</li>
+</ul>
+<h1 id="2-Halo数据备份"><a href="#2-Halo数据备份" class="headerlink" title="2. Halo数据备份"></a>2. Halo数据备份</h1><ol>
+<li>在halo控制台的系统模块里面选择小工具</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163307.png"></p>
+<ol start="2">
+<li>点击备份<br> 在弹出的侧边栏中点击备份，结果如下</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163325.png"></p>
+<ol start="3">
+<li>下载备份压缩包<br> 点击文件名，下载压缩包<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163348.png"></li>
+</ol>
+<h1 id="3-上传备份文件到新服务器"><a href="#3-上传备份文件到新服务器" class="headerlink" title="3. 上传备份文件到新服务器"></a>3. 上传备份文件到新服务器</h1><blockquote>
+<p>在上传备份文件之前，可以在新服务器内将docker安装好，并使用docker拉取halo生成镜像(<strong>记住先不要创建和运行容器</strong>)。具体环境搭建可看官网：<a href="https://halo.run/guide/install/install-with-docker.html">https://halo.run/guide/install/install-with-docker.html</a></p>
 </blockquote>
-<h2 id="2-1-工具介绍"><a href="#2-1-工具介绍" class="headerlink" title="2.1 工具介绍"></a>2.1 工具介绍</h2><pre><code>DBeaver 6.3.3(网址：https://dbeaver.io/)</code></pre>
-<h2 id="2-2-jdbc驱动jar包"><a href="#2-2-jdbc驱动jar包" class="headerlink" title="2.2 jdbc驱动jar包"></a>2.2 jdbc驱动jar包</h2><pre><code>下载下来，后面需要用到</code></pre>
-<p>/upload/2020/1/h2-2019-03-13-d5148978df7745808925f6f2ec3671b8.zip</p>
-<h2 id="2-3-创建数据库连接"><a href="#2-3-创建数据库连接" class="headerlink" title="2.3 创建数据库连接"></a>2.3 创建数据库连接</h2><ul>
-<li>新建数据库连接</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162902.png"></p>
+<p>:warning: <strong>记住在安装halo时不需要下载配置文件到<code>~/.halo</code>目录</strong><br>:point_right: 即下面这步不需要：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163404.png"></p>
+<p><strong>具体步骤：</strong></p>
+<ol>
+<li><p>安装docker<br>按照官网教程安装</p>
+</li>
+<li><p>拉取halo最新镜像</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">sudo</span> docker pull ruibaby/halo</span><br></pre></td></tr></table></figure></li>
+<li><p>上传压缩包文件到服务器的<code>~/.halo</code>目录<br> 我是用<code>xftp</code>工具上传的。</p>
+</li>
+<li><p>解压zip压缩包</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">uzip</span> 文件名</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建和运行docker容器</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">docker run -it -d --name halo -p <span class="number">8090</span>:<span class="number">8090</span>  -v ~<span class="regexp">/.halo:/</span>root<span class="regexp">/.halo ruibaby/</span>halo</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<h1 id="4-修改数据库内容"><a href="#4-修改数据库内容" class="headerlink" title="4. 修改数据库内容"></a>4. 修改数据库内容</h1><blockquote>
+<p>如果迁移博客需要修改网址，并且写文章时图片是通过halo上传的，那么就需要修改<code>数据库中</code>文章的图片网址。接下来以<code>h2数据库为例</code>, 首先需要登录到h2-console面板, 教程见<a href="/archives/he93js7">文章</a>。</p>
+</blockquote>
+<p><strong>这里需要修改以下三部分内容</strong></p>
 <ul>
-<li><p>选择H2 embedded<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162924.png"></p>
-</li>
-<li><p>选择db文件<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162943.png"></p>
-</li>
+<li>修改POSTS表中ORIGINAL_CONTENT内容</li>
+<li>修改POSTS表中FORMAT_CONTENT内容</li>
+<li>修改POSTS表中THUMBNAIL内容</li>
 </ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163001.png"></p>
-<p><strong>注意将后面的.mv.db删除掉</strong><br>用户名和密码就是配置文件中的H2用户名和密码</p>
-<h2 id="2-6-编辑驱动设置"><a href="#2-6-编辑驱动设置" class="headerlink" title="2.6 编辑驱动设置"></a>2.6 编辑驱动设置</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163038.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163114.png"></p>
-<h2 id="2-5-连接"><a href="#2-5-连接" class="headerlink" title="2.5 连接"></a>2.5 连接</h2><p>创建连接完毕后，连接数据库<br>可以看出Public中的存在的表<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163139.png"></p>
-<h2 id="2-6-测试"><a href="#2-6-测试" class="headerlink" title="2.6 测试"></a>2.6 测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163152.png"></p>
-]]></content>
+<p>SQL代码如下：</p>
+<blockquote>
+<p>这里blog.kerviaxxx.top迁移之前的域名，迁移后的域名为kerviaxxx.top</p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> ORIGINAL_CONTENT=<span class="keyword">REPLACE</span>(ORIGINAL_CONTENT, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> ORIGINAL_CONTENT <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> FORMAT_CONTENT=<span class="keyword">REPLACE</span>(FORMAT_CONTENT, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> FORMAT_CONTENT <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> THUMBNAIL=<span class="keyword">REPLACE</span>(THUMBNAIL, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> THUMBNAIL <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>博客</category>
       </categories>
@@ -692,147 +759,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>Halo博客服务器迁移</title>
-    <url>/posts/e2efb148/</url>
-    <content><![CDATA[<blockquote>
-<p>由于本人使用国外的VPS搭建博客，总是感觉万一哪天服务器挂了数据就会丢失，所以记录一下关于halo博客的备份工作。</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="1-环境参数"><a href="#1-环境参数" class="headerlink" title="1. 环境参数"></a>1. 环境参数</h1><ul>
-<li>halo版本：v1.2.0</li>
-<li>数据库：H2</li>
-<li>部署工具: Docker version 19.03.5, build 633a0ea</li>
-</ul>
-<h1 id="2-Halo数据备份"><a href="#2-Halo数据备份" class="headerlink" title="2. Halo数据备份"></a>2. Halo数据备份</h1><ol>
-<li>在halo控制台的系统模块里面选择小工具</li>
-</ol>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163307.png"></p>
-<ol start="2">
-<li>点击备份<br> 在弹出的侧边栏中点击备份，结果如下</li>
-</ol>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163325.png"></p>
-<ol start="3">
-<li>下载备份压缩包<br> 点击文件名，下载压缩包<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163348.png"></li>
-</ol>
-<h1 id="3-上传备份文件到新服务器"><a href="#3-上传备份文件到新服务器" class="headerlink" title="3. 上传备份文件到新服务器"></a>3. 上传备份文件到新服务器</h1><blockquote>
-<p>在上传备份文件之前，可以在新服务器内将docker安装好，并使用docker拉取halo生成镜像(<strong>记住先不要创建和运行容器</strong>)。具体环境搭建可看官网：<a href="https://halo.run/guide/install/install-with-docker.html">https://halo.run/guide/install/install-with-docker.html</a></p>
-</blockquote>
-<p>:warning: <strong>记住在安装halo时不需要下载配置文件到<code>~/.halo</code>目录</strong><br>:point_right: 即下面这步不需要：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163404.png"></p>
-<p><strong>具体步骤：</strong></p>
-<ol>
-<li><p>安装docker<br>按照官网教程安装</p>
-</li>
-<li><p>拉取halo最新镜像</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">sudo</span> docker pull ruibaby/halo</span><br></pre></td></tr></table></figure></li>
-<li><p>上传压缩包文件到服务器的<code>~/.halo</code>目录<br> 我是用<code>xftp</code>工具上传的。</p>
-</li>
-<li><p>解压zip压缩包</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">uzip</span> 文件名</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建和运行docker容器</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">docker run -it -d --name halo -p <span class="number">8090</span>:<span class="number">8090</span>  -v ~<span class="regexp">/.halo:/</span>root<span class="regexp">/.halo ruibaby/</span>halo</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<h1 id="4-修改数据库内容"><a href="#4-修改数据库内容" class="headerlink" title="4. 修改数据库内容"></a>4. 修改数据库内容</h1><blockquote>
-<p>如果迁移博客需要修改网址，并且写文章时图片是通过halo上传的，那么就需要修改<code>数据库中</code>文章的图片网址。接下来以<code>h2数据库为例</code>, 首先需要登录到h2-console面板, 教程见<a href="/archives/he93js7">文章</a>。</p>
-</blockquote>
-<p><strong>这里需要修改以下三部分内容</strong></p>
-<ul>
-<li>修改POSTS表中ORIGINAL_CONTENT内容</li>
-<li>修改POSTS表中FORMAT_CONTENT内容</li>
-<li>修改POSTS表中THUMBNAIL内容</li>
-</ul>
-<p>SQL代码如下：</p>
-<blockquote>
-<p>这里blog.kerviaxxx.top迁移之前的域名，迁移后的域名为kerviaxxx.top</p>
-</blockquote>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> ORIGINAL_CONTENT=<span class="keyword">REPLACE</span>(ORIGINAL_CONTENT, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> ORIGINAL_CONTENT <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> FORMAT_CONTENT=<span class="keyword">REPLACE</span>(FORMAT_CONTENT, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> FORMAT_CONTENT <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> THUMBNAIL=<span class="keyword">REPLACE</span>(THUMBNAIL, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> THUMBNAIL <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>halo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LeetCode-001-两数之和</title>
-    <url>/posts/a239384e/</url>
-    <content><![CDATA[<blockquote>
-<p>题目链接：<a href="https://leetcode-cn.com/problems/two-sum/">https://leetcode-cn.com/problems/two-sum/</a></p>
-</blockquote>
-<a id="more"></a>
-
-<blockquote>
-<p>难度：简单</p>
-</blockquote>
-<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
-<p>你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。</p>
-<p><strong>示例</strong>:</p>
-<blockquote>
-<p>给定 nums = [2, 7, 11, 15], target = 9</p>
-<p>因为 nums[<strong>0</strong>] + nums[<strong>1</strong>] = 2 + 7 = 9<br>所以返回 [<strong>0, 1</strong>]</p>
-</blockquote>
-<h3 id="个人题解"><a href="#个人题解" class="headerlink" title="个人题解"></a>个人题解</h3><ul>
-<li>使用C++的<code>map</code>，键： <code>target - 遍历过的元素值</code>  值：<code>遍历过的元素值索引</code></li>
-<li>时间复杂度 <code>O(nlogn)</code></li>
-<li>空间复杂度<code>O(n)</code></li>
-<li>C++中<code>map</code>使用红黑树实现，<code>hash_map</code>使用哈希表实现，<code>hash_map</code>相对来说查找元素更快</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">twoSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; numMap;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">        <span class="keyword">int</span> t,i;</span><br><span class="line">        i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); it++)</span><br><span class="line">        &#123;</span><br><span class="line">            t = target - *it;</span><br><span class="line">            <span class="keyword">if</span>(numMap.find(*it) != numMap.end())  <span class="comment">// 之前有元素 + *it = target</span></span><br><span class="line">            &#123;</span><br><span class="line">                v.push_back(numMap[*it]);</span><br><span class="line">                v.push_back(i);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                numMap[t] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="官方题解"><a href="#官方题解" class="headerlink" title="官方题解"></a>官方题解</h3><h4 id="方法一：暴力法"><a href="#方法一：暴力法" class="headerlink" title="方法一：暴力法"></a>方法一：暴力法</h4><p>暴力法很简单，遍历每个元素 x，并查找是否存在一个值与 target−x 相等的目标元素。</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; nums.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[j] == target - nums[i]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, j &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n^2)</code><br>对于每个元素，我们试图通过遍历数组的其余部分来寻找它所对应的目标元素，这将耗费 O(n)的时间。因此时间复杂度为 <code>O(n^2)</code>。</li>
-<li>空间复杂度：<code>O(1)</code>。</li>
-</ul>
-<h4 id="方法二：两遍哈希表"><a href="#方法二：两遍哈希表" class="headerlink" title="方法二：两遍哈希表"></a>方法二：两遍哈希表</h4><p>为了对运行时间复杂度进行优化，我们需要一种更有效的方法来检查数组中是否存在目标元素。如果存在，我们需要找出它的索引。保持数组中的每个元素与其索引相互对应的最好方法是什么？哈希表。</p>
-<p>通过以空间换取速度的方式，我们可以将查找时间从 O(n) 降低到 O(1)。哈希表正是为此目的而构建的，它支持以 <em>近似</em> 恒定的时间进行快速查找。我用“近似”来描述，是因为一旦出现冲突，查找用时可能会退化到 O(n)。但只要你仔细地挑选哈希函数，在哈希表中进行查找的用时应当被摊销为 O(1)。</p>
-<p>一个简单的实现使用了两次迭代。在第一次迭代中，我们将每个元素的值和它的索引添加到表中。然后，在第二次迭代中，我们将检查每个元素所对应的目标元素<code>target−nums[i]</code>是否存在于表中。注意，该目标元素不能是 <code>nums[i]</code> 本身！</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n) </code><br>我们把包含有 n个元素的列表遍历两次。由于哈希表将查找时间缩短到 O(1) ，所以时间复杂度为 O(n)。</li>
-<li>空间复杂度：<code>O(n) </code><br>所需的额外空间取决于哈希表中存储的元素数量，该表中存储了 n个元素。</li>
-</ul>
-<h4 id="方法三：一遍哈希表"><a href="#方法三：一遍哈希表" class="headerlink" title="方法三：一遍哈希表"></a>方法三：一遍哈希表</h4><p>事实证明，我们可以一次完成。在进行迭代并将元素插入到表中的同时，我们还会回过头来检查表中是否已经存在当前元素所对应的目标元素。如果它存在，那我们已经找到了对应解，并立即将其返回。</p>
-<ul>
-<li>Java</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; map.get(complement), i &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p><strong>复杂度分析：</strong></p>
-<ul>
-<li>时间复杂度：<code>O(n)</code>，<br>我们只遍历了包含有 n 个元素的列表一次。在表中进行的每次查找只花费 O(1)的时间。</li>
-<li>空间复杂度：<code>O(n)</code>，<br>所需的额外空间取决于哈希表中存储的元素数量，该表最多需要存储 n个元素。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>算法</category>
-      </categories>
-      <tags>
-        <tag>leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>LeetCode-002-两数相加</title>
     <url>/posts/b190b0aa/</url>
     <content><![CDATA[<blockquote>
@@ -925,6 +851,131 @@ docker部署</code></pre>
       <tags>
         <tag>leetcode</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>LeetCode-001-两数之和</title>
+    <url>/posts/a239384e/</url>
+    <content><![CDATA[<blockquote>
+<p>题目链接：<a href="https://leetcode-cn.com/problems/two-sum/">https://leetcode-cn.com/problems/two-sum/</a></p>
+</blockquote>
+<a id="more"></a>
+
+<blockquote>
+<p>难度：简单</p>
+</blockquote>
+<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
+<p>你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。</p>
+<p><strong>示例</strong>:</p>
+<blockquote>
+<p>给定 nums = [2, 7, 11, 15], target = 9</p>
+<p>因为 nums[<strong>0</strong>] + nums[<strong>1</strong>] = 2 + 7 = 9<br>所以返回 [<strong>0, 1</strong>]</p>
+</blockquote>
+<h3 id="个人题解"><a href="#个人题解" class="headerlink" title="个人题解"></a>个人题解</h3><ul>
+<li>使用C++的<code>map</code>，键： <code>target - 遍历过的元素值</code>  值：<code>遍历过的元素值索引</code></li>
+<li>时间复杂度 <code>O(nlogn)</code></li>
+<li>空间复杂度<code>O(n)</code></li>
+<li>C++中<code>map</code>使用红黑树实现，<code>hash_map</code>使用哈希表实现，<code>hash_map</code>相对来说查找元素更快</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">twoSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; numMap;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">        <span class="keyword">int</span> t,i;</span><br><span class="line">        i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> it = nums.begin(); it != nums.end(); it++)</span><br><span class="line">        &#123;</span><br><span class="line">            t = target - *it;</span><br><span class="line">            <span class="keyword">if</span>(numMap.find(*it) != numMap.end())  <span class="comment">// 之前有元素 + *it = target</span></span><br><span class="line">            &#123;</span><br><span class="line">                v.push_back(numMap[*it]);</span><br><span class="line">                v.push_back(i);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                numMap[t] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="官方题解"><a href="#官方题解" class="headerlink" title="官方题解"></a>官方题解</h3><h4 id="方法一：暴力法"><a href="#方法一：暴力法" class="headerlink" title="方法一：暴力法"></a>方法一：暴力法</h4><p>暴力法很简单，遍历每个元素 x，并查找是否存在一个值与 target−x 相等的目标元素。</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; nums.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[j] == target - nums[i]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, j &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n^2)</code><br>对于每个元素，我们试图通过遍历数组的其余部分来寻找它所对应的目标元素，这将耗费 O(n)的时间。因此时间复杂度为 <code>O(n^2)</code>。</li>
+<li>空间复杂度：<code>O(1)</code>。</li>
+</ul>
+<h4 id="方法二：两遍哈希表"><a href="#方法二：两遍哈希表" class="headerlink" title="方法二：两遍哈希表"></a>方法二：两遍哈希表</h4><p>为了对运行时间复杂度进行优化，我们需要一种更有效的方法来检查数组中是否存在目标元素。如果存在，我们需要找出它的索引。保持数组中的每个元素与其索引相互对应的最好方法是什么？哈希表。</p>
+<p>通过以空间换取速度的方式，我们可以将查找时间从 O(n) 降低到 O(1)。哈希表正是为此目的而构建的，它支持以 <em>近似</em> 恒定的时间进行快速查找。我用“近似”来描述，是因为一旦出现冲突，查找用时可能会退化到 O(n)。但只要你仔细地挑选哈希函数，在哈希表中进行查找的用时应当被摊销为 O(1)。</p>
+<p>一个简单的实现使用了两次迭代。在第一次迭代中，我们将每个元素的值和它的索引添加到表中。然后，在第二次迭代中，我们将检查每个元素所对应的目标元素<code>target−nums[i]</code>是否存在于表中。注意，该目标元素不能是 <code>nums[i]</code> 本身！</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement) &amp;&amp; map.get(complement) != i) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; i, map.get(complement) &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n) </code><br>我们把包含有 n个元素的列表遍历两次。由于哈希表将查找时间缩短到 O(1) ，所以时间复杂度为 O(n)。</li>
+<li>空间复杂度：<code>O(n) </code><br>所需的额外空间取决于哈希表中存储的元素数量，该表中存储了 n个元素。</li>
+</ul>
+<h4 id="方法三：一遍哈希表"><a href="#方法三：一遍哈希表" class="headerlink" title="方法三：一遍哈希表"></a>方法三：一遍哈希表</h4><p>事实证明，我们可以一次完成。在进行迭代并将元素插入到表中的同时，我们还会回过头来检查表中是否已经存在当前元素所对应的目标元素。如果它存在，那我们已经找到了对应解，并立即将其返回。</p>
+<ul>
+<li>Java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> complement = target - nums[i];</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(complement)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; map.get(complement), i &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;No two sum solution&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：<code>O(n)</code>，<br>我们只遍历了包含有 n 个元素的列表一次。在表中进行的每次查找只花费 O(1)的时间。</li>
+<li>空间复杂度：<code>O(n)</code>，<br>所需的额外空间取决于哈希表中存储的元素数量，该表最多需要存储 n个元素。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux下将python脚本封装成服务</title>
+    <url>/posts/db70b640/</url>
+    <content><![CDATA[<blockquote>
+<p>参考博客 :point_right: <a href="https://www.cnblogs.com/fu-yong/p/9683129.html">文章地址1</a> <a href="">文章地址2</a></p>
+</blockquote>
+<a id="more"></a>
+<p>  在linux服务器执行python脚本时，即使脚本使用死循环，在退出账号时其对应进程也会被关闭，这里参考另外两篇博客各自的方法来解决这一问题。</p>
+<h1 id="1-方式一：使用nohup"><a href="#1-方式一：使用nohup" class="headerlink" title="1.方式一：使用nohup"></a>1.方式一：使用nohup</h1><h4 id="一-代码"><a href="#一-代码" class="headerlink" title="一. 代码"></a>一. 代码</h4><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">nohup python my.py &gt;&gt; <span class="regexp">/usr/</span>local<span class="regexp">/python/</span>xxf/my.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">nohup tomcat.sh &gt; <span class="regexp">/dev/</span><span class="keyword">null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure>
+
+<h4 id="二-nohup命令"><a href="#二-nohup命令" class="headerlink" title="二.nohup命令"></a>二.nohup命令</h4><ol>
+<li> nohup指不断地运行，是no hang up的缩写，指不间断，不挂断。运行一个进程的时候，不想让其在你退出账号时关闭，即可用nohup。</li>
+<li> nohup在不规定的情况下，所以输出内容会到nohup.out中</li>
+</ol>
+<h4 id="三-2-gt-amp-1"><a href="#三-2-gt-amp-1" class="headerlink" title="三.2&gt;&amp;1"></a>三.2&gt;&amp;1</h4><ol>
+<li><code>0</code> 表示stdin标准输入，用户键盘输入的内容<br> <code>1</code> 表示stdout标准输出，输出到显示屏的内容<br> <code>2</code> 表示stderr标准错误，报错内容</li>
+<li> <code>2&gt;&amp;1</code>是一个整体，<code>&gt;</code>左右不能有空格，即将错误内容重定向输入到标准输出中去。</li>
+</ol>
+<h4 id="四-整体意义及-amp"><a href="#四-整体意义及-amp" class="headerlink" title="四. 整体意义及&amp;"></a>四. 整体意义及&amp;</h4><ol>
+<li> <code>&amp;</code>为后台运行</li>
+<li>第一条代码，以python环境不间断的运行my.py这个脚本，并且将脚本输出的内容重定向输入<code>my.log</code>中（<code>&gt;&gt;</code>意为追加，如果用<code>&gt;</code>会让其中的内容清空）<br> <code>my.py &gt;&gt; my.log</code> 和<code>my.py 1&gt;&gt;my.log</code>相同，只是<code>1</code>(标准输入)被省略了，而后面的<code>my.log 2&gt;&amp;1</code> 又将<code>2</code>(错误内容)输入到标准输出，然后前面的标准输出又输入到<code>my.log</code>中，意思错误和标准内容都会输出到<code>my.log</code>中，其实代码可拆成两块。</li>
+</ol>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">nohup python <span class="keyword">my</span>.py <span class="number">1</span>&gt;&gt; /usr/<span class="keyword">local</span>/python/xxf/<span class="keyword">my</span>.<span class="built_in">log</span> &amp;</span><br><span class="line">nohup python <span class="keyword">my</span>.py <span class="number">2</span>&gt;&gt; /usr/<span class="keyword">local</span>/python/xxf/<span class="keyword">my</span>.<span class="built_in">log</span> &amp;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>上面代码就是将错误和标准都输出到my.log，最初的代码只是简化了。<br> 而加<code>2&gt;&amp;1</code>中的<code>&amp;</code>是为了区别文件1和<code>1</code>(标准输出)，假如为<code>2&gt;1</code>,那么不就成了将错误内容输出到文件1中。</li>
+<li> <code>nohup tomcat.sh &gt; /dev/null 2&gt;&amp;1 &amp;</code>也是一样的，将错误和标准全部丢入<code>/dev/null</code>中，全部销毁。</li>
+</ol>
+<h1 id="2-方式二"><a href="#2-方式二" class="headerlink" title="2.方式二"></a>2.方式二</h1><p>Python脚本开机自动运行；本帖适用于使用systemd的Linux系统，现在流行的Linux发行版都使用systemd。</p>
+<p>后台服务程序是随系统自启动的，我们只要把Python脚本配置为服务就行了。需要注意的一点是你Python脚本的启动时机，它依赖不依赖其他服务（网络连接、一些分区的挂载等等）。</p>
+<h4 id="1-Python脚本"><a href="#1-Python脚本" class="headerlink" title="#1 Python脚本"></a>#1 Python脚本</h4><p>一个你要自启动的Python脚本，我使用 /home/snail/autorun.py为例。</p>
+<h4 id="2-创建Unit配置文件"><a href="#2-创建Unit配置文件" class="headerlink" title="#2 创建Unit配置文件"></a>#2 创建Unit配置文件</h4><figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">sudo vim /<span class="class"><span class="keyword">lib</span>/<span class="title">systemd</span>/<span class="title">system</span>/<span class="title">autorun</span>.<span class="title">service</span></span></span><br></pre></td></tr></table></figure>
+<p>写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">Description</span>=Test Service</span><br><span class="line"></span><br><span class="line"><span class="attr">After</span>=multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">Type</span>=idle</span><br><span class="line"></span><br><span class="line"><span class="attr">ExecStart</span>=/usr/bin/python /home/snail/autorun.py</span><br><span class="line"></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p>上面定义了一个叫 Test Service 的服务，它在multi-user环境起来之后运行；ExecStart参数指定我们要运行的程序；idle确保脚本在其他东西加载完成之后运行，它的默认值是simple。</p>
+<p>注意使用绝对路径。</p>
+<p>为了获得脚本的输出信息，我们可以重定向到文件：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">ExecStart=<span class="regexp">/usr/</span>bin<span class="regexp">/python /</span>home<span class="regexp">/snail/</span>autorun.py &gt; <span class="regexp">/home/</span>snail/autorun.log <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>更改配置文件的权限：</p>
+<figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">sudo chmod <span class="number">644</span> /<span class="class"><span class="keyword">lib</span>/<span class="title">systemd</span>/<span class="title">system</span>/<span class="title">autorun</span>.<span class="title">service</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="3-使配置文件生效"><a href="#3-使配置文件生效" class="headerlink" title="#3 使配置文件生效"></a>#3 使配置文件生效</h4><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line"></span><br><span class="line">sudo systemctl <span class="builtin-name">enable</span> autorun.service</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-启动"><a href="#4-启动" class="headerlink" title="#4 启动"></a>#4 启动</h4><figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">sudo systemctl start <span class="built_in">auto</span>run.service</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-查看服务状态"><a href="#5-查看服务状态" class="headerlink" title="#5 查看服务状态"></a>#5 查看服务状态</h4><figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">sudo systemctl status <span class="built_in">auto</span>run.service</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
   </entry>
   <entry>
     <title>Linux操作系统源</title>
@@ -1027,57 +1078,6 @@ docker部署</code></pre>
       <tags>
         <tag>换源</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Linux下将python脚本封装成服务</title>
-    <url>/posts/db70b640/</url>
-    <content><![CDATA[<blockquote>
-<p>参考博客 :point_right: <a href="https://www.cnblogs.com/fu-yong/p/9683129.html">文章地址1</a> <a href="">文章地址2</a></p>
-</blockquote>
-<a id="more"></a>
-<p>  在linux服务器执行python脚本时，即使脚本使用死循环，在退出账号时其对应进程也会被关闭，这里参考另外两篇博客各自的方法来解决这一问题。</p>
-<h1 id="1-方式一：使用nohup"><a href="#1-方式一：使用nohup" class="headerlink" title="1.方式一：使用nohup"></a>1.方式一：使用nohup</h1><h4 id="一-代码"><a href="#一-代码" class="headerlink" title="一. 代码"></a>一. 代码</h4><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">nohup python my.py &gt;&gt; <span class="regexp">/usr/</span>local<span class="regexp">/python/</span>xxf/my.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">nohup tomcat.sh &gt; <span class="regexp">/dev/</span><span class="keyword">null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure>
-
-<h4 id="二-nohup命令"><a href="#二-nohup命令" class="headerlink" title="二.nohup命令"></a>二.nohup命令</h4><ol>
-<li> nohup指不断地运行，是no hang up的缩写，指不间断，不挂断。运行一个进程的时候，不想让其在你退出账号时关闭，即可用nohup。</li>
-<li> nohup在不规定的情况下，所以输出内容会到nohup.out中</li>
-</ol>
-<h4 id="三-2-gt-amp-1"><a href="#三-2-gt-amp-1" class="headerlink" title="三.2&gt;&amp;1"></a>三.2&gt;&amp;1</h4><ol>
-<li><code>0</code> 表示stdin标准输入，用户键盘输入的内容<br> <code>1</code> 表示stdout标准输出，输出到显示屏的内容<br> <code>2</code> 表示stderr标准错误，报错内容</li>
-<li> <code>2&gt;&amp;1</code>是一个整体，<code>&gt;</code>左右不能有空格，即将错误内容重定向输入到标准输出中去。</li>
-</ol>
-<h4 id="四-整体意义及-amp"><a href="#四-整体意义及-amp" class="headerlink" title="四. 整体意义及&amp;"></a>四. 整体意义及&amp;</h4><ol>
-<li> <code>&amp;</code>为后台运行</li>
-<li>第一条代码，以python环境不间断的运行my.py这个脚本，并且将脚本输出的内容重定向输入<code>my.log</code>中（<code>&gt;&gt;</code>意为追加，如果用<code>&gt;</code>会让其中的内容清空）<br> <code>my.py &gt;&gt; my.log</code> 和<code>my.py 1&gt;&gt;my.log</code>相同，只是<code>1</code>(标准输入)被省略了，而后面的<code>my.log 2&gt;&amp;1</code> 又将<code>2</code>(错误内容)输入到标准输出，然后前面的标准输出又输入到<code>my.log</code>中，意思错误和标准内容都会输出到<code>my.log</code>中，其实代码可拆成两块。</li>
-</ol>
-<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">nohup python <span class="keyword">my</span>.py <span class="number">1</span>&gt;&gt; /usr/<span class="keyword">local</span>/python/xxf/<span class="keyword">my</span>.<span class="built_in">log</span> &amp;</span><br><span class="line">nohup python <span class="keyword">my</span>.py <span class="number">2</span>&gt;&gt; /usr/<span class="keyword">local</span>/python/xxf/<span class="keyword">my</span>.<span class="built_in">log</span> &amp;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>上面代码就是将错误和标准都输出到my.log，最初的代码只是简化了。<br> 而加<code>2&gt;&amp;1</code>中的<code>&amp;</code>是为了区别文件1和<code>1</code>(标准输出)，假如为<code>2&gt;1</code>,那么不就成了将错误内容输出到文件1中。</li>
-<li> <code>nohup tomcat.sh &gt; /dev/null 2&gt;&amp;1 &amp;</code>也是一样的，将错误和标准全部丢入<code>/dev/null</code>中，全部销毁。</li>
-</ol>
-<h1 id="2-方式二"><a href="#2-方式二" class="headerlink" title="2.方式二"></a>2.方式二</h1><p>Python脚本开机自动运行；本帖适用于使用systemd的Linux系统，现在流行的Linux发行版都使用systemd。</p>
-<p>后台服务程序是随系统自启动的，我们只要把Python脚本配置为服务就行了。需要注意的一点是你Python脚本的启动时机，它依赖不依赖其他服务（网络连接、一些分区的挂载等等）。</p>
-<h4 id="1-Python脚本"><a href="#1-Python脚本" class="headerlink" title="#1 Python脚本"></a>#1 Python脚本</h4><p>一个你要自启动的Python脚本，我使用 /home/snail/autorun.py为例。</p>
-<h4 id="2-创建Unit配置文件"><a href="#2-创建Unit配置文件" class="headerlink" title="#2 创建Unit配置文件"></a>#2 创建Unit配置文件</h4><figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">sudo vim /<span class="class"><span class="keyword">lib</span>/<span class="title">systemd</span>/<span class="title">system</span>/<span class="title">autorun</span>.<span class="title">service</span></span></span><br></pre></td></tr></table></figure>
-<p>写入如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">Description</span>=Test Service</span><br><span class="line"></span><br><span class="line"><span class="attr">After</span>=multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">Type</span>=idle</span><br><span class="line"></span><br><span class="line"><span class="attr">ExecStart</span>=/usr/bin/python /home/snail/autorun.py</span><br><span class="line"></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure>
-
-<p>上面定义了一个叫 Test Service 的服务，它在multi-user环境起来之后运行；ExecStart参数指定我们要运行的程序；idle确保脚本在其他东西加载完成之后运行，它的默认值是simple。</p>
-<p>注意使用绝对路径。</p>
-<p>为了获得脚本的输出信息，我们可以重定向到文件：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">ExecStart=<span class="regexp">/usr/</span>bin<span class="regexp">/python /</span>home<span class="regexp">/snail/</span>autorun.py &gt; <span class="regexp">/home/</span>snail/autorun.log <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>更改配置文件的权限：</p>
-<figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">sudo chmod <span class="number">644</span> /<span class="class"><span class="keyword">lib</span>/<span class="title">systemd</span>/<span class="title">system</span>/<span class="title">autorun</span>.<span class="title">service</span></span></span><br></pre></td></tr></table></figure>
-<h4 id="3-使配置文件生效"><a href="#3-使配置文件生效" class="headerlink" title="#3 使配置文件生效"></a>#3 使配置文件生效</h4><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line"></span><br><span class="line">sudo systemctl <span class="builtin-name">enable</span> autorun.service</span><br></pre></td></tr></table></figure>
-
-<h4 id="4-启动"><a href="#4-启动" class="headerlink" title="#4 启动"></a>#4 启动</h4><figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">sudo systemctl start <span class="built_in">auto</span>run.service</span><br></pre></td></tr></table></figure>
-
-<h4 id="5-查看服务状态"><a href="#5-查看服务状态" class="headerlink" title="#5 查看服务状态"></a>#5 查看服务状态</h4><figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">sudo systemctl status <span class="built_in">auto</span>run.service</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
   </entry>
   <entry>
     <title>MySQL常用命令</title>
@@ -1508,65 +1508,6 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
-    <title>StarUML3.x破解教程</title>
-    <url>/posts/b785abd2/</url>
-    <content><![CDATA[<blockquote>
-<p>StarUML 是非常好的UML画图工具，这里介绍StarUML3.2.2的破解教程。</p>
-</blockquote>
-<ul>
-<li><strong>有能力的请支持正版！</strong></li>
-<li>参考教程：<a href="https://www.cnblogs.com/yourstars/p/9309529.html">https://www.cnblogs.com/yourstars/p/9309529.html</a></li>
-<li>在破解基础上取消自动更新</li>
-</ul>
-<a id="more"></a>
-
-<h3 id="破解原理"><a href="#破解原理" class="headerlink" title="破解原理"></a>破解原理</h3><p><a href="http://staruml.io/download"><code>StarUML</code></a>是用<code>nodejs</code>写的。确切的说是用<a href="https://github.com/electron/electron">Electron前端框架</a>写的。</p>
-<p>新版本中所有的starUML源代码是通过<a href="https://github.com/electron/asar">asar</a>工具打包而成。</p>
-<p>确切的代码位置在<code>%LOCALAPPDATA%\Programs\StarURML\resources\app.asar</code>。</p>
-<h3 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h3><p>在执行下列操作前，<strong>请确保本机安装了<code>nodejs    </code>工具</strong></p>
-<p>我们可以通过<code>asar</code>工具解压修改达到破解目的。具体操作如下：</p>
-<ol>
-<li><p>安装<code>nodejs</code></p>
-<p><a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></p>
-</li>
-<li><p>安装<code>asar</code></p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">cnpm install -g asar  <span class="regexp">//</span>或者npm install -g asar</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h3 id="修改源代码"><a href="#修改源代码" class="headerlink" title="修改源代码"></a>修改源代码</h3><p>打开软件安装路径，找到resources文件夹下的app.asar文件，将其复制到另一文件夹，我们从另一文件夹内解压app.asar，修改其中代码，最后将其压缩为app.asar文件替换最初的app.asar文件。具体过程如下：</p>
-<ol>
-<li><p>解压app.asar</p>
-<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">asar extract <span class="keyword">app</span>.asar ./<span class="keyword">app</span> <span class="comment">// 解压到app文件夹</span></span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<ol start="2">
-<li><p>修改<code>app\src\engine\license-manager.js</code>文件 –&gt; 取消<code>注册操作</code></p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">checkLicenseValidity () &#123;</span><br><span class="line">  <span class="built_in">this</span>.validate().then(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    setStatus(<span class="built_in">this</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">//setStatus(this, false)</span></span><br><span class="line">    <span class="comment">//UnregisteredDialog.showDialog()</span></span><br><span class="line">    </span><br><span class="line">    setStatus(<span class="built_in">this</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>找到上述代码位置，注释掉原先两行代码，添加<code>setStatus(this, true)</code>。</p>
-</li>
-<li><p>修改<code>app\src\engine\update-manager.js</code>文件 –&gt; 取消<code>自动更新</code></p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Check extensions updates</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">checkExtensionUpdates () &#123;</span><br><span class="line">  ExtensionManager.downloadRegistry().done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> updateAvailable = <span class="literal">false</span></span><br><span class="line">    _.each(ExtensionManager.extensions, <span class="function"><span class="params">ext</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">//if (ext.installInfo &amp;&amp; ext.installInfo.updateAvailable) &#123;</span></span><br><span class="line">        <span class="comment">//updateAvailable = true</span></span><br><span class="line">      <span class="comment">//&#125;</span></span><br><span class="line">        updateAvailable = <span class="literal">false</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> (updateAvailable) &#123;</span><br><span class="line">      $(<span class="string">&#x27;#toolbar-extension-manager&#x27;</span>).addClass(<span class="string">&#x27;selected&#x27;</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      $(<span class="string">&#x27;#toolbar-extension-manager&#x27;</span>).removeClass(<span class="string">&#x27;selected&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>找到上述代码位置，注释那几行代码，添加<code>updateAvailable = false</code>。</p>
-</li>
-<li><p>重新打包<code>app.asar</code></p>
-<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">asar pack <span class="keyword">app</span> <span class="keyword">app</span>.asar</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>将打包后的<code>app.asar</code>覆盖原先的<code>app.asar</code>文件</p>
-</li>
-</ol>
-<h3 id="已经破解好的StarUML"><a href="#已经破解好的StarUML" class="headerlink" title="已经破解好的StarUML"></a>已经破解好的StarUML</h3><p><a href="https://jxjjxy-my.sharepoint.com/:u:/g/personal/cxz_kervia1_t_odmail_cn/Efh1n8IPGbZMqhmdubupEAsBwk6GVdVutPwb9Eoizy_qUQ?e=9ai3Jr">下载地址</a></p>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Scrapy框架学习(1)</title>
     <url>/posts/dfewf3/</url>
     <content><![CDATA[<blockquote>
@@ -1867,6 +1808,113 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>StarUML3.x破解教程</title>
+    <url>/posts/b785abd2/</url>
+    <content><![CDATA[<blockquote>
+<p>StarUML 是非常好的UML画图工具，这里介绍StarUML3.2.2的破解教程。</p>
+</blockquote>
+<ul>
+<li><strong>有能力的请支持正版！</strong></li>
+<li>参考教程：<a href="https://www.cnblogs.com/yourstars/p/9309529.html">https://www.cnblogs.com/yourstars/p/9309529.html</a></li>
+<li>在破解基础上取消自动更新</li>
+</ul>
+<a id="more"></a>
+
+<h3 id="破解原理"><a href="#破解原理" class="headerlink" title="破解原理"></a>破解原理</h3><p><a href="http://staruml.io/download"><code>StarUML</code></a>是用<code>nodejs</code>写的。确切的说是用<a href="https://github.com/electron/electron">Electron前端框架</a>写的。</p>
+<p>新版本中所有的starUML源代码是通过<a href="https://github.com/electron/asar">asar</a>工具打包而成。</p>
+<p>确切的代码位置在<code>%LOCALAPPDATA%\Programs\StarURML\resources\app.asar</code>。</p>
+<h3 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h3><p>在执行下列操作前，<strong>请确保本机安装了<code>nodejs    </code>工具</strong></p>
+<p>我们可以通过<code>asar</code>工具解压修改达到破解目的。具体操作如下：</p>
+<ol>
+<li><p>安装<code>nodejs</code></p>
+<p><a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></p>
+</li>
+<li><p>安装<code>asar</code></p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">cnpm install -g asar  <span class="regexp">//</span>或者npm install -g asar</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="修改源代码"><a href="#修改源代码" class="headerlink" title="修改源代码"></a>修改源代码</h3><p>打开软件安装路径，找到resources文件夹下的app.asar文件，将其复制到另一文件夹，我们从另一文件夹内解压app.asar，修改其中代码，最后将其压缩为app.asar文件替换最初的app.asar文件。具体过程如下：</p>
+<ol>
+<li><p>解压app.asar</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">asar extract <span class="keyword">app</span>.asar ./<span class="keyword">app</span> <span class="comment">// 解压到app文件夹</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="2">
+<li><p>修改<code>app\src\engine\license-manager.js</code>文件 –&gt; 取消<code>注册操作</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">checkLicenseValidity () &#123;</span><br><span class="line">  <span class="built_in">this</span>.validate().then(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    setStatus(<span class="built_in">this</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">//setStatus(this, false)</span></span><br><span class="line">    <span class="comment">//UnregisteredDialog.showDialog()</span></span><br><span class="line">    </span><br><span class="line">    setStatus(<span class="built_in">this</span>, <span class="literal">true</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>找到上述代码位置，注释掉原先两行代码，添加<code>setStatus(this, true)</code>。</p>
+</li>
+<li><p>修改<code>app\src\engine\update-manager.js</code>文件 –&gt; 取消<code>自动更新</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Check extensions updates</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">checkExtensionUpdates () &#123;</span><br><span class="line">  ExtensionManager.downloadRegistry().done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> updateAvailable = <span class="literal">false</span></span><br><span class="line">    _.each(ExtensionManager.extensions, <span class="function"><span class="params">ext</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">//if (ext.installInfo &amp;&amp; ext.installInfo.updateAvailable) &#123;</span></span><br><span class="line">        <span class="comment">//updateAvailable = true</span></span><br><span class="line">      <span class="comment">//&#125;</span></span><br><span class="line">        updateAvailable = <span class="literal">false</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> (updateAvailable) &#123;</span><br><span class="line">      $(<span class="string">&#x27;#toolbar-extension-manager&#x27;</span>).addClass(<span class="string">&#x27;selected&#x27;</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      $(<span class="string">&#x27;#toolbar-extension-manager&#x27;</span>).removeClass(<span class="string">&#x27;selected&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>找到上述代码位置，注释那几行代码，添加<code>updateAvailable = false</code>。</p>
+</li>
+<li><p>重新打包<code>app.asar</code></p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">asar pack <span class="keyword">app</span> <span class="keyword">app</span>.asar</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将打包后的<code>app.asar</code>覆盖原先的<code>app.asar</code>文件</p>
+</li>
+</ol>
+<h3 id="已经破解好的StarUML"><a href="#已经破解好的StarUML" class="headerlink" title="已经破解好的StarUML"></a>已经破解好的StarUML</h3><p><a href="https://jxjjxy-my.sharepoint.com/:u:/g/personal/cxz_kervia1_t_odmail_cn/Efh1n8IPGbZMqhmdubupEAsBwk6GVdVutPwb9Eoizy_qUQ?e=9ai3Jr">下载地址</a></p>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>WebDriver下载地址</title>
+    <url>/posts/6b450c9b/</url>
+    <content><![CDATA[<blockquote>
+<p>在使用python的selenium库实现python爬虫时, 需要安装一些浏览器的driver, 每次安装时都需要寻找下载地址, 这里将各浏览器driver的下载地址记录下来, 方便以后查询.</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="各driver下载地址"><a href="#各driver下载地址" class="headerlink" title="各driver下载地址"></a>各driver下载地址</h3><h4 id="1-chrome浏览器"><a href="#1-chrome浏览器" class="headerlink" title="1. chrome浏览器"></a>1. chrome浏览器</h4><ul>
+<li><a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a></li>
+</ul>
+<h4 id="2-Firefox浏览器"><a href="#2-Firefox浏览器" class="headerlink" title="2. Firefox浏览器"></a>2. Firefox浏览器</h4><ul>
+<li><a href="https://github.com/mozilla/geckodriver/releases/">下载地址</a></li>
+</ul>
+<h4 id="3-IE浏览器"><a href="#3-IE浏览器" class="headerlink" title="3. IE浏览器"></a>3. IE浏览器</h4><ul>
+<li><a href="https://selenium-release.storage.googleapis.com/index.html">下载地址</a></li>
+</ul>
+<h4 id="4-PhantomJS"><a href="#4-PhantomJS" class="headerlink" title="4. PhantomJS"></a>4. PhantomJS</h4><ul>
+<li><a href="https://phantomjs.org/download.html">下载地址</a></li>
+</ul>
+<blockquote>
+<p>这个webdriver已经被selenium弃用了, 使用时会显示相关的警告信息.</p>
+<p>可以替代的有chrome和Firefox的无头浏览器.</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以chromedriver为例, 展示其使用方法</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">browser = webdriver.Chrome() // FireFox(), Ie(), PhantomJS()</span><br><span class="line">broswer.get(<span class="string">&#x27;https://baidu.com&#x27;</span>) //网址</span><br><span class="line">print(broswer.page_source)</span><br><span class="line">browser.close()</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<h3 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h3><blockquote>
+<p>按照对应浏览器版本下载driver, 下载后放在具有环境变量的路径内, 如果不知道如何操作, 直接将driver.exe放在python安装路径下</p>
+</blockquote>
+<h3 id="无头浏览器"><a href="#无头浏览器" class="headerlink" title="无头浏览器"></a>无头浏览器</h3><blockquote>
+<p>chrome和 Firfox都具有类似PhantomJS的功能</p>
+</blockquote>
+<ul>
+<li><p>使用方法如下:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">chrome_options = Options()</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(chrome_options=chrome_options)</span><br><span class="line">driver.get(<span class="string">&quot;https://baidu.com/&quot;</span>)</span><br><span class="line">print(driver.page_source)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>爬虫</category>
+      </categories>
+      <tags>
+        <tag>webdriver</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TopK问题多解法</title>
     <url>/posts/41d979e5/</url>
     <content><![CDATA[<blockquote>
@@ -2083,54 +2131,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>WebDriver下载地址</title>
-    <url>/posts/6b450c9b/</url>
-    <content><![CDATA[<blockquote>
-<p>在使用python的selenium库实现python爬虫时, 需要安装一些浏览器的driver, 每次安装时都需要寻找下载地址, 这里将各浏览器driver的下载地址记录下来, 方便以后查询.</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="各driver下载地址"><a href="#各driver下载地址" class="headerlink" title="各driver下载地址"></a>各driver下载地址</h3><h4 id="1-chrome浏览器"><a href="#1-chrome浏览器" class="headerlink" title="1. chrome浏览器"></a>1. chrome浏览器</h4><ul>
-<li><a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a></li>
-</ul>
-<h4 id="2-Firefox浏览器"><a href="#2-Firefox浏览器" class="headerlink" title="2. Firefox浏览器"></a>2. Firefox浏览器</h4><ul>
-<li><a href="https://github.com/mozilla/geckodriver/releases/">下载地址</a></li>
-</ul>
-<h4 id="3-IE浏览器"><a href="#3-IE浏览器" class="headerlink" title="3. IE浏览器"></a>3. IE浏览器</h4><ul>
-<li><a href="https://selenium-release.storage.googleapis.com/index.html">下载地址</a></li>
-</ul>
-<h4 id="4-PhantomJS"><a href="#4-PhantomJS" class="headerlink" title="4. PhantomJS"></a>4. PhantomJS</h4><ul>
-<li><a href="https://phantomjs.org/download.html">下载地址</a></li>
-</ul>
-<blockquote>
-<p>这个webdriver已经被selenium弃用了, 使用时会显示相关的警告信息.</p>
-<p>可以替代的有chrome和Firefox的无头浏览器.</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以chromedriver为例, 展示其使用方法</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">browser = webdriver.Chrome() // FireFox(), Ie(), PhantomJS()</span><br><span class="line">broswer.get(<span class="string">&#x27;https://baidu.com&#x27;</span>) //网址</span><br><span class="line">print(broswer.page_source)</span><br><span class="line">browser.close()</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<h3 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h3><blockquote>
-<p>按照对应浏览器版本下载driver, 下载后放在具有环境变量的路径内, 如果不知道如何操作, 直接将driver.exe放在python安装路径下</p>
-</blockquote>
-<h3 id="无头浏览器"><a href="#无头浏览器" class="headerlink" title="无头浏览器"></a>无头浏览器</h3><blockquote>
-<p>chrome和 Firfox都具有类似PhantomJS的功能</p>
-</blockquote>
-<ul>
-<li><p>使用方法如下:</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">chrome_options = Options()</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(chrome_options=chrome_options)</span><br><span class="line">driver.get(<span class="string">&quot;https://baidu.com/&quot;</span>)</span><br><span class="line">print(driver.page_source)</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>webdriver</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>centos防火墙设置</title>
     <url>/posts/751f4e41/</url>
     <content><![CDATA[<blockquote>
@@ -2179,6 +2179,38 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>docker安装forsaken mail</title>
+    <url>/posts/918f076b/</url>
+    <content><![CDATA[<blockquote>
+<p>记录安装forsaken mail的步骤</p>
+</blockquote>
+<a id="more"></a>
+
+<p>服务器系统：Centos7<br>docker版本：Docker version 19.03.5, build 633a0ea</p>
+<h2 id="1-docker拉取镜像并创建容器运行"><a href="#1-docker拉取镜像并创建容器运行" class="headerlink" title="1. docker拉取镜像并创建容器运行"></a>1. docker拉取镜像并创建容器运行</h2><figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker</span> run --name forsaken-mail --restart=always -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail </span><br></pre></td></tr></table></figure>
+<p>:warning: 如果创建了镜像但是因为端口被占用无法运行, 可以在杀死端口对应进程后执行以下命令</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker</span> run -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail:latest </span><br></pre></td></tr></table></figure>
+<h2 id="2-配置Caddy"><a href="#2-配置Caddy" class="headerlink" title="2. 配置Caddy"></a>2. 配置Caddy</h2><p>:point_right: <a href="/archives/d392dh">Caddy安装教程</a><br>（1） 打开文件</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>caddy<span class="regexp">/conf.d/</span>Caddyfile.conf</span><br></pre></td></tr></table></figure>
+<p>（2）向文件中添加配置信息</p>
+<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="attribute">https</span>:<span class="comment">//yourdomain &#123;</span></span><br><span class="line">    gzip</span><br><span class="line">    tls xx<span class="variable">@xx</span>.xx</span><br><span class="line">    proxy / <span class="attribute">localhost</span>:yourport </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意： <code>域名</code> <code>邮箱</code> <code>端口</code> 三者的填写<br>(3) 重启caddy服务</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">systemctl restart caddy</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-forsaken-mail一键安装脚本"><a href="#3-forsaken-mail一键安装脚本" class="headerlink" title="3. forsaken mail一键安装脚本"></a>3. forsaken mail一键安装脚本</h2><p><strong>前提</strong>：</p>
+<ul>
+<li>OS: Centos7+</li>
+<li>国外服务器</li>
+<li>确保端口25和3000没有进程占用</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">sudo yum -y <span class="keyword">install</span> wget curl vim lsof</span><br><span class="line">sudo yum remove docker docker-<span class="keyword">client</span> docker-<span class="keyword">client</span>-latest \</span><br><span class="line">                  docker-common docker-latest \</span><br><span class="line">                  docker-latest-logrotate docker-logrotate \</span><br><span class="line">                  docker-<span class="keyword">engine</span></span><br><span class="line">sudo yum <span class="keyword">install</span> -y yum-utils device-mapper-persistent-<span class="keyword">data</span> lvm2</span><br><span class="line">sudo yum-config-manager \</span><br><span class="line">    <span class="comment">--add-repo \</span></span><br><span class="line">    https://download.docker.com/linux/centos/docker-ce.repo</span><br><span class="line">sudo yum <span class="keyword">install</span> docker-ce docker-ce-cli containerd.io</span><br><span class="line">systemctl <span class="keyword">enable</span> docker </span><br><span class="line">systemctl <span class="keyword">start</span> docker</span><br><span class="line">docker run -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail:latest</span><br><span class="line">sudo yum <span class="keyword">install</span> epel-<span class="keyword">release</span></span><br><span class="line">yum -y <span class="keyword">install</span> caddy</span><br><span class="line">systemctl <span class="keyword">enable</span> caddy</span><br></pre></td></tr></table></figure>
+<p>上述命令执行完毕后，进行文章中的第二步操作，配置caddy</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>crontab定时任务发邮件的问题</title>
     <url>/posts/a50980cb/</url>
     <content><![CDATA[<p>在用 crontab -e 命令创建定时任务后，发现定时任务中的发邮件并未执行。</p>
@@ -2210,38 +2242,6 @@ docker部署</code></pre>
       <tags>
         <tag>cron</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>docker安装forsaken mail</title>
-    <url>/posts/918f076b/</url>
-    <content><![CDATA[<blockquote>
-<p>记录安装forsaken mail的步骤</p>
-</blockquote>
-<a id="more"></a>
-
-<p>服务器系统：Centos7<br>docker版本：Docker version 19.03.5, build 633a0ea</p>
-<h2 id="1-docker拉取镜像并创建容器运行"><a href="#1-docker拉取镜像并创建容器运行" class="headerlink" title="1. docker拉取镜像并创建容器运行"></a>1. docker拉取镜像并创建容器运行</h2><figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker</span> run --name forsaken-mail --restart=always -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail </span><br></pre></td></tr></table></figure>
-<p>:warning: 如果创建了镜像但是因为端口被占用无法运行, 可以在杀死端口对应进程后执行以下命令</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker</span> run -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail:latest </span><br></pre></td></tr></table></figure>
-<h2 id="2-配置Caddy"><a href="#2-配置Caddy" class="headerlink" title="2. 配置Caddy"></a>2. 配置Caddy</h2><p>:point_right: <a href="/archives/d392dh">Caddy安装教程</a><br>（1） 打开文件</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>caddy<span class="regexp">/conf.d/</span>Caddyfile.conf</span><br></pre></td></tr></table></figure>
-<p>（2）向文件中添加配置信息</p>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="attribute">https</span>:<span class="comment">//yourdomain &#123;</span></span><br><span class="line">    gzip</span><br><span class="line">    tls xx<span class="variable">@xx</span>.xx</span><br><span class="line">    proxy / <span class="attribute">localhost</span>:yourport </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注意： <code>域名</code> <code>邮箱</code> <code>端口</code> 三者的填写<br>(3) 重启caddy服务</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">systemctl restart caddy</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-forsaken-mail一键安装脚本"><a href="#3-forsaken-mail一键安装脚本" class="headerlink" title="3. forsaken mail一键安装脚本"></a>3. forsaken mail一键安装脚本</h2><p><strong>前提</strong>：</p>
-<ul>
-<li>OS: Centos7+</li>
-<li>国外服务器</li>
-<li>确保端口25和3000没有进程占用</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">sudo yum -y <span class="keyword">install</span> wget curl vim lsof</span><br><span class="line">sudo yum remove docker docker-<span class="keyword">client</span> docker-<span class="keyword">client</span>-latest \</span><br><span class="line">                  docker-common docker-latest \</span><br><span class="line">                  docker-latest-logrotate docker-logrotate \</span><br><span class="line">                  docker-<span class="keyword">engine</span></span><br><span class="line">sudo yum <span class="keyword">install</span> -y yum-utils device-mapper-persistent-<span class="keyword">data</span> lvm2</span><br><span class="line">sudo yum-config-manager \</span><br><span class="line">    <span class="comment">--add-repo \</span></span><br><span class="line">    https://download.docker.com/linux/centos/docker-ce.repo</span><br><span class="line">sudo yum <span class="keyword">install</span> docker-ce docker-ce-cli containerd.io</span><br><span class="line">systemctl <span class="keyword">enable</span> docker </span><br><span class="line">systemctl <span class="keyword">start</span> docker</span><br><span class="line">docker run -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail:latest</span><br><span class="line">sudo yum <span class="keyword">install</span> epel-<span class="keyword">release</span></span><br><span class="line">yum -y <span class="keyword">install</span> caddy</span><br><span class="line">systemctl <span class="keyword">enable</span> caddy</span><br></pre></td></tr></table></figure>
-<p>上述命令执行完毕后，进行文章中的第二步操作，配置caddy</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
   </entry>
   <entry>
     <title>docker常用命令总结</title>
@@ -2325,6 +2325,63 @@ docker部署</code></pre>
       <categories>
         <category>linux</category>
       </categories>
+  </entry>
+  <entry>
+    <title>ffmpeg常用命令总结</title>
+    <url>/posts/d827b859/</url>
+    <content><![CDATA[<blockquote>
+<p>记录ffmpeg常用命令</p>
+</blockquote>
+<a id="more"></a>
+
+<ul>
+<li>ffmpeg仓库：<a href="https://github.com/FFmpeg/FFmpeg">https://github.com/FFmpeg/FFmpeg</a></li>
+<li>ffmpeg下载地址：<a href="https://ffmpeg.org/download.html">https://ffmpeg.org/download.html</a></li>
+</ul>
+<h1 id="ffmpeg常见参数"><a href="#ffmpeg常见参数" class="headerlink" title="ffmpeg常见参数"></a>ffmpeg常见参数</h1><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-acodec</td>
+<td>设定音频编解码器，未设定时则使用与输入流相同的编解码器</td>
+<td>-acodec copy: 音频编码格式与原音频相同</td>
+</tr>
+<tr>
+<td>-vcodec</td>
+<td>设定视频编解码器，未设定时则使用与输入流相同的编解码器</td>
+<td>-vcodec copy: 视频编码格式与原音频相同</td>
+</tr>
+<tr>
+<td>-i</td>
+<td>输入流，指定要处理的视频/音频文件路径</td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="一些常见命令"><a href="#一些常见命令" class="headerlink" title="一些常见命令"></a>一些常见命令</h1><h2 id="截取音频片段"><a href="#截取音频片段" class="headerlink" title="截取音频片段"></a>截取音频片段</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ffmpeg -i input.mp3 -ss hh:mm:ss -t hh:mm:ss -acodec copy output.mp3</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>-ss</strong>: 指定从哪里开始</li>
+<li><strong>-t</strong>: 指定从哪里结束</li>
+</ul>
+<h2 id="合并音频视频文件"><a href="#合并音频视频文件" class="headerlink" title="合并音频视频文件"></a>合并音频视频文件</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ffmpeg -i input.mp4 -i input.mp3 -acodec copy -vcodec copy output.mp4</span><br></pre></td></tr></table></figure>
+
+<h2 id="从视频中提取音频"><a href="#从视频中提取音频" class="headerlink" title="从视频中提取音频"></a>从视频中提取音频</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ffmpeg  -i  input.mp4  -vn  output.mp3</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>-vn</strong>: 禁用视频</li>
+</ul>
+<h1 id="附：ffmpeg-4-3-1-命令参数大全"><a href="#附：ffmpeg-4-3-1-命令参数大全" class="headerlink" title="附：ffmpeg 4.3.1 命令参数大全"></a>附：ffmpeg 4.3.1 命令参数大全</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ffmpeg version 4.3.1-2020-11-19-full_build-www.gyan.dev Copyright (c) 2000-2020 the FFmpeg developers</span><br><span class="line">  built with gcc 10.2.0 (Rev5, Built by MSYS2 project)</span><br><span class="line">  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-lzma --enable-libsnappy --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-libbluray --enable-libcaca --enable-sdl2 --enable-libdav1d --enable-libzvbi --enable-librav1e --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-libass --enable-frei0r --enable-libfreetype --enable-libfribidi --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-d3d11va --enable-dxva2 --enable-libmfx --enable-libcdio --enable-libgme --enable-libmodplug --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libshine --enable-libtheora --enable-libtwolame --enable-libvo-amrwbenc --enable-libilbc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-ladspa --enable-libbs2b --enable-libflite --enable-libmysofa --enable-librubberband --enable-libsoxr --enable-chromaprint</span><br><span class="line">  libavutil      56. 51.100 / 56. 51.100</span><br><span class="line">  libavcodec     58. 91.100 / 58. 91.100</span><br><span class="line">  libavformat    58. 45.100 / 58. 45.100</span><br><span class="line">  libavdevice    58. 10.100 / 58. 10.100</span><br><span class="line">  libavfilter     7. 85.100 /  7. 85.100</span><br><span class="line">  libswscale      5.  7.100 /  5.  7.100</span><br><span class="line">  libswresample   3.  7.100 /  3.  7.100</span><br><span class="line">  libpostproc    55.  7.100 / 55.  7.100</span><br><span class="line">Hyper fast Audio and Video encoder</span><br><span class="line">usage: ffmpeg [options] [[infile options] -i infile]... &#123;[outfile options] outfile&#125;...</span><br><span class="line"></span><br><span class="line">Getting help:</span><br><span class="line">    -h      -- print basic options</span><br><span class="line">    -h long -- print more options</span><br><span class="line">    -h full -- print all options (including all format and codec specific options, very long)</span><br><span class="line">    -h type=name -- print all options for the named decoder/encoder/demuxer/muxer/filter/bsf/protocol</span><br><span class="line">    See man ffmpeg for detailed description of the options.</span><br><span class="line"></span><br><span class="line">Print help / information / capabilities:</span><br><span class="line">-L                  show license</span><br><span class="line">-h topic            show help</span><br><span class="line">-? topic            show help</span><br><span class="line">-help topic         show help</span><br><span class="line">--help topic        show help</span><br><span class="line">-version            show version</span><br><span class="line">-buildconf          show build configuration</span><br><span class="line">-formats            show available formats</span><br><span class="line">-muxers             show available muxers</span><br><span class="line">-demuxers           show available demuxers</span><br><span class="line">-devices            show available devices</span><br><span class="line">-codecs             show available codecs</span><br><span class="line">-decoders           show available decoders</span><br><span class="line">-encoders           show available encoders</span><br><span class="line">-bsfs               show available bit stream filters</span><br><span class="line">-protocols          show available protocols</span><br><span class="line">-filters            show available filters</span><br><span class="line">-pix_fmts           show available pixel formats</span><br><span class="line">-layouts            show standard channel layouts</span><br><span class="line">-sample_fmts        show available audio sample formats</span><br><span class="line">-colors             show available color names</span><br><span class="line">-sources device     list sources of the input device</span><br><span class="line">-sinks device       list sinks of the output device</span><br><span class="line">-hwaccels           show available HW acceleration methods</span><br><span class="line"></span><br><span class="line">Global options (affect whole program instead of just one file):</span><br><span class="line">-loglevel loglevel  set logging level</span><br><span class="line">-v loglevel         set logging level</span><br><span class="line">-report             generate a report</span><br><span class="line">-max_alloc bytes    set maximum size of a single allocated block</span><br><span class="line">-y                  overwrite output files</span><br><span class="line">-n                  never overwrite output files</span><br><span class="line">-ignore_unknown     Ignore unknown stream types</span><br><span class="line">-filter_threads     number of non-complex filter threads</span><br><span class="line">-filter_complex_threads  number of threads for -filter_complex</span><br><span class="line">-stats              print progress report during encoding</span><br><span class="line">-max_error_rate maximum error rate  ratio of errors (0.0: no errors, 1.0: 100% errors) above which ffmpeg returns an error instead of success.</span><br><span class="line">-bits_per_raw_sample number  set the number of bits per raw sample</span><br><span class="line">-vol volume         change audio volume (256=normal)</span><br><span class="line"></span><br><span class="line">Per-file main options:</span><br><span class="line">-f fmt              force format</span><br><span class="line">-c codec            codec name</span><br><span class="line">-codec codec        codec name</span><br><span class="line">-pre preset         preset name</span><br><span class="line">-map_metadata outfile[,metadata]:infile[,metadata]  set metadata information of outfile from infile</span><br><span class="line">-t duration         record or transcode &quot;duration&quot; seconds of audio/video</span><br><span class="line">-to time_stop       record or transcode stop time</span><br><span class="line">-fs limit_size      set the limit file size in bytes</span><br><span class="line">-ss time_off        set the start time offset</span><br><span class="line">-sseof time_off     set the start time offset relative to EOF</span><br><span class="line">-seek_timestamp     enable/disable seeking by timestamp with -ss</span><br><span class="line">-timestamp time     set the recording timestamp (&#x27;now&#x27; to set the current time)</span><br><span class="line">-metadata string=string  add metadata</span><br><span class="line">-program title=string:st=number...  add program with specified streams</span><br><span class="line">-target type        specify target file type (&quot;vcd&quot;, &quot;svcd&quot;, &quot;dvd&quot;, &quot;dv&quot; or &quot;dv50&quot; with optional prefixes &quot;pal-&quot;, &quot;ntsc-&quot; or &quot;film-&quot;)</span><br><span class="line">-apad               audio pad</span><br><span class="line">-frames number      set the number of frames to output</span><br><span class="line">-filter filter_graph  set stream filtergraph</span><br><span class="line">-filter_script filename  read stream filtergraph description from a file</span><br><span class="line">-reinit_filter      reinit filtergraph on input parameter changes</span><br><span class="line">-discard            discard</span><br><span class="line">-disposition        disposition</span><br><span class="line"></span><br><span class="line">Video options:</span><br><span class="line">-vframes number     set the number of video frames to output</span><br><span class="line">-r rate             set frame rate (Hz value, fraction or abbreviation)</span><br><span class="line">-s size             set frame size (WxH or abbreviation)</span><br><span class="line">-aspect aspect      set aspect ratio (4:3, 16:9 or 1.3333, 1.7777)</span><br><span class="line">-bits_per_raw_sample number  set the number of bits per raw sample</span><br><span class="line">-vn                 disable video</span><br><span class="line">-vcodec codec       force video codec (&#x27;copy&#x27; to copy stream)</span><br><span class="line">-timecode hh:mm:ss[:;.]ff  set initial TimeCode value.</span><br><span class="line">-pass n             select the pass number (1 to 3)</span><br><span class="line">-vf filter_graph    set video filters</span><br><span class="line">-ab bitrate         audio bitrate (please use -b:a)</span><br><span class="line">-b bitrate          video bitrate (please use -b:v)</span><br><span class="line">-dn                 disable data</span><br><span class="line"></span><br><span class="line">Audio options:</span><br><span class="line">-aframes number     set the number of audio frames to output</span><br><span class="line">-aq quality         set audio quality (codec-specific)</span><br><span class="line">-ar rate            set audio sampling rate (in Hz)</span><br><span class="line">-ac channels        set number of audio channels</span><br><span class="line">-an                 disable audio</span><br><span class="line">-acodec codec       force audio codec (&#x27;copy&#x27; to copy stream)</span><br><span class="line">-vol volume         change audio volume (256=normal)</span><br><span class="line">-af filter_graph    set audio filters</span><br><span class="line"></span><br><span class="line">Subtitle options:</span><br><span class="line">-s size             set frame size (WxH or abbreviation)</span><br><span class="line">-sn                 disable subtitle</span><br><span class="line">-scodec codec       force subtitle codec (&#x27;copy&#x27; to copy stream)</span><br><span class="line">-stag fourcc/tag    force subtitle tag/fourcc</span><br><span class="line">-fix_sub_duration   fix subtitles duration</span><br><span class="line">-canvas_size size   set canvas size (WxH or abbreviation)</span><br><span class="line">-spre preset        set the subtitle options to the indicated preset</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>命令总结</tag>
+      </tags>
   </entry>
   <entry>
     <title>docker部署typecho+mysql</title>
@@ -2451,59 +2508,84 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>ffmpeg常用命令总结</title>
-    <url>/posts/d827b859/</url>
+    <title>linux学习01 - linux系统简介</title>
+    <url>/posts/51bc6a9b/</url>
     <content><![CDATA[<blockquote>
-<p>记录ffmpeg常用命令</p>
+<p>linux学习01：linux系统简介<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
 </blockquote>
-<ul>
-<li>ffmpeg仓库：<a href="https://github.com/FFmpeg/FFmpeg">https://github.com/FFmpeg/FFmpeg</a></li>
-<li>ffmpeg下载地址：<a href="https://ffmpeg.org/download.html">https://ffmpeg.org/download.html</a></li>
-</ul>
-<h1 id="ffmpeg常见参数"><a href="#ffmpeg常见参数" class="headerlink" title="ffmpeg常见参数"></a>ffmpeg常见参数</h1><table>
-<thead>
-<tr>
-<th>指令</th>
-<th>说明</th>
-<th>示例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>-acodec</td>
-<td>设定音频编解码器，未设定时则使用与输入流相同的编解码器</td>
-<td>-acodec copy: 音频编码格式与原音频相同</td>
-</tr>
-<tr>
-<td>-vcodec</td>
-<td>设定视频编解码器，未设定时则使用与输入流相同的编解码器</td>
-<td>-vcodec copy: 视频编码格式与原音频相同</td>
-</tr>
-<tr>
-<td>-i</td>
-<td>输入流，指定要处理的视频/音频文件路径</td>
-<td></td>
-</tr>
-</tbody></table>
-<h1 id="一些常见命令"><a href="#一些常见命令" class="headerlink" title="一些常见命令"></a>一些常见命令</h1><h2 id="截取音频片段"><a href="#截取音频片段" class="headerlink" title="截取音频片段"></a>截取音频片段</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ffmpeg -i input.mp3 -ss hh:mm:ss -t hh:mm:ss -acodec copy output.mp3</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 
-<ul>
-<li><strong>-ss</strong>: 指定从哪里开始</li>
-<li><strong>-t</strong>: 指定从哪里结束</li>
-</ul>
-<h2 id="合并音频视频文件"><a href="#合并音频视频文件" class="headerlink" title="合并音频视频文件"></a>合并音频视频文件</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ffmpeg -i input.mp4 -i input.mp3 -acodec copy -vcodec copy output.mp4</span><br></pre></td></tr></table></figure>
 
-<h2 id="从视频中提取音频"><a href="#从视频中提取音频" class="headerlink" title="从视频中提取音频"></a>从视频中提取音频</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ffmpeg  -i  input.mp4  -vn  output.mp3</span><br></pre></td></tr></table></figure>
 
+<h4 id="linux为何物"><a href="#linux为何物" class="headerlink" title="linux为何物"></a>linux为何物</h4><p>Linux 就是一个操作系统，就像你多少已经了解的 Windows（xp，7，8）和 Mac OS 。至于操作系统是什么，就不用过多解释了，如果你学习过前面的入门课程，应该会有个基本概念了，这里简单介绍一下操作系统在整个计算机系统中的角色。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210541.png"></p>
+<p>我们的 Linux 主要是系统调用和内核那两层。当然直观地看，我们使用的操作系统还包含一些在其上运行的应用程序，比如文本编辑器、浏览器、电子邮件等。</p>
+<h4 id="linux历史简介"><a href="#linux历史简介" class="headerlink" title="linux历史简介"></a>linux历史简介</h4><p>操作系统始于二十世纪五十年代，当时的操作系统能运行批处理程序。批处理程序不需要用户的交互，它从文件或者穿孔卡片读取数据，然后输出到另外一个文件或者打印机。</p>
+<p>二十世纪六十年代初，交互式操作系统开始流行。它不仅仅可以交互，还能使多个用户从不同的终端同时操作主机。这样的操作系统被称作分时操作系统，它的出现对批处理操作系统是个极大的挑战。许多人尝试开发分时操作系统， 其中包括一些大学的研究项目和商业项目。当时有个项目叫做 Multics ，它的技术在当时很具有创新性。 Multics 项目的开发并不顺利，它花费了远超过预计的资金，却没有在操作系统市场上占到多少份额。而参加该项目的一个开发团体——贝尔实验室退出了这个项目。他们在退出后开发了他们自己的一个操作系统—— UNIX 。</p>
+<p>UNIX 最初免费发布并因此在大学里受到欢迎。后来，UNIX 实现了 TCP/IP 协议栈，成为了早期工作站的操作系统的一个流行选择。</p>
+<p>1990 年，UNIX 在服务器市场上尤其是大学校园中成为主流操作系统，许多校园都有 UNIX 主机，当然还包括一些研究它的计算机系的学生。这些学生都渴望能在自己的电脑上运行 UNIX 。不幸的是，从那时候开始，UNIX 开始变得商业化，它的价格也变得非常昂贵。而唯一低廉的选择就是 MINIX，这是一个功能有限的类似 UNIX 的操作系统，作者 Andrew Tanenbaum 开发它的目的是用于教学。</p>
+<p>1991 年 10 月，Linus Torvalds（Linux 之父）在赫尔辛基大学接触 UNIX，他希望能在自己的电脑上运行一个类似的操作系统。可是 UNIX 的商业版本非常昂贵，于是他从 MINIX 开始入手，计划开发一个比 MINIX 性能更好的操作系统。很快他就开始了自己的开发工作。他第一次发行的版本迅速吸引了一些黑客。尽管最初的 Linux 并没有多少用处，但由于一些黑客的加入使它很快就具有了许多吸引人的特性，甚至一些对操作系统开发不感兴趣的人也开始关注它。</p>
+<p>Linux 本身只是操作系统的内核。内核是使其它程序能够运行的基础。它实现了多任务和硬件管理，用户或者系统管理员交互运行的所有程序实际上都运行在内核之上。其中有些程序是必需的，比如说，命令行解释器（shell），它用于用户交互和编写 shell 脚本。 Linux 没有自己去开发这些应用程序，而是使用已有的自由软件。这减少了搭建开发环境所需花费的工作量。实际上，他经常改写内核，使得那些程序能够更容易地在 Linux 上运行。许多重要的软件，包括 C 编译器，都来自于自由软件基金 GNU 项目。GNU 项目开始于 1984 年，目的是为了开发一个完全类似于 UNIX 的免费操作系统。为了表扬 GNU 对 Linux 的贡献，许多人把 Linux 称为 GNU/Linux（GNU 有自己的内核）。</p>
+<p>1992－1993 年，Linux 内核具备了挑战 UNIX 的所有本质特性，包括 TCP/IP 网络，图形界面系统（X window )，Linux 同样也吸引了许多行业的关注。一些小的公司开始开发和发行 Linux，有几十个 Linux 用户社区成立。1994 年，Linux 杂志也开始发行。</p>
+<p>Linux 内核 1.0 在 1994 年 3 月发布，内核的发布要经历许多开发周期，直至达到一个稳定的版本。</p>
+<p>下面列举一些 Linux 诞生大事件：</p>
 <ul>
-<li><strong>-vn</strong>: 禁用视频</li>
+<li><p>1965 年，Bell 实验室、MIT、GE（通用电气公司）准备开发 Multics 系统，为了同时支持 300 个终端访问主机，但是 1969 年失败了；</p>
+<blockquote>
+<p>那时候并没有鼠标、键盘，输入设备，只有卡片机。因此，如果要测试某个程序，则需要将读卡纸插入卡片机，如果有错误，还需要重新来过；Multics：Multiplexed Information and Computing Service；</p>
+</blockquote>
+</li>
+<li><p>1969 年，Ken Thompson（C语言之父）利用汇编语言开发了 File Server System（Unics，即 UNIX 的原型）；</p>
+<blockquote>
+<p>因为汇编语言对于硬件的依赖性，因此只能针对特定硬件； 只是为了移植一款“太空旅游”的游戏；</p>
+</blockquote>
+</li>
+<li><p>1973 年，Dennis Ritchie 和 Ken Thompson 发明了 C 语言，而后写出了 UNIX 的内核；</p>
+<blockquote>
+<p>将 B 语言改成 C 语言，由此产生了 C 语言之父；90% 的代码是 C 语言写的，10% 的代码用汇编语言写的，因此移植时只要修改那 10% 的代码即可；</p>
+</blockquote>
+</li>
+<li><p>1977 年，Berkeley 大学的 Bill Joy 针对他的机器修改了 UNIX 源码，称为BSD（Berkeley Software Distribution）；</p>
+<blockquote>
+<p>Bill Joy 是 Sun 公司的创始人；</p>
+</blockquote>
+</li>
+<li><p>  1979 年，UNIX 发布 System V，用于个人计算机；</p>
+</li>
+<li><p>  1984 年，因为 UNIX 规定“不能对学生提供源码”，Tanenbaum 老师自己编写兼容于 UNIX 的 Minix，用于教学；</p>
+</li>
+<li><p>1984 年，Stallman 开始 GNU（GNU’s Not Unix）项目，创办 FSF（Free Software Foundation）基金会；</p>
+<blockquote>
+<p>产品：GCC、Emacs、Bash Shell、GLIBC；倡导“自由软件”；GNU 的软件缺乏一个开放的平台运行，只能在 UNIX 上运行；自由软件指用户可以对软件做任何修改，甚至再发行，但是始终要挂着 GPL 的版权；自由软件是可以卖的，但是不能只卖软件，而是卖服务、手册等；</p>
+</blockquote>
+</li>
+<li><p>  1985 年，为了避免 GNU 开发的自由软件被其他人用作专利软件，因此创建 GPL（General Public License）版权声明；</p>
+</li>
+<li><p>  1988 年，MIT 为了开发 GUI，成立了研发 XFree86 的组织；</p>
+</li>
+<li><p>  1991 年，芬兰赫尔辛基大学的研究生 Linus Torvalds 基于 gcc、bash 开发了针对 386 机器的 Linux 内核；</p>
+</li>
+<li><p>  1994 年，Torvalds 发布 Linux-v1.0；</p>
+</li>
+<li><p>  1996 年，Torvalds 发布 Linux-v2.0，确定了 Linux 的吉祥物：企鹅。</p>
+</li>
 </ul>
-<h1 id="附：ffmpeg-4-3-1-命令参数大全"><a href="#附：ffmpeg-4-3-1-命令参数大全" class="headerlink" title="附：ffmpeg 4.3.1 命令参数大全"></a>附：ffmpeg 4.3.1 命令参数大全</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ffmpeg version 4.3.1-2020-11-19-full_build-www.gyan.dev Copyright (c) 2000-2020 the FFmpeg developers</span><br><span class="line">  built with gcc 10.2.0 (Rev5, Built by MSYS2 project)</span><br><span class="line">  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-lzma --enable-libsnappy --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-libbluray --enable-libcaca --enable-sdl2 --enable-libdav1d --enable-libzvbi --enable-librav1e --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-libass --enable-frei0r --enable-libfreetype --enable-libfribidi --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-d3d11va --enable-dxva2 --enable-libmfx --enable-libcdio --enable-libgme --enable-libmodplug --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libshine --enable-libtheora --enable-libtwolame --enable-libvo-amrwbenc --enable-libilbc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-ladspa --enable-libbs2b --enable-libflite --enable-libmysofa --enable-librubberband --enable-libsoxr --enable-chromaprint</span><br><span class="line">  libavutil      56. 51.100 / 56. 51.100</span><br><span class="line">  libavcodec     58. 91.100 / 58. 91.100</span><br><span class="line">  libavformat    58. 45.100 / 58. 45.100</span><br><span class="line">  libavdevice    58. 10.100 / 58. 10.100</span><br><span class="line">  libavfilter     7. 85.100 /  7. 85.100</span><br><span class="line">  libswscale      5.  7.100 /  5.  7.100</span><br><span class="line">  libswresample   3.  7.100 /  3.  7.100</span><br><span class="line">  libpostproc    55.  7.100 / 55.  7.100</span><br><span class="line">Hyper fast Audio and Video encoder</span><br><span class="line">usage: ffmpeg [options] [[infile options] -i infile]... &#123;[outfile options] outfile&#125;...</span><br><span class="line"></span><br><span class="line">Getting help:</span><br><span class="line">    -h      -- print basic options</span><br><span class="line">    -h long -- print more options</span><br><span class="line">    -h full -- print all options (including all format and codec specific options, very long)</span><br><span class="line">    -h type=name -- print all options for the named decoder/encoder/demuxer/muxer/filter/bsf/protocol</span><br><span class="line">    See man ffmpeg for detailed description of the options.</span><br><span class="line"></span><br><span class="line">Print help / information / capabilities:</span><br><span class="line">-L                  show license</span><br><span class="line">-h topic            show help</span><br><span class="line">-? topic            show help</span><br><span class="line">-help topic         show help</span><br><span class="line">--help topic        show help</span><br><span class="line">-version            show version</span><br><span class="line">-buildconf          show build configuration</span><br><span class="line">-formats            show available formats</span><br><span class="line">-muxers             show available muxers</span><br><span class="line">-demuxers           show available demuxers</span><br><span class="line">-devices            show available devices</span><br><span class="line">-codecs             show available codecs</span><br><span class="line">-decoders           show available decoders</span><br><span class="line">-encoders           show available encoders</span><br><span class="line">-bsfs               show available bit stream filters</span><br><span class="line">-protocols          show available protocols</span><br><span class="line">-filters            show available filters</span><br><span class="line">-pix_fmts           show available pixel formats</span><br><span class="line">-layouts            show standard channel layouts</span><br><span class="line">-sample_fmts        show available audio sample formats</span><br><span class="line">-colors             show available color names</span><br><span class="line">-sources device     list sources of the input device</span><br><span class="line">-sinks device       list sinks of the output device</span><br><span class="line">-hwaccels           show available HW acceleration methods</span><br><span class="line"></span><br><span class="line">Global options (affect whole program instead of just one file):</span><br><span class="line">-loglevel loglevel  set logging level</span><br><span class="line">-v loglevel         set logging level</span><br><span class="line">-report             generate a report</span><br><span class="line">-max_alloc bytes    set maximum size of a single allocated block</span><br><span class="line">-y                  overwrite output files</span><br><span class="line">-n                  never overwrite output files</span><br><span class="line">-ignore_unknown     Ignore unknown stream types</span><br><span class="line">-filter_threads     number of non-complex filter threads</span><br><span class="line">-filter_complex_threads  number of threads for -filter_complex</span><br><span class="line">-stats              print progress report during encoding</span><br><span class="line">-max_error_rate maximum error rate  ratio of errors (0.0: no errors, 1.0: 100% errors) above which ffmpeg returns an error instead of success.</span><br><span class="line">-bits_per_raw_sample number  set the number of bits per raw sample</span><br><span class="line">-vol volume         change audio volume (256=normal)</span><br><span class="line"></span><br><span class="line">Per-file main options:</span><br><span class="line">-f fmt              force format</span><br><span class="line">-c codec            codec name</span><br><span class="line">-codec codec        codec name</span><br><span class="line">-pre preset         preset name</span><br><span class="line">-map_metadata outfile[,metadata]:infile[,metadata]  set metadata information of outfile from infile</span><br><span class="line">-t duration         record or transcode &quot;duration&quot; seconds of audio/video</span><br><span class="line">-to time_stop       record or transcode stop time</span><br><span class="line">-fs limit_size      set the limit file size in bytes</span><br><span class="line">-ss time_off        set the start time offset</span><br><span class="line">-sseof time_off     set the start time offset relative to EOF</span><br><span class="line">-seek_timestamp     enable/disable seeking by timestamp with -ss</span><br><span class="line">-timestamp time     set the recording timestamp (&#x27;now&#x27; to set the current time)</span><br><span class="line">-metadata string=string  add metadata</span><br><span class="line">-program title=string:st=number...  add program with specified streams</span><br><span class="line">-target type        specify target file type (&quot;vcd&quot;, &quot;svcd&quot;, &quot;dvd&quot;, &quot;dv&quot; or &quot;dv50&quot; with optional prefixes &quot;pal-&quot;, &quot;ntsc-&quot; or &quot;film-&quot;)</span><br><span class="line">-apad               audio pad</span><br><span class="line">-frames number      set the number of frames to output</span><br><span class="line">-filter filter_graph  set stream filtergraph</span><br><span class="line">-filter_script filename  read stream filtergraph description from a file</span><br><span class="line">-reinit_filter      reinit filtergraph on input parameter changes</span><br><span class="line">-discard            discard</span><br><span class="line">-disposition        disposition</span><br><span class="line"></span><br><span class="line">Video options:</span><br><span class="line">-vframes number     set the number of video frames to output</span><br><span class="line">-r rate             set frame rate (Hz value, fraction or abbreviation)</span><br><span class="line">-s size             set frame size (WxH or abbreviation)</span><br><span class="line">-aspect aspect      set aspect ratio (4:3, 16:9 or 1.3333, 1.7777)</span><br><span class="line">-bits_per_raw_sample number  set the number of bits per raw sample</span><br><span class="line">-vn                 disable video</span><br><span class="line">-vcodec codec       force video codec (&#x27;copy&#x27; to copy stream)</span><br><span class="line">-timecode hh:mm:ss[:;.]ff  set initial TimeCode value.</span><br><span class="line">-pass n             select the pass number (1 to 3)</span><br><span class="line">-vf filter_graph    set video filters</span><br><span class="line">-ab bitrate         audio bitrate (please use -b:a)</span><br><span class="line">-b bitrate          video bitrate (please use -b:v)</span><br><span class="line">-dn                 disable data</span><br><span class="line"></span><br><span class="line">Audio options:</span><br><span class="line">-aframes number     set the number of audio frames to output</span><br><span class="line">-aq quality         set audio quality (codec-specific)</span><br><span class="line">-ar rate            set audio sampling rate (in Hz)</span><br><span class="line">-ac channels        set number of audio channels</span><br><span class="line">-an                 disable audio</span><br><span class="line">-acodec codec       force audio codec (&#x27;copy&#x27; to copy stream)</span><br><span class="line">-vol volume         change audio volume (256=normal)</span><br><span class="line">-af filter_graph    set audio filters</span><br><span class="line"></span><br><span class="line">Subtitle options:</span><br><span class="line">-s size             set frame size (WxH or abbreviation)</span><br><span class="line">-sn                 disable subtitle</span><br><span class="line">-scodec codec       force subtitle codec (&#x27;copy&#x27; to copy stream)</span><br><span class="line">-stag fourcc/tag    force subtitle tag/fourcc</span><br><span class="line">-fix_sub_duration   fix subtitles duration</span><br><span class="line">-canvas_size size   set canvas size (WxH or abbreviation)</span><br><span class="line">-spre preset        set the subtitle options to the indicated preset</span><br></pre></td></tr></table></figure>]]></content>
+<p>UNIX进化史（UNIX大家族族谱1969-2013）：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210553.png"></p>
+<h4 id="学习路线"><a href="#学习路线" class="headerlink" title="学习路线"></a>学习路线</h4><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210608.png"></p>
+<h4 id="图形界面"><a href="#图形界面" class="headerlink" title="图形界面"></a>图形界面</h4><p>相对于现在的 Windows 系统，UNIX/Linux 本身是没有图形界面的，我们通常在 UNIX/Linux 发行版上看到的图形界面实际都只是运行在 Linux 系统之上的一套软件，类似 Windows95 之前的 Windows 的图形界面实则也只是运行在 DOS 环境的一套软件。而 Linux 上的这套软件以前是 XFree86，现在则是 xorg（X.Org），而这套软件又是通过 X 窗口系统（X Window System，也常被称为 X11 或 X）实现的，X 本身只是工具包及架构协议，而 xorg 便是 X 架构规范的一个实现体，也就是说它是实现了 X 协议规范的一个提供图形界面服务的服务器，就像实现了 http 协议提供 web 服务的 Apache 。如果只有服务器也是不能实现一个完整的桌面环境的，当然还需要一个客户端，我们称为 X Client，像如下几个大家熟知也最流行的实现了客户端功能的桌面环境 <strong>KDE</strong>，<strong>GNOME</strong>，<strong>XFCE</strong>，<strong>LXDE</strong> 。其中就有你看到的，实验楼目前使用的 <strong>XFCE</strong> 桌面环境，部分老用户可能可以回想起，实验楼之前使用的环境是 <strong>LXDE</strong> 。这也意味着在 Linux 上你可以自己选择安装不同的桌面环境，甚至可以定制自己的专属桌面。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210619.png"></p>
+<p>这里讲这么多，主要是为了帮助你更好地理解 Linux 的桌面环境是一个怎样的概念，以及它跟 Windows 操作系统桌面的差异，实际它们之间是有着本质的差别的，希望清楚这些内容之后可以让你忽略那些体验上的差异，专心把精力放到 Linux 系统本身或者你正准备学习的某一门技术之上，这门实验课后面的内容和实验楼的其它课程便是为了帮助你实现以上两个目标。</p>
+<h4 id="终端的概念"><a href="#终端的概念" class="headerlink" title="终端的概念"></a>终端的概念</h4><p>通常我们在使用 Linux 时，并不是直接与系统打交道，而是通过一个叫做 Shell 的中间程序来完成的，在图形界面下为了实现让我们在一个窗口中完成用户输入和显示输出，Linux 系统还提供了一个叫做终端模拟器的程序（Terminal）。 下面是几个比较常见的终端模拟器： gnome-terminal，Konsole，xterm，rxvt，kvt，nxterm 和 eterm 。目前我们的实验中的终端程序是 xfce 桌面环境自带的 xfce-terminal 。不过要注意的是这里所说的终端（Terminal）和控制台（Console）是有区别的。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210631.png"></p>
+<p> 终端本质上是对应着 Linux 上的 /dev/tty 设备，Linux 的多用户登陆就是通过不同的 /dev/tty 设备完成的，Linux 默认提供了 6 个纯命令行界面的 “terminal”（准确的说这里应该是 6 个 virtual consoles）来让用户登录。在物理机系统上你可以通过使用<code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F6]</code>进行切换，不过在我们的在线实验环境中可能无法切换，因为特殊功能按键会被你的主机系统劫持。当你切换到其中一个终端后想要切换回图形界面，你可以按下<code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F7]</code>来完成。</p>
+<h4 id="shell"><a href="#shell" class="headerlink" title="shell"></a>shell</h4><p>通常在图形界面中对实际体验带来差异的不是上述的不同发行版的各种终端模拟器，而是这个 Shell（壳）。有壳就有核，这里的核就是指 UNIX/Linux 内核，Shell 是指“提供给使用者使用界面”的软件（命令解析器），类似于 DOS 下的 command（命令行）和后来的 cmd.exe 。普通意义上的 Shell 就是可以接受用户输入命令的程序。它之所以被称作 Shell 是因为它隐藏了操作系统底层的细节。同样的 UNIX/Linux 下的图形用户界面 GNOME 和 KDE，有时也被叫做“虚拟 shell”或“图形 shell”。</p>
+<p>UNIX/Linux 操作系统下的 Shell 既是用户交互的界面，也是控制系统的脚本语言。当然这一点也有别于 Windows 下的命令行，虽然该命令行也提供了很简单的控制语句。在 Windows 操作系统下，有些用户从来都不会直接使用 Shell，然而在 UNIX 系列操作系统下，Shell 仍然是控制系统启动、X11 启动和很多其它实用工具的脚本解释程序。</p>
+<p>在 UNIX/Linux 中比较流行的常见的 Shell 有 bash、zsh、ksh、csh 等等，Ubuntu 终端默认使用的是 bash，默认的桌面环境是 GNOME 或者 Unity（基于 GNOME），但我们的环境中使用的分别是 zsh 和 xfce。</p>
+]]></content>
       <categories>
-        <category>工具</category>
+        <category>linux</category>
       </categories>
-      <tags>
-        <tag>命令总结</tag>
-      </tags>
   </entry>
   <entry>
     <title>linux下部署selenium环境</title>
@@ -2772,80 +2854,137 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
-    <title>linux学习01 - linux系统简介</title>
-    <url>/posts/51bc6a9b/</url>
+    <title>linux学习04 - linux目录结构及文件基本操作</title>
+    <url>/posts/caf6d338/</url>
     <content><![CDATA[<blockquote>
-<p>linux学习01：linux系统简介<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
-</blockquote>
+<p>linux学习04：linux目录结构及文件基本操作<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
 <a id="more"></a>
+</blockquote>
+<h2 id="目录路径"><a href="#目录路径" class="headerlink" title="目录路径"></a>目录路径</h2><p>在讲 Linux 目录结构之前，你首先要清楚一点，那就是 Linux 的目录与 Windows 的目录的区别，或许对于一般操作上的感受来说没有多大不同，但从它们的实现机制来说是完全不同的。</p>
+<p>一种不同是体现在目录与存储介质（磁盘，内存，DVD 等）的关系上，以往的 Windows 一直是以存储介质为主的，主要以盘符（C 盘，D 盘…）及分区来实现文件管理，然后之下才是目录，目录就显得不是那么重要，除系统文件之外的用户文件放在任何地方任何目录也是没有多大关系。所以通常 Windows 在使用一段时间后，磁盘上面的文件目录会显得杂乱无章（少数善于整理的用户除外吧）。然而 UNIX/Linux 恰好相反，UNIX 是以目录为主的，Linux 也继承了这一优良特性。 Linux 是以树形目录结构的形式来构建整个系统的，可以理解为树形目录是一个用户可操作系统的骨架。虽然本质上无论是目录结构还是操作系统内核都是存储在磁盘上的，但从逻辑上来说 Linux 的磁盘是“挂在”（挂载在）目录上的，每一个目录不仅能使用本地磁盘分区的文件系统，也可以使用网络上的文件系统。举例来说，可以利用网络文件系统（Network File System，NFS）服务器载入某特定目录等。</p>
+<h3 id="FHS标准"><a href="#FHS标准" class="headerlink" title="FHS标准"></a>FHS标准</h3><p>Linux 的目录结构说复杂很复杂，说简单也很简单。复杂在于，因为系统的正常运行是以目录结构为基础的，对于初学者来说里面大部分目录都不知道其作用，重要与否，特别对于那些曾经的重度 Windows 用户，他们会纠结很长时间，关于我安装的软件在哪里这类问题。说它简单是因为，其中大部分目录结构是规定好了的（FHS 标准），是死的，当你掌握后，你在里面的一切操作都会变得井然有序。</p>
+<blockquote>
+<p>FHS（英文：Filesystem Hierarchy Standard 中文：文件系统层次结构标准），多数 Linux 版本采用这种文件组织形式，FHS 定义了系统中每个区域的用途、所需要的最小构成的文件和目录同时还给出了例外处理与矛盾处理。</p>
+</blockquote>
+<p>FHS 定义了两层规范，第一层是， <code>/</code> 下面的各个目录应该要放什么文件数据，例如 <code>/etc</code> 应该放置设置文件，<code>/bin</code> 与 <code>/sbin</code> 则应该放置可执行文件等等。</p>
+<p>第二层则是针对 <code>/usr</code> 及 <code>/var</code> 这两个目录的子目录来定义。例如 <code>/var/log</code> 放置系统日志文件，<code>/usr/share</code> 放置共享数据等等。</p>
+<p><a href="http://refspecs.linuxfoundation.org/FHS_2.3/fhs-2.3.pdf">FHS_2.3 标准文档</a></p>
+<p><strong>如果觉得图片不清晰，建议另存为到本地放大查看：</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211015.png"></p>
+<p>如果你觉得看这个不明白，那么可以试试最真实最直观的方式，执行如下命令：</p>
+<figure class="highlight dos"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">tree</span> /</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如果提示” command not found “，就先安装：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">sudo apt-<span class="builtin-name">get</span> update</span><br><span class="line">sudo apt-<span class="builtin-name">get</span> install tree</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>关于上面提到的 FHS，这里还有个很重要的内容你一定要明白，FHS 是根据以往无数 Linux 用户和开发者的经验总结出来的，并且会维持更新，FHS 依据文件系统使用的频繁与否以及是否允许用户随意改动（注意，不是不能，学习过程中，不要怕这些），将目录定义为四种交互作用的形态，如下表所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211034.png"></p>
+<h3 id="路径"><a href="#路径" class="headerlink" title="路径"></a>路径</h3><p>有人可能不明白这路径是指什么，有什么用。顾名思义，路径就是你要去哪儿的路线嘛。如果你想进入某个具体的目录或者想获得某个目录的文件（目录本身也是文件）那就得用路径来找到了。</p>
+<p>使用 <code>cd</code> 命令可以切换目录，在 Linux 里面使用 <code>.</code> 表示当前目录，<code>..</code> 表示上一级目录（<strong>注意，我们上一节介绍过的，以 <code>.</code> 开头的文件都是隐藏文件，所以这两个目录必然也是隐藏的，你可以使用 <code>ls -a</code> 命令查看隐藏文件</strong>）, <code>-</code> 表示上一次所在目录，<code>～</code> 通常表示当前用户的 <code>home</code> 目录。使用 <code>pwd</code> 命令可以获取当前所在路径（绝对路径）。</p>
+<p>进入上一级目录：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">cd</span> <span class="string">..</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>进入你的 <code>home</code> 目录：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> ~</span> </span><br><span class="line"><span class="meta">#</span><span class="bash"> 或者 <span class="built_in">cd</span> /home/&lt;你的用户名&gt;</span> </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>pwd</code> 获取当前路径：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211044.png"></p>
+<h3 id="绝对路径"><a href="#绝对路径" class="headerlink" title="绝对路径"></a>绝对路径</h3><p>关于绝对路径，简单地说就是以根” / “目录为起点的完整路径，以你所要到的目录为终点，表现形式如： <code>/usr/local/bin</code>，表示根目录下的 <code>usr</code> 目录中的 <code>local</code> 目录中的 <code>bin</code> 目录。</p>
+<h3 id="相对路径"><a href="#相对路径" class="headerlink" title="相对路径"></a>相对路径</h3><p>相对路径，也就是相对于你当前的目录的路径，相对路径是以当前目录 <code>.</code> 为起点，以你所要到的目录为终点，表现形式如： <code>usr/local/bin</code> （这里假设你当前目录为根目录）。你可能注意到，我们表示相对路径实际并没有加上表示当前目录的那个 <code>.</code> ，而是直接以目录名开头，因为这个 <code>usr</code> 目录为 <code>/</code> 目录下的子目录，是可以省略这个 <code>.</code> 的（以后会讲到一个类似不能省略的情况）；如果是当前目录的上一级目录，则需要使用 <code>..</code> ，比如你当前目录为 <code>/home/shiyanlou</code> 目录下，根目录就应该表示为 <code>../../</code> ，表示上一级目录（ <code>home</code> 目录）的上一级目录（ <code>/</code> 目录）。</p>
+<p>下面我们以你的 <code>home</code>目录为起点，分别以绝对路径和相对路径的方式进入 <code>/usr/local/bin</code> 目录：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 绝对路径</span></span><br><span class="line">$ cd <span class="regexp">/usr/</span>local/bin</span><br><span class="line"><span class="comment"># 相对路径</span></span><br><span class="line">$ cd ..<span class="regexp">/../u</span>sr<span class="regexp">/local/</span>bin</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211124.png"></p>
+<p>进入一个目录，可以使用绝对路径也可以使用相对路径，那我们应该在什么时候选择正确的方式进入某个目录呢。就是凭直觉嘛，你觉得怎样方便就使用哪一个，而不用特意只使用某一种。比如假设我当前在 <code>/usr/local/bin</code> 目录，我想进入上一级的 local 目录你说是使用 <code>cd ..</code> 方便还是 <code>cd /usr/local</code> 方便？而如果要进入的是 <code>usr</code> 目录，那么 <code>cd /usr</code> ，就比 <code>cd ../..</code> 方便一点了。</p>
+<p><strong>提示：在进行目录切换的过程中请多使用 <code>Tab</code> 键自动补全，可避免输入错误，连续按两次 <code>Tab</code> 可以显示全部候选结果。</strong></p>
+<h2 id="linux文件基本操作"><a href="#linux文件基本操作" class="headerlink" title="linux文件基本操作"></a>linux文件基本操作</h2><h3 id="新建文件"><a href="#新建文件" class="headerlink" title="新建文件"></a>新建文件</h3><h4 id="新建空白文件"><a href="#新建空白文件" class="headerlink" title="新建空白文件"></a>新建空白文件</h4><p>使用 <code>touch</code> 命令创建空白文件，关于 <code>touch</code> 命令，其主要作用是来更改已有文件的时间戳的（比如，最近访问时间，最近修改时间），但其在不加任何参数的情况下，只指定一个文件名，则可以创建一个指定文件名的空白文件（不会覆盖已有同名文件），当然你也可以同时指定该文件的时间戳，更多关于 <code>touch</code> 命令的用法，会在下一讲文件搜索中涉及。</p>
+<p>创建名为 test 的空白文件，因为在其它目录没有权限，所以需要先 <code>cd ~</code> 切换回用户的 <code>/home/shiyanlou</code> 目录：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /home/shiyanlou</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch <span class="built_in">test</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 
+<h4 id="新建目录"><a href="#新建目录" class="headerlink" title="新建目录"></a>新建目录</h4><p>使用 <code>mkdir</code>（make directories）命令可以创建一个空目录，也可同时指定创建目录的权限属性。</p>
+<p>创建名为“ mydir ”的空目录：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> mydir</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<h4 id="linux为何物"><a href="#linux为何物" class="headerlink" title="linux为何物"></a>linux为何物</h4><p>Linux 就是一个操作系统，就像你多少已经了解的 Windows（xp，7，8）和 Mac OS 。至于操作系统是什么，就不用过多解释了，如果你学习过前面的入门课程，应该会有个基本概念了，这里简单介绍一下操作系统在整个计算机系统中的角色。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210541.png"></p>
-<p>我们的 Linux 主要是系统调用和内核那两层。当然直观地看，我们使用的操作系统还包含一些在其上运行的应用程序，比如文本编辑器、浏览器、电子邮件等。</p>
-<h4 id="linux历史简介"><a href="#linux历史简介" class="headerlink" title="linux历史简介"></a>linux历史简介</h4><p>操作系统始于二十世纪五十年代，当时的操作系统能运行批处理程序。批处理程序不需要用户的交互，它从文件或者穿孔卡片读取数据，然后输出到另外一个文件或者打印机。</p>
-<p>二十世纪六十年代初，交互式操作系统开始流行。它不仅仅可以交互，还能使多个用户从不同的终端同时操作主机。这样的操作系统被称作分时操作系统，它的出现对批处理操作系统是个极大的挑战。许多人尝试开发分时操作系统， 其中包括一些大学的研究项目和商业项目。当时有个项目叫做 Multics ，它的技术在当时很具有创新性。 Multics 项目的开发并不顺利，它花费了远超过预计的资金，却没有在操作系统市场上占到多少份额。而参加该项目的一个开发团体——贝尔实验室退出了这个项目。他们在退出后开发了他们自己的一个操作系统—— UNIX 。</p>
-<p>UNIX 最初免费发布并因此在大学里受到欢迎。后来，UNIX 实现了 TCP/IP 协议栈，成为了早期工作站的操作系统的一个流行选择。</p>
-<p>1990 年，UNIX 在服务器市场上尤其是大学校园中成为主流操作系统，许多校园都有 UNIX 主机，当然还包括一些研究它的计算机系的学生。这些学生都渴望能在自己的电脑上运行 UNIX 。不幸的是，从那时候开始，UNIX 开始变得商业化，它的价格也变得非常昂贵。而唯一低廉的选择就是 MINIX，这是一个功能有限的类似 UNIX 的操作系统，作者 Andrew Tanenbaum 开发它的目的是用于教学。</p>
-<p>1991 年 10 月，Linus Torvalds（Linux 之父）在赫尔辛基大学接触 UNIX，他希望能在自己的电脑上运行一个类似的操作系统。可是 UNIX 的商业版本非常昂贵，于是他从 MINIX 开始入手，计划开发一个比 MINIX 性能更好的操作系统。很快他就开始了自己的开发工作。他第一次发行的版本迅速吸引了一些黑客。尽管最初的 Linux 并没有多少用处，但由于一些黑客的加入使它很快就具有了许多吸引人的特性，甚至一些对操作系统开发不感兴趣的人也开始关注它。</p>
-<p>Linux 本身只是操作系统的内核。内核是使其它程序能够运行的基础。它实现了多任务和硬件管理，用户或者系统管理员交互运行的所有程序实际上都运行在内核之上。其中有些程序是必需的，比如说，命令行解释器（shell），它用于用户交互和编写 shell 脚本。 Linux 没有自己去开发这些应用程序，而是使用已有的自由软件。这减少了搭建开发环境所需花费的工作量。实际上，他经常改写内核，使得那些程序能够更容易地在 Linux 上运行。许多重要的软件，包括 C 编译器，都来自于自由软件基金 GNU 项目。GNU 项目开始于 1984 年，目的是为了开发一个完全类似于 UNIX 的免费操作系统。为了表扬 GNU 对 Linux 的贡献，许多人把 Linux 称为 GNU/Linux（GNU 有自己的内核）。</p>
-<p>1992－1993 年，Linux 内核具备了挑战 UNIX 的所有本质特性，包括 TCP/IP 网络，图形界面系统（X window )，Linux 同样也吸引了许多行业的关注。一些小的公司开始开发和发行 Linux，有几十个 Linux 用户社区成立。1994 年，Linux 杂志也开始发行。</p>
-<p>Linux 内核 1.0 在 1994 年 3 月发布，内核的发布要经历许多开发周期，直至达到一个稳定的版本。</p>
-<p>下面列举一些 Linux 诞生大事件：</p>
-<ul>
-<li><p>1965 年，Bell 实验室、MIT、GE（通用电气公司）准备开发 Multics 系统，为了同时支持 300 个终端访问主机，但是 1969 年失败了；</p>
+<p>使用 <code>-p</code> 参数，同时创建父目录（如果不存在该父目录），如下我们同时创建一个多级目录（这在安装软件、配置安装路径时非常有用）：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ mkdir -p father<span class="regexp">/son/g</span>randson</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211143.png"></p>
+<p>后面的目录路径，以绝对路径的方式表示也是可以的。</p>
+<h3 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h3><h4 id="复制文件"><a href="#复制文件" class="headerlink" title="复制文件"></a>复制文件</h4><p>使用 <code>cp</code>（copy）命令复制一个文件到指定目录。</p>
+<p>将之前创建的“ test ”文件复制到“ /home/shiyanlou/father/son/grandson ”目录中：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ cp test father<span class="regexp">/son/g</span>randson</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>是不是很方便啊，如果在图形界面则需要先在源目录复制文件，再进到目的目录粘贴文件，而命令行操作步骤就一步到位了嘛。</p>
+<h4 id="复制目录"><a href="#复制目录" class="headerlink" title="复制目录"></a>复制目录</h4><p>如果直接使用 <code>cp</code> 命令复制一个目录的话，会出现如下错误：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211244.png"></p>
+<p>要成功复制目录需要加上 <code>-r</code> 或者 <code>-R</code> 参数，表示递归复制，就是说有点“株连九族”的意思：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/shiyanlou</span><br><span class="line"><span class="variable">$</span> mkdir family</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cp</span> <span class="literal">-r</span> father family</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h3><h4 id="删除文件"><a href="#删除文件" class="headerlink" title="删除文件"></a>删除文件</h4><p>使用 <code>rm</code>（remove files or directories）命令删除一个文件：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">rm</span> test</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>有时候你会遇到想要删除一些为只读权限的文件，直接使用 <code>rm</code> 删除会显示一个提示，如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211156.png"></p>
+<p>你如果想忽略这提示，直接删除文件，可以使用 <code>-f</code> 参数强制删除：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">rm</span> <span class="operator">-f</span> test</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="删除目录"><a href="#删除目录" class="headerlink" title="删除目录"></a>删除目录</h4><p>跟复制目录一样，要删除一个目录，也需要加上 <code>-r</code> 或 <code>-R</code> 参数：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">rm</span> <span class="literal">-r</span> family</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="移动文件与重命名"><a href="#移动文件与重命名" class="headerlink" title="移动文件与重命名"></a>移动文件与重命名</h3><h4 id="移动文件"><a href="#移动文件" class="headerlink" title="移动文件"></a>移动文件</h4><p>使用 <code>mv</code>（move or rename files）命令移动文件（剪切）。将文件“ file1 ”移动到 <code>Documents</code> 目录：</p>
+<p><code>mv 源目录文件 目的目录</code>：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> mkdir Documents</span><br><span class="line"><span class="variable">$</span> touch file1</span><br><span class="line"><span class="variable">$</span> <span class="built_in">mv</span> file1 Documents</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211305.png"></p>
+<h4 id="重命名文件"><a href="#重命名文件" class="headerlink" title="重命名文件"></a>重命名文件</h4><p>将文件“ file1 ”重命名为“ myfile ”：</p>
+<p><code>mv 旧的文件名 新的文件名</code>：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">mv</span> file1 myfile</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="批量重命名"><a href="#批量重命名" class="headerlink" title="批量重命名"></a>批量重命名</h4><p>要实现批量重命名，<code>mv</code> 命令就有点力不从心了，我们可以使用一个看起来更专业的命令 <code>rename</code> 来实现。不过它要用 perl 正则表达式来作为参数，关于正则表达式我们要在后面才会介绍到，这里只做演示，你只要记得这个 <code>rename</code> 命令可以批量重命名就好了，以后再重新学习也不会有任何问题，毕竟你已经掌握了一个更常用的 <code>mv</code> 命令。</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">cd</span> <span class="string">/home/shiyanlou/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用通配符批量创建 5 个文件:</span></span><br><span class="line">$ touch file&#123;1.<span class="string">.5</span>&#125;<span class="string">.txt</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量将这 5 个后缀为 .txt 的文本文件重命名为以 .c 为后缀的文件:</span></span><br><span class="line">$ rename &#x27;s/\<span class="string">.txt/</span>\<span class="string">.c/</span>&#x27; *<span class="string">.txt</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量将这 5 个文件，文件名和后缀改为大写:</span></span><br><span class="line">$ rename &#x27;y/a-z/A-Z/&#x27; *<span class="string">.c</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>简单解释一下上面的命令，<code>rename</code> 是先使用第二个参数的通配符匹配所有后缀为 <code>.txt</code> 的文件，然后使用第一个参数提供的正则表达式将匹配的这些文件的 <code>.txt</code> 后缀替换为 <code>.c</code>，这一点在我们后面学习了 <code>sed</code> 命令后，相信你会更好地理解。</p>
+<h3 id="查看文件"><a href="#查看文件" class="headerlink" title="查看文件"></a>查看文件</h3><h4 id="使用-cat，tac-和-nl-命令查看文件"><a href="#使用-cat，tac-和-nl-命令查看文件" class="headerlink" title="使用 cat，tac 和 nl 命令查看文件"></a>使用 <code>cat</code>，<code>tac</code> 和 <code>nl</code> 命令查看文件</h4><p>前两个命令都是用来打印文件内容到标准输出（终端），其中 <code>cat</code> 为正序显示，<code>tac</code> 为倒序显示。</p>
 <blockquote>
-<p>那时候并没有鼠标、键盘，输入设备，只有卡片机。因此，如果要测试某个程序，则需要将读卡纸插入卡片机，如果有错误，还需要重新来过；Multics：Multiplexed Information and Computing Service；</p>
+<p>标准输入输出：当我们执行一个 shell 命令行时通常会自动打开三个标准文件，即标准输入文件（stdin），默认对应终端的键盘、标准输出文件（stdout）和标准错误输出文件（stderr），后两个文件都对应被重定向到终端的屏幕，以便我们能直接看到输出内容。进程将从标准输入文件中得到输入数据，将正常输出数据输出到标准输出文件，而将错误信息送到标准错误文件中。</p>
 </blockquote>
-</li>
-<li><p>1969 年，Ken Thompson（C语言之父）利用汇编语言开发了 File Server System（Unics，即 UNIX 的原型）；</p>
-<blockquote>
-<p>因为汇编语言对于硬件的依赖性，因此只能针对特定硬件； 只是为了移植一款“太空旅游”的游戏；</p>
-</blockquote>
-</li>
-<li><p>1973 年，Dennis Ritchie 和 Ken Thompson 发明了 C 语言，而后写出了 UNIX 的内核；</p>
-<blockquote>
-<p>将 B 语言改成 C 语言，由此产生了 C 语言之父；90% 的代码是 C 语言写的，10% 的代码用汇编语言写的，因此移植时只要修改那 10% 的代码即可；</p>
-</blockquote>
-</li>
-<li><p>1977 年，Berkeley 大学的 Bill Joy 针对他的机器修改了 UNIX 源码，称为BSD（Berkeley Software Distribution）；</p>
-<blockquote>
-<p>Bill Joy 是 Sun 公司的创始人；</p>
-</blockquote>
-</li>
-<li><p>  1979 年，UNIX 发布 System V，用于个人计算机；</p>
-</li>
-<li><p>  1984 年，因为 UNIX 规定“不能对学生提供源码”，Tanenbaum 老师自己编写兼容于 UNIX 的 Minix，用于教学；</p>
-</li>
-<li><p>1984 年，Stallman 开始 GNU（GNU’s Not Unix）项目，创办 FSF（Free Software Foundation）基金会；</p>
-<blockquote>
-<p>产品：GCC、Emacs、Bash Shell、GLIBC；倡导“自由软件”；GNU 的软件缺乏一个开放的平台运行，只能在 UNIX 上运行；自由软件指用户可以对软件做任何修改，甚至再发行，但是始终要挂着 GPL 的版权；自由软件是可以卖的，但是不能只卖软件，而是卖服务、手册等；</p>
-</blockquote>
-</li>
-<li><p>  1985 年，为了避免 GNU 开发的自由软件被其他人用作专利软件，因此创建 GPL（General Public License）版权声明；</p>
-</li>
-<li><p>  1988 年，MIT 为了开发 GUI，成立了研发 XFree86 的组织；</p>
-</li>
-<li><p>  1991 年，芬兰赫尔辛基大学的研究生 Linus Torvalds 基于 gcc、bash 开发了针对 386 机器的 Linux 内核；</p>
-</li>
-<li><p>  1994 年，Torvalds 发布 Linux-v1.0；</p>
-</li>
-<li><p>  1996 年，Torvalds 发布 Linux-v2.0，确定了 Linux 的吉祥物：企鹅。</p>
-</li>
-</ul>
-<p>UNIX进化史（UNIX大家族族谱1969-2013）：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210553.png"></p>
-<h4 id="学习路线"><a href="#学习路线" class="headerlink" title="学习路线"></a>学习路线</h4><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210608.png"></p>
-<h4 id="图形界面"><a href="#图形界面" class="headerlink" title="图形界面"></a>图形界面</h4><p>相对于现在的 Windows 系统，UNIX/Linux 本身是没有图形界面的，我们通常在 UNIX/Linux 发行版上看到的图形界面实际都只是运行在 Linux 系统之上的一套软件，类似 Windows95 之前的 Windows 的图形界面实则也只是运行在 DOS 环境的一套软件。而 Linux 上的这套软件以前是 XFree86，现在则是 xorg（X.Org），而这套软件又是通过 X 窗口系统（X Window System，也常被称为 X11 或 X）实现的，X 本身只是工具包及架构协议，而 xorg 便是 X 架构规范的一个实现体，也就是说它是实现了 X 协议规范的一个提供图形界面服务的服务器，就像实现了 http 协议提供 web 服务的 Apache 。如果只有服务器也是不能实现一个完整的桌面环境的，当然还需要一个客户端，我们称为 X Client，像如下几个大家熟知也最流行的实现了客户端功能的桌面环境 <strong>KDE</strong>，<strong>GNOME</strong>，<strong>XFCE</strong>，<strong>LXDE</strong> 。其中就有你看到的，实验楼目前使用的 <strong>XFCE</strong> 桌面环境，部分老用户可能可以回想起，实验楼之前使用的环境是 <strong>LXDE</strong> 。这也意味着在 Linux 上你可以自己选择安装不同的桌面环境，甚至可以定制自己的专属桌面。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210619.png"></p>
-<p>这里讲这么多，主要是为了帮助你更好地理解 Linux 的桌面环境是一个怎样的概念，以及它跟 Windows 操作系统桌面的差异，实际它们之间是有着本质的差别的，希望清楚这些内容之后可以让你忽略那些体验上的差异，专心把精力放到 Linux 系统本身或者你正准备学习的某一门技术之上，这门实验课后面的内容和实验楼的其它课程便是为了帮助你实现以上两个目标。</p>
-<h4 id="终端的概念"><a href="#终端的概念" class="headerlink" title="终端的概念"></a>终端的概念</h4><p>通常我们在使用 Linux 时，并不是直接与系统打交道，而是通过一个叫做 Shell 的中间程序来完成的，在图形界面下为了实现让我们在一个窗口中完成用户输入和显示输出，Linux 系统还提供了一个叫做终端模拟器的程序（Terminal）。 下面是几个比较常见的终端模拟器： gnome-terminal，Konsole，xterm，rxvt，kvt，nxterm 和 eterm 。目前我们的实验中的终端程序是 xfce 桌面环境自带的 xfce-terminal 。不过要注意的是这里所说的终端（Terminal）和控制台（Console）是有区别的。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210631.png"></p>
-<p> 终端本质上是对应着 Linux 上的 /dev/tty 设备，Linux 的多用户登陆就是通过不同的 /dev/tty 设备完成的，Linux 默认提供了 6 个纯命令行界面的 “terminal”（准确的说这里应该是 6 个 virtual consoles）来让用户登录。在物理机系统上你可以通过使用<code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F6]</code>进行切换，不过在我们的在线实验环境中可能无法切换，因为特殊功能按键会被你的主机系统劫持。当你切换到其中一个终端后想要切换回图形界面，你可以按下<code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F7]</code>来完成。</p>
-<h4 id="shell"><a href="#shell" class="headerlink" title="shell"></a>shell</h4><p>通常在图形界面中对实际体验带来差异的不是上述的不同发行版的各种终端模拟器，而是这个 Shell（壳）。有壳就有核，这里的核就是指 UNIX/Linux 内核，Shell 是指“提供给使用者使用界面”的软件（命令解析器），类似于 DOS 下的 command（命令行）和后来的 cmd.exe 。普通意义上的 Shell 就是可以接受用户输入命令的程序。它之所以被称作 Shell 是因为它隐藏了操作系统底层的细节。同样的 UNIX/Linux 下的图形用户界面 GNOME 和 KDE，有时也被叫做“虚拟 shell”或“图形 shell”。</p>
-<p>UNIX/Linux 操作系统下的 Shell 既是用户交互的界面，也是控制系统的脚本语言。当然这一点也有别于 Windows 下的命令行，虽然该命令行也提供了很简单的控制语句。在 Windows 操作系统下，有些用户从来都不会直接使用 Shell，然而在 UNIX 系列操作系统下，Shell 仍然是控制系统启动、X11 启动和很多其它实用工具的脚本解释程序。</p>
-<p>在 UNIX/Linux 中比较流行的常见的 Shell 有 bash、zsh、ksh、csh 等等，Ubuntu 终端默认使用的是 bash，默认的桌面环境是 GNOME 或者 Unity（基于 GNOME），但我们的环境中使用的分别是 zsh 和 xfce。</p>
+<p>比如我们要查看之前从 <code>/etc</code> 目录下拷贝来的 <code>passwd</code> 文件：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/shiyanlou</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cp</span> /etc/passwd passwd</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以加上 <code>-n</code> 参数显示行号：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> <span class="literal">-n</span> passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211329.png"></p>
+<p><code>nl</code> 命令，添加行号并打印，这是个比 <code>cat -n</code> 更专业的行号打印命令。</p>
+<p>这里简单列举它的常用的几个参数：</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">-<span class="attr">b :</span> 指定添加行号的方式，主要有两种：</span><br><span class="line">    -b <span class="attr">a:</span>表示无论是否为空行，同样列出行号(<span class="string">&quot;cat -n&quot;</span>就是这种方式)</span><br><span class="line">    -b <span class="attr">t:</span>只列出非空行的编号并列出（默认为这种方式）</span><br><span class="line">-<span class="attr">n :</span> 设置行号的样式，主要有三种：</span><br><span class="line">    -n <span class="attr">ln:</span>在行号字段最左端显示</span><br><span class="line">    -n <span class="attr">rn:</span>在行号字段最右边显示，且不加 <span class="number">0</span></span><br><span class="line">    -n <span class="attr">rz:</span>在行号字段最右边显示，且加 <span class="number">0</span></span><br><span class="line">-<span class="attr">w :</span> 行号字段占用的位数(默认为 <span class="number">6</span> 位)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/35/35-10.png"><br>你会发现使用这几个命令，默认的终端窗口大小，一屏显示不完文本的内容，得用鼠标拖动滚动条或者滑动滚轮才能继续往下翻页，要是可以直接使用键盘操作翻页就好了，那么你就可以使用下面要介绍的命令。</p>
+<h4 id="使用-more-和-less-命令分页查看文件"><a href="#使用-more-和-less-命令分页查看文件" class="headerlink" title="使用 more 和 less 命令分页查看文件"></a>使用 <code>more</code> 和 <code>less</code> 命令分页查看文件</h4><p>如果说上面的 <code>cat</code> 是用来快速查看一个文件的内容的，那么这个 <code>more</code> 和 <code>less</code> 就是天生用来”阅读”一个文件的内容的，比如说 man 手册内部就是使用的 <code>less</code> 来显示内容。其中 <code>more</code> 命令比较简单，只能向一个方向滚动，而 <code>less</code> 为基于 <code>more</code> 和 <code>vi</code> （一个强大的编辑器，我们有单独的课程来让你学习）开发，功能更强大。<code>less</code> 的使用基本和 <code>more</code> 一致，具体使用请查看 man 手册，这里只介绍 <code>more</code> 命令的使用。</p>
+<p>使用 <code>more</code> 命令打开 <code>passwd</code> 文件：</p>
+<figure class="highlight dos"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">more</span> passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/35/35-11.png"><br>打开后默认只显示一屏内容，终端底部显示当前阅读的进度。可以使用 <code>Enter</code> 键向下滚动一行，使用 <code>Space</code> 键向下滚动一屏，按下 <code>h</code> 显示帮助，<code>q</code> 退出。</p>
+<h4 id="使用-head-和-tail-命令查看文件"><a href="#使用-head-和-tail-命令查看文件" class="headerlink" title="使用 head 和 tail 命令查看文件"></a>使用 <code>head</code> 和 <code>tail</code> 命令查看文件</h4><p>这两个命令，那些性子比较急的人应该会喜欢，因为它们一个是只查看文件的头几行（默认为 10 行，不足 10 行则显示全部）和尾几行。还是拿 passwd 文件举例，比如当我们想要查看最近新增加的用户，那么我们可以查看这个 <code>/etc/passwd</code> 文件，不过我们前面也看到了，这个文件里面一大堆乱糟糟的东西，看起来实在费神啊。因为系统新增加一个用户，会将用户的信息添加到 passwd 文件的最后，那么这时候我们就可以使用 <code>tail</code> 命令了：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ tail <span class="regexp">/etc/</span>passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>甚至更直接的只看一行， 加上 <code>-n</code> 参数，后面紧跟行数：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ tail -n <span class="number">1</span> <span class="regexp">/etc/</span>passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211404.png"></p>
+<p>关于 <code>tail</code> 命令，不得不提的还有它一个很牛的参数 <code>-f</code>，这个参数可以实现不停地读取某个文件的内容并显示。这可以让我们动态查看日志，达到实时监视的目的。不过我不会在这门基础课程中介绍它的更多细节，感兴趣的用户可以自己去了解。</p>
+<h4 id="查看文件类型"><a href="#查看文件类型" class="headerlink" title="查看文件类型"></a>查看文件类型</h4><p>前面我提到过，在 Linux 中文件的类型不是根据文件后缀来判断的，我们通常使用 <code>file</code> 命令查看文件的类型：</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">file</span> <span class="regexp">/bin/</span>ls</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211423.png"></p>
+<p>说明这是一个可执行文件，运行在 64 位平台，并使用了动态链接文件（共享库）。</p>
+<h3 id="编辑文件"><a href="#编辑文件" class="headerlink" title="编辑文件"></a>编辑文件</h3><p>在 Linux 下面编辑文件通常我们会直接使用专门的命令行编辑器比如（emacs，vim，nano），由于涉及 Linux 上的编辑器的内容比较多，且非常重要，故我们有一门单独的基础课专门介绍这中一个编辑器 vim 。<strong>强烈希望正在学习这门 Linux 基础课的你先在这里暂停一下，去学习 <a href="http://www.shiyanlou.com/courses/2">vim 编辑器</a> 的使用（至少掌握基本的操作），然后再继续本课程后面的内容，因为后面的内容会假设你已经学会了 vim 编辑器的使用。</strong>如果你想更加快速地入门，可以直接使用 Linux 内部的 vim 学习教程，输入如下命令即可开始：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>vimtutor</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>linux</category>
@@ -3052,141 +3191,24 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
-    <title>linux学习04 - linux目录结构及文件基本操作</title>
-    <url>/posts/caf6d338/</url>
+    <title>linux常用命令总结</title>
+    <url>/posts/1d063ae7/</url>
     <content><![CDATA[<blockquote>
-<p>linux学习04：linux目录结构及文件基本操作<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
+<p>记录一些linux容易忘的linux操作命令</p>
+</blockquote>
 <a id="more"></a>
-</blockquote>
-<h2 id="目录路径"><a href="#目录路径" class="headerlink" title="目录路径"></a>目录路径</h2><p>在讲 Linux 目录结构之前，你首先要清楚一点，那就是 Linux 的目录与 Windows 的目录的区别，或许对于一般操作上的感受来说没有多大不同，但从它们的实现机制来说是完全不同的。</p>
-<p>一种不同是体现在目录与存储介质（磁盘，内存，DVD 等）的关系上，以往的 Windows 一直是以存储介质为主的，主要以盘符（C 盘，D 盘…）及分区来实现文件管理，然后之下才是目录，目录就显得不是那么重要，除系统文件之外的用户文件放在任何地方任何目录也是没有多大关系。所以通常 Windows 在使用一段时间后，磁盘上面的文件目录会显得杂乱无章（少数善于整理的用户除外吧）。然而 UNIX/Linux 恰好相反，UNIX 是以目录为主的，Linux 也继承了这一优良特性。 Linux 是以树形目录结构的形式来构建整个系统的，可以理解为树形目录是一个用户可操作系统的骨架。虽然本质上无论是目录结构还是操作系统内核都是存储在磁盘上的，但从逻辑上来说 Linux 的磁盘是“挂在”（挂载在）目录上的，每一个目录不仅能使用本地磁盘分区的文件系统，也可以使用网络上的文件系统。举例来说，可以利用网络文件系统（Network File System，NFS）服务器载入某特定目录等。</p>
-<h3 id="FHS标准"><a href="#FHS标准" class="headerlink" title="FHS标准"></a>FHS标准</h3><p>Linux 的目录结构说复杂很复杂，说简单也很简单。复杂在于，因为系统的正常运行是以目录结构为基础的，对于初学者来说里面大部分目录都不知道其作用，重要与否，特别对于那些曾经的重度 Windows 用户，他们会纠结很长时间，关于我安装的软件在哪里这类问题。说它简单是因为，其中大部分目录结构是规定好了的（FHS 标准），是死的，当你掌握后，你在里面的一切操作都会变得井然有序。</p>
-<blockquote>
-<p>FHS（英文：Filesystem Hierarchy Standard 中文：文件系统层次结构标准），多数 Linux 版本采用这种文件组织形式，FHS 定义了系统中每个区域的用途、所需要的最小构成的文件和目录同时还给出了例外处理与矛盾处理。</p>
-</blockquote>
-<p>FHS 定义了两层规范，第一层是， <code>/</code> 下面的各个目录应该要放什么文件数据，例如 <code>/etc</code> 应该放置设置文件，<code>/bin</code> 与 <code>/sbin</code> 则应该放置可执行文件等等。</p>
-<p>第二层则是针对 <code>/usr</code> 及 <code>/var</code> 这两个目录的子目录来定义。例如 <code>/var/log</code> 放置系统日志文件，<code>/usr/share</code> 放置共享数据等等。</p>
-<p><a href="http://refspecs.linuxfoundation.org/FHS_2.3/fhs-2.3.pdf">FHS_2.3 标准文档</a></p>
-<p><strong>如果觉得图片不清晰，建议另存为到本地放大查看：</strong></p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211015.png"></p>
-<p>如果你觉得看这个不明白，那么可以试试最真实最直观的方式，执行如下命令：</p>
-<figure class="highlight dos"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">tree</span> /</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>如果提示” command not found “，就先安装：</p>
-<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">sudo apt-<span class="builtin-name">get</span> update</span><br><span class="line">sudo apt-<span class="builtin-name">get</span> install tree</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>关于上面提到的 FHS，这里还有个很重要的内容你一定要明白，FHS 是根据以往无数 Linux 用户和开发者的经验总结出来的，并且会维持更新，FHS 依据文件系统使用的频繁与否以及是否允许用户随意改动（注意，不是不能，学习过程中，不要怕这些），将目录定义为四种交互作用的形态，如下表所示：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211034.png"></p>
-<h3 id="路径"><a href="#路径" class="headerlink" title="路径"></a>路径</h3><p>有人可能不明白这路径是指什么，有什么用。顾名思义，路径就是你要去哪儿的路线嘛。如果你想进入某个具体的目录或者想获得某个目录的文件（目录本身也是文件）那就得用路径来找到了。</p>
-<p>使用 <code>cd</code> 命令可以切换目录，在 Linux 里面使用 <code>.</code> 表示当前目录，<code>..</code> 表示上一级目录（<strong>注意，我们上一节介绍过的，以 <code>.</code> 开头的文件都是隐藏文件，所以这两个目录必然也是隐藏的，你可以使用 <code>ls -a</code> 命令查看隐藏文件</strong>）, <code>-</code> 表示上一次所在目录，<code>～</code> 通常表示当前用户的 <code>home</code> 目录。使用 <code>pwd</code> 命令可以获取当前所在路径（绝对路径）。</p>
-<p>进入上一级目录：</p>
-<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">cd</span> <span class="string">..</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>进入你的 <code>home</code> 目录：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> ~</span> </span><br><span class="line"><span class="meta">#</span><span class="bash"> 或者 <span class="built_in">cd</span> /home/&lt;你的用户名&gt;</span> </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>使用 <code>pwd</code> 获取当前路径：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211044.png"></p>
-<h3 id="绝对路径"><a href="#绝对路径" class="headerlink" title="绝对路径"></a>绝对路径</h3><p>关于绝对路径，简单地说就是以根” / “目录为起点的完整路径，以你所要到的目录为终点，表现形式如： <code>/usr/local/bin</code>，表示根目录下的 <code>usr</code> 目录中的 <code>local</code> 目录中的 <code>bin</code> 目录。</p>
-<h3 id="相对路径"><a href="#相对路径" class="headerlink" title="相对路径"></a>相对路径</h3><p>相对路径，也就是相对于你当前的目录的路径，相对路径是以当前目录 <code>.</code> 为起点，以你所要到的目录为终点，表现形式如： <code>usr/local/bin</code> （这里假设你当前目录为根目录）。你可能注意到，我们表示相对路径实际并没有加上表示当前目录的那个 <code>.</code> ，而是直接以目录名开头，因为这个 <code>usr</code> 目录为 <code>/</code> 目录下的子目录，是可以省略这个 <code>.</code> 的（以后会讲到一个类似不能省略的情况）；如果是当前目录的上一级目录，则需要使用 <code>..</code> ，比如你当前目录为 <code>/home/shiyanlou</code> 目录下，根目录就应该表示为 <code>../../</code> ，表示上一级目录（ <code>home</code> 目录）的上一级目录（ <code>/</code> 目录）。</p>
-<p>下面我们以你的 <code>home</code>目录为起点，分别以绝对路径和相对路径的方式进入 <code>/usr/local/bin</code> 目录：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 绝对路径</span></span><br><span class="line">$ cd <span class="regexp">/usr/</span>local/bin</span><br><span class="line"><span class="comment"># 相对路径</span></span><br><span class="line">$ cd ..<span class="regexp">/../u</span>sr<span class="regexp">/local/</span>bin</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211124.png"></p>
-<p>进入一个目录，可以使用绝对路径也可以使用相对路径，那我们应该在什么时候选择正确的方式进入某个目录呢。就是凭直觉嘛，你觉得怎样方便就使用哪一个，而不用特意只使用某一种。比如假设我当前在 <code>/usr/local/bin</code> 目录，我想进入上一级的 local 目录你说是使用 <code>cd ..</code> 方便还是 <code>cd /usr/local</code> 方便？而如果要进入的是 <code>usr</code> 目录，那么 <code>cd /usr</code> ，就比 <code>cd ../..</code> 方便一点了。</p>
-<p><strong>提示：在进行目录切换的过程中请多使用 <code>Tab</code> 键自动补全，可避免输入错误，连续按两次 <code>Tab</code> 可以显示全部候选结果。</strong></p>
-<h2 id="linux文件基本操作"><a href="#linux文件基本操作" class="headerlink" title="linux文件基本操作"></a>linux文件基本操作</h2><h3 id="新建文件"><a href="#新建文件" class="headerlink" title="新建文件"></a>新建文件</h3><h4 id="新建空白文件"><a href="#新建空白文件" class="headerlink" title="新建空白文件"></a>新建空白文件</h4><p>使用 <code>touch</code> 命令创建空白文件，关于 <code>touch</code> 命令，其主要作用是来更改已有文件的时间戳的（比如，最近访问时间，最近修改时间），但其在不加任何参数的情况下，只指定一个文件名，则可以创建一个指定文件名的空白文件（不会覆盖已有同名文件），当然你也可以同时指定该文件的时间戳，更多关于 <code>touch</code> 命令的用法，会在下一讲文件搜索中涉及。</p>
-<p>创建名为 test 的空白文件，因为在其它目录没有权限，所以需要先 <code>cd ~</code> 切换回用户的 <code>/home/shiyanlou</code> 目录：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /home/shiyanlou</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch <span class="built_in">test</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="systemctl"><a href="#systemctl" class="headerlink" title="systemctl"></a>systemctl</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start xxx     // 开启服务</span><br><span class="line">systemctl stop xxx      // 停止服务</span><br><span class="line">systemctl restart xxx   // 重启服务</span><br><span class="line">systemctl <span class="built_in">enable</span> xxx    // 设置服务开机自启</span><br><span class="line">systemctl <span class="built_in">disable</span> xxx   // 取消服务开机自启</span><br><span class="line">systemctl status xxx    // 查看服务运行状态</span><br></pre></td></tr></table></figure>
 
 
-<h4 id="新建目录"><a href="#新建目录" class="headerlink" title="新建目录"></a>新建目录</h4><p>使用 <code>mkdir</code>（make directories）命令可以创建一个空目录，也可同时指定创建目录的权限属性。</p>
-<p>创建名为“ mydir ”的空目录：</p>
-<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> mydir</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="端口查看"><a href="#端口查看" class="headerlink" title="端口查看"></a>端口查看</h1><h2 id="查看所有端口占用情况"><a href="#查看所有端口占用情况" class="headerlink" title="查看所有端口占用情况"></a>查看所有端口占用情况</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">lsof -i -P</span><br></pre></td></tr></table></figure>
 
-<p>使用 <code>-p</code> 参数，同时创建父目录（如果不存在该父目录），如下我们同时创建一个多级目录（这在安装软件、配置安装路径时非常有用）：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ mkdir -p father<span class="regexp">/son/g</span>randson</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211143.png"></p>
-<p>后面的目录路径，以绝对路径的方式表示也是可以的。</p>
-<h3 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h3><h4 id="复制文件"><a href="#复制文件" class="headerlink" title="复制文件"></a>复制文件</h4><p>使用 <code>cp</code>（copy）命令复制一个文件到指定目录。</p>
-<p>将之前创建的“ test ”文件复制到“ /home/shiyanlou/father/son/grandson ”目录中：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ cp test father<span class="regexp">/son/g</span>randson</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>是不是很方便啊，如果在图形界面则需要先在源目录复制文件，再进到目的目录粘贴文件，而命令行操作步骤就一步到位了嘛。</p>
-<h4 id="复制目录"><a href="#复制目录" class="headerlink" title="复制目录"></a>复制目录</h4><p>如果直接使用 <code>cp</code> 命令复制一个目录的话，会出现如下错误：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211244.png"></p>
-<p>要成功复制目录需要加上 <code>-r</code> 或者 <code>-R</code> 参数，表示递归复制，就是说有点“株连九族”的意思：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/shiyanlou</span><br><span class="line"><span class="variable">$</span> mkdir family</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cp</span> <span class="literal">-r</span> father family</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h3><h4 id="删除文件"><a href="#删除文件" class="headerlink" title="删除文件"></a>删除文件</h4><p>使用 <code>rm</code>（remove files or directories）命令删除一个文件：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">rm</span> test</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>有时候你会遇到想要删除一些为只读权限的文件，直接使用 <code>rm</code> 删除会显示一个提示，如下：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211156.png"></p>
-<p>你如果想忽略这提示，直接删除文件，可以使用 <code>-f</code> 参数强制删除：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">rm</span> <span class="operator">-f</span> test</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<h4 id="删除目录"><a href="#删除目录" class="headerlink" title="删除目录"></a>删除目录</h4><p>跟复制目录一样，要删除一个目录，也需要加上 <code>-r</code> 或 <code>-R</code> 参数：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">rm</span> <span class="literal">-r</span> family</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="移动文件与重命名"><a href="#移动文件与重命名" class="headerlink" title="移动文件与重命名"></a>移动文件与重命名</h3><h4 id="移动文件"><a href="#移动文件" class="headerlink" title="移动文件"></a>移动文件</h4><p>使用 <code>mv</code>（move or rename files）命令移动文件（剪切）。将文件“ file1 ”移动到 <code>Documents</code> 目录：</p>
-<p><code>mv 源目录文件 目的目录</code>：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> mkdir Documents</span><br><span class="line"><span class="variable">$</span> touch file1</span><br><span class="line"><span class="variable">$</span> <span class="built_in">mv</span> file1 Documents</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211305.png"></p>
-<h4 id="重命名文件"><a href="#重命名文件" class="headerlink" title="重命名文件"></a>重命名文件</h4><p>将文件“ file1 ”重命名为“ myfile ”：</p>
-<p><code>mv 旧的文件名 新的文件名</code>：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">mv</span> file1 myfile</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<h4 id="批量重命名"><a href="#批量重命名" class="headerlink" title="批量重命名"></a>批量重命名</h4><p>要实现批量重命名，<code>mv</code> 命令就有点力不从心了，我们可以使用一个看起来更专业的命令 <code>rename</code> 来实现。不过它要用 perl 正则表达式来作为参数，关于正则表达式我们要在后面才会介绍到，这里只做演示，你只要记得这个 <code>rename</code> 命令可以批量重命名就好了，以后再重新学习也不会有任何问题，毕竟你已经掌握了一个更常用的 <code>mv</code> 命令。</p>
-<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">cd</span> <span class="string">/home/shiyanlou/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用通配符批量创建 5 个文件:</span></span><br><span class="line">$ touch file&#123;1.<span class="string">.5</span>&#125;<span class="string">.txt</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量将这 5 个后缀为 .txt 的文本文件重命名为以 .c 为后缀的文件:</span></span><br><span class="line">$ rename &#x27;s/\<span class="string">.txt/</span>\<span class="string">.c/</span>&#x27; *<span class="string">.txt</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量将这 5 个文件，文件名和后缀改为大写:</span></span><br><span class="line">$ rename &#x27;y/a-z/A-Z/&#x27; *<span class="string">.c</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>简单解释一下上面的命令，<code>rename</code> 是先使用第二个参数的通配符匹配所有后缀为 <code>.txt</code> 的文件，然后使用第一个参数提供的正则表达式将匹配的这些文件的 <code>.txt</code> 后缀替换为 <code>.c</code>，这一点在我们后面学习了 <code>sed</code> 命令后，相信你会更好地理解。</p>
-<h3 id="查看文件"><a href="#查看文件" class="headerlink" title="查看文件"></a>查看文件</h3><h4 id="使用-cat，tac-和-nl-命令查看文件"><a href="#使用-cat，tac-和-nl-命令查看文件" class="headerlink" title="使用 cat，tac 和 nl 命令查看文件"></a>使用 <code>cat</code>，<code>tac</code> 和 <code>nl</code> 命令查看文件</h4><p>前两个命令都是用来打印文件内容到标准输出（终端），其中 <code>cat</code> 为正序显示，<code>tac</code> 为倒序显示。</p>
-<blockquote>
-<p>标准输入输出：当我们执行一个 shell 命令行时通常会自动打开三个标准文件，即标准输入文件（stdin），默认对应终端的键盘、标准输出文件（stdout）和标准错误输出文件（stderr），后两个文件都对应被重定向到终端的屏幕，以便我们能直接看到输出内容。进程将从标准输入文件中得到输入数据，将正常输出数据输出到标准输出文件，而将错误信息送到标准错误文件中。</p>
-</blockquote>
-<p>比如我们要查看之前从 <code>/etc</code> 目录下拷贝来的 <code>passwd</code> 文件：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/shiyanlou</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cp</span> /etc/passwd passwd</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>可以加上 <code>-n</code> 参数显示行号：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> <span class="literal">-n</span> passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211329.png"></p>
-<p><code>nl</code> 命令，添加行号并打印，这是个比 <code>cat -n</code> 更专业的行号打印命令。</p>
-<p>这里简单列举它的常用的几个参数：</p>
-<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">-<span class="attr">b :</span> 指定添加行号的方式，主要有两种：</span><br><span class="line">    -b <span class="attr">a:</span>表示无论是否为空行，同样列出行号(<span class="string">&quot;cat -n&quot;</span>就是这种方式)</span><br><span class="line">    -b <span class="attr">t:</span>只列出非空行的编号并列出（默认为这种方式）</span><br><span class="line">-<span class="attr">n :</span> 设置行号的样式，主要有三种：</span><br><span class="line">    -n <span class="attr">ln:</span>在行号字段最左端显示</span><br><span class="line">    -n <span class="attr">rn:</span>在行号字段最右边显示，且不加 <span class="number">0</span></span><br><span class="line">    -n <span class="attr">rz:</span>在行号字段最右边显示，且加 <span class="number">0</span></span><br><span class="line">-<span class="attr">w :</span> 行号字段占用的位数(默认为 <span class="number">6</span> 位)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="/img/35/35-10.png"><br>你会发现使用这几个命令，默认的终端窗口大小，一屏显示不完文本的内容，得用鼠标拖动滚动条或者滑动滚轮才能继续往下翻页，要是可以直接使用键盘操作翻页就好了，那么你就可以使用下面要介绍的命令。</p>
-<h4 id="使用-more-和-less-命令分页查看文件"><a href="#使用-more-和-less-命令分页查看文件" class="headerlink" title="使用 more 和 less 命令分页查看文件"></a>使用 <code>more</code> 和 <code>less</code> 命令分页查看文件</h4><p>如果说上面的 <code>cat</code> 是用来快速查看一个文件的内容的，那么这个 <code>more</code> 和 <code>less</code> 就是天生用来”阅读”一个文件的内容的，比如说 man 手册内部就是使用的 <code>less</code> 来显示内容。其中 <code>more</code> 命令比较简单，只能向一个方向滚动，而 <code>less</code> 为基于 <code>more</code> 和 <code>vi</code> （一个强大的编辑器，我们有单独的课程来让你学习）开发，功能更强大。<code>less</code> 的使用基本和 <code>more</code> 一致，具体使用请查看 man 手册，这里只介绍 <code>more</code> 命令的使用。</p>
-<p>使用 <code>more</code> 命令打开 <code>passwd</code> 文件：</p>
-<figure class="highlight dos"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">more</span> passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="/img/35/35-11.png"><br>打开后默认只显示一屏内容，终端底部显示当前阅读的进度。可以使用 <code>Enter</code> 键向下滚动一行，使用 <code>Space</code> 键向下滚动一屏，按下 <code>h</code> 显示帮助，<code>q</code> 退出。</p>
-<h4 id="使用-head-和-tail-命令查看文件"><a href="#使用-head-和-tail-命令查看文件" class="headerlink" title="使用 head 和 tail 命令查看文件"></a>使用 <code>head</code> 和 <code>tail</code> 命令查看文件</h4><p>这两个命令，那些性子比较急的人应该会喜欢，因为它们一个是只查看文件的头几行（默认为 10 行，不足 10 行则显示全部）和尾几行。还是拿 passwd 文件举例，比如当我们想要查看最近新增加的用户，那么我们可以查看这个 <code>/etc/passwd</code> 文件，不过我们前面也看到了，这个文件里面一大堆乱糟糟的东西，看起来实在费神啊。因为系统新增加一个用户，会将用户的信息添加到 passwd 文件的最后，那么这时候我们就可以使用 <code>tail</code> 命令了：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ tail <span class="regexp">/etc/</span>passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>甚至更直接的只看一行， 加上 <code>-n</code> 参数，后面紧跟行数：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ tail -n <span class="number">1</span> <span class="regexp">/etc/</span>passwd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211404.png"></p>
-<p>关于 <code>tail</code> 命令，不得不提的还有它一个很牛的参数 <code>-f</code>，这个参数可以实现不停地读取某个文件的内容并显示。这可以让我们动态查看日志，达到实时监视的目的。不过我不会在这门基础课程中介绍它的更多细节，感兴趣的用户可以自己去了解。</p>
-<h4 id="查看文件类型"><a href="#查看文件类型" class="headerlink" title="查看文件类型"></a>查看文件类型</h4><p>前面我提到过，在 Linux 中文件的类型不是根据文件后缀来判断的，我们通常使用 <code>file</code> 命令查看文件的类型：</p>
-<figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">file</span> <span class="regexp">/bin/</span>ls</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410211423.png"></p>
-<p>说明这是一个可执行文件，运行在 64 位平台，并使用了动态链接文件（共享库）。</p>
-<h3 id="编辑文件"><a href="#编辑文件" class="headerlink" title="编辑文件"></a>编辑文件</h3><p>在 Linux 下面编辑文件通常我们会直接使用专门的命令行编辑器比如（emacs，vim，nano），由于涉及 Linux 上的编辑器的内容比较多，且非常重要，故我们有一门单独的基础课专门介绍这中一个编辑器 vim 。<strong>强烈希望正在学习这门 Linux 基础课的你先在这里暂停一下，去学习 <a href="http://www.shiyanlou.com/courses/2">vim 编辑器</a> 的使用（至少掌握基本的操作），然后再继续本课程后面的内容，因为后面的内容会假设你已经学会了 vim 编辑器的使用。</strong>如果你想更加快速地入门，可以直接使用 Linux 内部的 vim 学习教程，输入如下命令即可开始：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>vimtutor</span><br></pre></td></tr></table></figure>
-
-]]></content>
+<h2 id="查看某个端口被那个进程占用"><a href="#查看某个端口被那个进程占用" class="headerlink" title="查看某个端口被那个进程占用"></a>查看某个端口被那个进程占用</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">netstat -anp |grep [port] <span class="comment"># 查看端口为port</span></span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>linux</category>
       </categories>
+      <tags>
+        <tag>命令总结</tag>
+      </tags>
   </entry>
   <entry>
     <title>linux服务器上传文件到百度网盘</title>
@@ -3205,6 +3227,51 @@ docker部署</code></pre>
       <categories>
         <category>linux</category>
       </categories>
+  </entry>
+  <entry>
+    <title>npm命令总结</title>
+    <url>/posts/dj8392A/</url>
+    <content><![CDATA[<blockquote>
+<p>总结npm命令</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="npm安装模块"><a href="#npm安装模块" class="headerlink" title="npm安装模块"></a>npm安装模块</h3><ul>
+<li>【npm install xxx】利用 npm 安装xxx模块到当前命令行所在目录；</li>
+<li>【npm install -g xxx】利用npm安装全局模块xxx；</li>
+<li>【npm install xxx】安装但不写入package.json；</li>
+<li>【npm install xxx –save】 安装并写入package.json的”dependencies”中；</li>
+<li>【npm install xxx –save-dev】安装并写入package.json的”devDependencies”中。</li>
+</ul>
+<h3 id="npm-删除模块"><a href="#npm-删除模块" class="headerlink" title="npm 删除模块"></a>npm 删除模块</h3><ul>
+<li>【npm uninstall xxx】删除xxx模块；</li>
+<li>【npm uninstall -g xxx】删除全局模块xxx</li>
+</ul>
+<h3 id="查看npm全局安装过哪些模块"><a href="#查看npm全局安装过哪些模块" class="headerlink" title="查看npm全局安装过哪些模块"></a>查看npm全局安装过哪些模块</h3><ul>
+<li>【npm list -g –depth 0】</li>
+</ul>
+<h3 id="查看npm全局配置"><a href="#查看npm全局配置" class="headerlink" title="查看npm全局配置"></a>查看npm全局配置</h3><ul>
+<li>【npm config ls】</li>
+</ul>
+<h3 id="修改npm全局安装路径"><a href="#修改npm全局安装路径" class="headerlink" title="修改npm全局安装路径"></a>修改npm全局安装路径</h3><ul>
+<li>【npm config set prefix *】 如：npm config set prefix “D:\Test”</li>
+</ul>
+<h3 id="npm设置代理"><a href="#npm设置代理" class="headerlink" title="npm设置代理"></a>npm设置代理</h3><ul>
+<li>【npm config set proxy=<a href="http://127.0.0.1:8087】">http://127.0.0.1:8087】</a></li>
+<li>【npm config set registry=<a href="http://registry.npmjs.org】/">http://registry.npmjs.org】</a></li>
+<li>【npm config delete proxy】</li>
+<li>【npm config delete https-proxy】</li>
+</ul>
+<h3 id="win10关闭node进程"><a href="#win10关闭node进程" class="headerlink" title="win10关闭node进程"></a>win10关闭node进程</h3><ul>
+<li>【taskkill /F  /IM node.exe】 win10中git终端ctrl+c无法关闭node进程的解决方案</li>
+</ul>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>命令总结</tag>
+        <tag>npm</tag>
+      </tags>
   </entry>
   <entry>
     <title>linux服务器上传文件到onedrive</title>
@@ -3254,71 +3321,6 @@ docker部署</code></pre>
       <categories>
         <category>linux</category>
       </categories>
-  </entry>
-  <entry>
-    <title>linux常用命令总结</title>
-    <url>/posts/1d063ae7/</url>
-    <content><![CDATA[<blockquote>
-<p>记录一些linux容易忘的linux操作命令</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="systemctl"><a href="#systemctl" class="headerlink" title="systemctl"></a>systemctl</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start xxx     // 开启服务</span><br><span class="line">systemctl stop xxx      // 停止服务</span><br><span class="line">systemctl restart xxx   // 重启服务</span><br><span class="line">systemctl <span class="built_in">enable</span> xxx    // 设置服务开机自启</span><br><span class="line">systemctl <span class="built_in">disable</span> xxx   // 取消服务开机自启</span><br><span class="line">systemctl status xxx    // 查看服务运行状态</span><br></pre></td></tr></table></figure>
-
-
-<h1 id="端口查看"><a href="#端口查看" class="headerlink" title="端口查看"></a>端口查看</h1><h2 id="查看所有端口占用情况"><a href="#查看所有端口占用情况" class="headerlink" title="查看所有端口占用情况"></a>查看所有端口占用情况</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">lsof -i -P</span><br></pre></td></tr></table></figure>
-
-<h2 id="查看某个端口被那个进程占用"><a href="#查看某个端口被那个进程占用" class="headerlink" title="查看某个端口被那个进程占用"></a>查看某个端口被那个进程占用</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">netstat -anp |grep [port] <span class="comment"># 查看端口为port</span></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>命令总结</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>npm命令总结</title>
-    <url>/posts/dj8392A/</url>
-    <content><![CDATA[<blockquote>
-<p>总结npm命令</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="npm安装模块"><a href="#npm安装模块" class="headerlink" title="npm安装模块"></a>npm安装模块</h3><ul>
-<li>【npm install xxx】利用 npm 安装xxx模块到当前命令行所在目录；</li>
-<li>【npm install -g xxx】利用npm安装全局模块xxx；</li>
-<li>【npm install xxx】安装但不写入package.json；</li>
-<li>【npm install xxx –save】 安装并写入package.json的”dependencies”中；</li>
-<li>【npm install xxx –save-dev】安装并写入package.json的”devDependencies”中。</li>
-</ul>
-<h3 id="npm-删除模块"><a href="#npm-删除模块" class="headerlink" title="npm 删除模块"></a>npm 删除模块</h3><ul>
-<li>【npm uninstall xxx】删除xxx模块；</li>
-<li>【npm uninstall -g xxx】删除全局模块xxx</li>
-</ul>
-<h3 id="查看npm全局安装过哪些模块"><a href="#查看npm全局安装过哪些模块" class="headerlink" title="查看npm全局安装过哪些模块"></a>查看npm全局安装过哪些模块</h3><ul>
-<li>【npm list -g –depth 0】</li>
-</ul>
-<h3 id="查看npm全局配置"><a href="#查看npm全局配置" class="headerlink" title="查看npm全局配置"></a>查看npm全局配置</h3><ul>
-<li>【npm config ls】</li>
-</ul>
-<h3 id="修改npm全局安装路径"><a href="#修改npm全局安装路径" class="headerlink" title="修改npm全局安装路径"></a>修改npm全局安装路径</h3><ul>
-<li>【npm config set prefix *】 如：npm config set prefix “D:\Test”</li>
-</ul>
-<h3 id="npm设置代理"><a href="#npm设置代理" class="headerlink" title="npm设置代理"></a>npm设置代理</h3><ul>
-<li>【npm config set proxy=<a href="http://127.0.0.1:8087】">http://127.0.0.1:8087】</a></li>
-<li>【npm config set registry=<a href="http://registry.npmjs.org】/">http://registry.npmjs.org】</a></li>
-<li>【npm config delete proxy】</li>
-<li>【npm config delete https-proxy】</li>
-</ul>
-<h3 id="win10关闭node进程"><a href="#win10关闭node进程" class="headerlink" title="win10关闭node进程"></a>win10关闭node进程</h3><ul>
-<li>【taskkill /F  /IM node.exe】 win10中git终端ctrl+c无法关闭node进程的解决方案</li>
-</ul>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>命令总结</tag>
-        <tag>npm</tag>
-      </tags>
   </entry>
   <entry>
     <title>python项目库依赖文件生成</title>
@@ -3729,58 +3731,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>搭建文件服务器</title>
-    <url>/posts/3937af73/</url>
-    <content><![CDATA[<blockquote>
-<p>记录搭建文件服务器的几种方式</p>
-</blockquote>
-<a id="more"></a>
-
-<h1 id="一、配置nginx文件搭建简单文件服务器"><a href="#一、配置nginx文件搭建简单文件服务器" class="headerlink" title="一、配置nginx文件搭建简单文件服务器"></a>一、配置nginx文件搭建简单文件服务器</h1><ol>
-<li>安装</li>
-</ol>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> nginx</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>创建并编辑配置文件</li>
-</ol>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/etc/</span>nginx<span class="regexp">/conf.d/</span>file_server.conf</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>配置文件内容模板</li>
-</ol>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">  <span class="attribute">listen</span> <span class="number">2020</span>; </span><br><span class="line">  <span class="attribute">server_name</span> localhost; <span class="comment">#ip或者服务器的域名</span></span><br><span class="line">  <span class="attribute">charset</span> utf-<span class="number">8</span>; <span class="comment"># 避免中文乱码 </span></span><br><span class="line">  <span class="attribute">root</span> /var/file_server; <span class="comment"># 存放文件的目录 </span></span><br><span class="line">  <span class="attribute">location</span> / &#123; </span><br><span class="line">    <span class="attribute">autoindex</span> <span class="literal">on</span>; <span class="comment"># 索引 </span></span><br><span class="line">    <span class="attribute">autoindex_exact_size</span> <span class="literal">on</span>; <span class="comment"># 显示文件大小 </span></span><br><span class="line">    <span class="attribute">autoindex_localtime</span> <span class="literal">on</span>; <span class="comment"># 显示文件时间 </span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="4">
-<li>启动nginx</li>
-</ol>
-<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">systemctl <span class="literal">start</span> nginx</span><br></pre></td></tr></table></figure>
-
-<p>创建成功演示：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-05/20200821000816.png"></p>
-<h1 id="二、使用github项目中的FileBrowser"><a href="#二、使用github项目中的FileBrowser" class="headerlink" title="二、使用github项目中的FileBrowser"></a>二、使用github项目中的FileBrowser</h1><p><strong>项目地址</strong>: <a href="https://github.com/filebrowser/filebrowser/">https://github.com/filebrowser/filebrowser/</a></p>
-<p>由于docker配置比较简单并且易于管理，所以选择docker安装filebrowser。</p>
-<p>命令参考：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server<span class="regexp">/:/</span>srv \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/filebrowser.db:/</span>database.db \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/.filebrowser.json:/</span>.filebrowser.json \</span><br><span class="line">    -p <span class="number">2020</span>:<span class="number">80</span> \</span><br><span class="line">    -d \</span><br><span class="line">    filebrowser/filebrowser</span><br></pre></td></tr></table></figure>
-
-<p>上述命令指定映射的需要显示文件的系统路径为<code>/var/file_server/</code></p>
-<p>运行上述命令前，需要将其中<code>/var/file_server_log/filebrowser.db</code>和<code>/var/file_server_log/.filebrowser.json</code>这两个文件先创建好，否则会报错。</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/var/</span>file_server_log/filebrowser.db</span><br><span class="line">touch <span class="regexp">/var/</span>file_server_log/.filebrowser.json</span><br></pre></td></tr></table></figure>
-
-<p>同时，.filebrowser.json 内容需要初始化一下，官方给出的内容如下：</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;port&quot;</span>: <span class="number">80</span>,</span><br><span class="line">  <span class="attr">&quot;baseURL&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;address&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;log&quot;</span>: <span class="string">&quot;stdout&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;database&quot;</span>: <span class="string">&quot;/database.db&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;root&quot;</span>: <span class="string">&quot;/srv&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>创建成功演示如下图，第一次登陆时账号密码可以任意填写，作为新建的管理员账户。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-08/20200821000901.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>文件服务器</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>正则表达式基本语法</title>
     <url>/posts/2623405f/</url>
     <content><![CDATA[<h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><ol>
@@ -4024,6 +3974,58 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>正则表达式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>搭建文件服务器</title>
+    <url>/posts/3937af73/</url>
+    <content><![CDATA[<blockquote>
+<p>记录搭建文件服务器的几种方式</p>
+</blockquote>
+<a id="more"></a>
+
+<h1 id="一、配置nginx文件搭建简单文件服务器"><a href="#一、配置nginx文件搭建简单文件服务器" class="headerlink" title="一、配置nginx文件搭建简单文件服务器"></a>一、配置nginx文件搭建简单文件服务器</h1><ol>
+<li>安装</li>
+</ol>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> nginx</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建并编辑配置文件</li>
+</ol>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/etc/</span>nginx<span class="regexp">/conf.d/</span>file_server.conf</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>配置文件内容模板</li>
+</ol>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">  <span class="attribute">listen</span> <span class="number">2020</span>; </span><br><span class="line">  <span class="attribute">server_name</span> localhost; <span class="comment">#ip或者服务器的域名</span></span><br><span class="line">  <span class="attribute">charset</span> utf-<span class="number">8</span>; <span class="comment"># 避免中文乱码 </span></span><br><span class="line">  <span class="attribute">root</span> /var/file_server; <span class="comment"># 存放文件的目录 </span></span><br><span class="line">  <span class="attribute">location</span> / &#123; </span><br><span class="line">    <span class="attribute">autoindex</span> <span class="literal">on</span>; <span class="comment"># 索引 </span></span><br><span class="line">    <span class="attribute">autoindex_exact_size</span> <span class="literal">on</span>; <span class="comment"># 显示文件大小 </span></span><br><span class="line">    <span class="attribute">autoindex_localtime</span> <span class="literal">on</span>; <span class="comment"># 显示文件时间 </span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>启动nginx</li>
+</ol>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">systemctl <span class="literal">start</span> nginx</span><br></pre></td></tr></table></figure>
+
+<p>创建成功演示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-05/20200821000816.png"></p>
+<h1 id="二、使用github项目中的FileBrowser"><a href="#二、使用github项目中的FileBrowser" class="headerlink" title="二、使用github项目中的FileBrowser"></a>二、使用github项目中的FileBrowser</h1><p><strong>项目地址</strong>: <a href="https://github.com/filebrowser/filebrowser/">https://github.com/filebrowser/filebrowser/</a></p>
+<p>由于docker配置比较简单并且易于管理，所以选择docker安装filebrowser。</p>
+<p>命令参考：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server<span class="regexp">/:/</span>srv \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/filebrowser.db:/</span>database.db \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/.filebrowser.json:/</span>.filebrowser.json \</span><br><span class="line">    -p <span class="number">2020</span>:<span class="number">80</span> \</span><br><span class="line">    -d \</span><br><span class="line">    filebrowser/filebrowser</span><br></pre></td></tr></table></figure>
+
+<p>上述命令指定映射的需要显示文件的系统路径为<code>/var/file_server/</code></p>
+<p>运行上述命令前，需要将其中<code>/var/file_server_log/filebrowser.db</code>和<code>/var/file_server_log/.filebrowser.json</code>这两个文件先创建好，否则会报错。</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/var/</span>file_server_log/filebrowser.db</span><br><span class="line">touch <span class="regexp">/var/</span>file_server_log/.filebrowser.json</span><br></pre></td></tr></table></figure>
+
+<p>同时，.filebrowser.json 内容需要初始化一下，官方给出的内容如下：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;port&quot;</span>: <span class="number">80</span>,</span><br><span class="line">  <span class="attr">&quot;baseURL&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;address&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;log&quot;</span>: <span class="string">&quot;stdout&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;database&quot;</span>: <span class="string">&quot;/database.db&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;root&quot;</span>: <span class="string">&quot;/srv&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建成功演示如下图，第一次登陆时账号密码可以任意填写，作为新建的管理员账户。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-08/20200821000901.png"></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>文件服务器</tag>
       </tags>
   </entry>
   <entry>
