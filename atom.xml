@@ -9,11 +9,11 @@
     <atom:link href="https://blog.kervias.com/atom.xml" rel="self" type="application/rss+xml"/>
     
     <description></description>
-    <pubDate>Tue, 08 Dec 2020 02:35:39 GMT</pubDate>
+    <pubDate>Tue, 08 Dec 2020 02:49:17 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
-      <title>ffmepeg常用命令总结</title>
+      <title>ffmpeg常用命令总结</title>
       <link>https://blog.kervias.com/posts/d827b859/</link>
       <guid>https://blog.kervias.com/posts/d827b859/</guid>
       <pubDate>Tue, 08 Dec 2020 02:14:17 GMT</pubDate>
