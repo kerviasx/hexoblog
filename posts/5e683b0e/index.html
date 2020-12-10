@@ -23,21 +23,20 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="把GIT的一些常用命令记录下来, 方便查看.">
+<meta name="description" content="pip安装时默认会有缓存，存储在C盘占用空间">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Git常用命令总结">
-<meta property="og:url" content="https://blog.kervias.com/posts/dwqdwq/index.html">
+<meta property="og:title" content="Python的pip缓存">
+<meta property="og:url" content="https://blog.kervias.com/posts/5e683b0e/index.html">
 <meta property="og:site_name" content="kervias">
-<meta property="og:description" content="把GIT的一些常用命令记录下来, 方便查看.">
+<meta property="og:description" content="pip安装时默认会有缓存，存储在C盘占用空间">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-01-19T15:38:25.000Z">
-<meta property="article:modified_time" content="2020-12-04T04:13:07.957Z">
+<meta property="article:published_time" content="2020-12-10T08:30:15.000Z">
+<meta property="article:modified_time" content="2020-12-10T08:50:10.479Z">
 <meta property="article:author" content="kervias">
-<meta property="article:tag" content="命令总结">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://blog.kervias.com/posts/dwqdwq/">
+<link rel="canonical" href="https://blog.kervias.com/posts/5e683b0e/">
 
 
 <script class="page-configurations">
@@ -49,7 +48,7 @@
     lang   : 'zh-CN'
   };
 </script>
-<title>Git常用命令总结 | kervias</title>
+<title>Python的pip缓存 | kervias</title>
   
 
 
@@ -218,7 +217,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E9%85%8D%E7%BD%AE%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">GIT配置命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E6%8E%A8%E9%80%81%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">GIT推送命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-remote"><span class="nav-number">3.</span> <span class="nav-text">Git remote</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-Proxy"><span class="nav-number">4.</span> <span class="nav-text">Git Proxy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git%E5%88%A0%E9%99%A4%E6%89%80%E6%9C%89commit%E8%AE%B0%E5%BD%95"><span class="nav-number">5.</span> <span class="nav-text">Git删除所有commit记录</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%BC%93%E5%AD%98%E4%BD%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">查看缓存位置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87Python%E5%91%BD%E4%BB%A4%E6%9F%A5%E7%9C%8B"><span class="nav-number">1.1.</span> <span class="nav-text">通过Python命令查看</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%BC%93%E5%AD%98%E4%BD%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">修改缓存位置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E5%91%BD%E4%BB%A4%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">通过命令的方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">通过修改配置文件的方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%9F%90%E6%AC%A1pip%E5%AE%89%E8%A3%85%E6%B2%A1%E6%9C%89%E7%BC%93%E5%AD%98"><span class="nav-number">2.3.</span> <span class="nav-text">设置某次pip安装没有缓存</span></a></li></ol></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -309,7 +308,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/dwqdwq/">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/5e683b0e/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
@@ -322,7 +321,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Git常用命令总结
+          Python的pip缓存
         </h1>
 
         <div class="post-meta-container">
@@ -332,23 +331,17 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
+      
 
-      <time title="创建时间：2020-01-19 23:38:25" itemprop="dateCreated datePublished" datetime="2020-01-19T23:38:25+08:00">2020-01-19</time>
+      <time title="创建时间：2020-12-10 16:30:15 / 修改时间：16:50:10" itemprop="dateCreated datePublished" datetime="2020-12-10T16:30:15+08:00">2020-12-10</time>
     </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-12-04 12:13:07" itemprop="dateModified" datetime="2020-12-04T12:13:07+08:00">2020-12-04</time>
-      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
+          <a href="/categories/%E6%8A%80%E5%B7%A7/" itemprop="url" rel="index"><span itemprop="name">技巧</span></a>
         </span>
     </span>
 
@@ -370,48 +363,29 @@
     
     <div class="post-body" itemprop="articleBody">
         <blockquote>
-<p>把GIT的一些常用命令记录下来, 方便查看.</p>
+<p>pip安装时默认会有缓存，存储在C盘占用空间</p>
 </blockquote>
 <a id="more"></a>
-<h2 id="GIT配置命令"><a href="#GIT配置命令" class="headerlink" title="GIT配置命令"></a>GIT配置命令</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name &quot;bryan sun&quot;</span><br><span class="line">git config --global user.email &quot;hitsjt@gmail.com&quot;</span><br><span class="line">git config --list  # 查看配置信息(包括用户名和邮箱)</span><br><span class="line">git branch  # 查看本地分支</span><br></pre></td></tr></table></figure>
 
-<h2 id="GIT推送命令"><a href="#GIT推送命令" class="headerlink" title="GIT推送命令"></a>GIT推送命令</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;commit&quot;</span></span><br><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+<h1 id="查看缓存位置"><a href="#查看缓存位置" class="headerlink" title="查看缓存位置"></a>查看缓存位置</h1><ul>
+<li>win10下默认缓存路径为：<code>C:\Users\用户名\AppData\Local\pip\cache</code></li>
+<li>linux下默认缓存路径为：<code>~/.cache/pip</code></li>
+</ul>
+<h2 id="通过Python命令查看"><a href="#通过Python命令查看" class="headerlink" title="通过Python命令查看"></a>通过Python命令查看</h2><figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pip.utils.appdirs <span class="keyword">import</span> user_cache_dir  <span class="comment"># before pip v.10</span></span><br><span class="line"><span class="keyword">from</span> pip._internal.utils.appdirs <span class="keyword">import</span> user_cache_dir  <span class="comment"># since pip v.10</span></span><br><span class="line"><span class="built_in">print</span>(user_cache_dir(<span class="string">&#x27;pip&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(user_cache_dir(<span class="string">&#x27;wheel&#x27;</span>))</span><br></pre></td></tr></table></figure>
 
-<h2 id="Git-remote"><a href="#Git-remote" class="headerlink" title="Git remote"></a>Git remote</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git remote -v # 查看所有远程仓库</span><br><span class="line">git remote show [远程仓库名] # 详细查看某个远程仓库</span><br><span class="line">git remote add [远程仓库名] [远程仓库地址] # 添加远程仓库</span><br><span class="line">git remote remove [远程仓库名] # 移除某个远程仓库</span><br><span class="line">git remote rename [现在的仓库名] [新的仓库名] # 重命名某个远程仓库</span><br><span class="line">git remote rm [远程仓库名]</span><br></pre></td></tr></table></figure>
+<h1 id="修改缓存位置"><a href="#修改缓存位置" class="headerlink" title="修改缓存位置"></a>修改缓存位置</h1><h2 id="通过命令的方式"><a href="#通过命令的方式" class="headerlink" title="通过命令的方式"></a>通过命令的方式</h2><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip config <span class="built_in">set</span> <span class="built_in">global</span>.<span class="keyword">cache</span><span class="params">-dir</span> <span class="string">&quot;新的路径&quot;</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="Git-Proxy"><a href="#Git-Proxy" class="headerlink" title="Git Proxy"></a>Git Proxy</h2><ul>
-<li><p>http类型代理</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy <span class="string">&#x27;http://127.0.0.1:1080&#x27;</span></span><br><span class="line">git config --global https.proxy <span class="string">&#x27;http://127.0.0.1:1080&#x27;</span></span><br></pre></td></tr></table></figure>
-
-
+<h2 id="通过修改配置文件的方式"><a href="#通过修改配置文件的方式" class="headerlink" title="通过修改配置文件的方式"></a>通过修改配置文件的方式</h2><ul>
+<li><p>win10配置文件路径: <code>%APPDATA%\pip\pip.ini</code></p>
+</li>
+<li><p>linux配置文件路径：<code>~/.config/pip/pip.conf</code></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[global]</span></span><br><span class="line"><span class="attr">cache-dir</span> = /home/pi/udisk/.cache/pip <span class="comment"># pip缓存位置</span></span><br><span class="line"><span class="attr">index-url</span> = https://pypi.python.org/simple <span class="comment"># pip源</span></span><br><span class="line"><span class="attr">trusted-host</span> = pypi.python.org <span class="comment"># 信任的host</span></span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
-<ul>
-<li><p>socks5类型代理  </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">git config --global https.proxy <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br></pre></td></tr></table></figure>
+<h2 id="设置某次pip安装没有缓存"><a href="#设置某次pip安装没有缓存" class="headerlink" title="设置某次pip安装没有缓存"></a>设置某次pip安装没有缓存</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># pip安装时添加--<span class="keyword">no</span>-cache-<span class="keyword">dir</span>参数</span><br><span class="line">pip install requests --<span class="keyword">no</span>-cache-<span class="keyword">dir</span></span><br></pre></td></tr></table></figure>
 
 
-
-</li>
-</ul>
-<ul>
-<li><p>查当前的代理配置</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global --get http.proxy  </span><br><span class="line">git config --global --get https.proxy</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>取消设置代理</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global --<span class="built_in">unset</span> http.proxy  </span><br><span class="line">git config --global --<span class="built_in">unset</span> https.proxy</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>设置使用需账户密码验证的代理</p>
-<p>如果出现错误如下，则需要添加用户名和密码</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">fatal</span>: NotSupportedException encountered.</span><br><span class="line">   <span class="attribute">ServicePointManager</span> 不支持具有 socks<span class="number">5</span> 方案的代理。</span><br></pre></td></tr></table></figure>
-
-<p>下面设置需要密码的代理</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy http://username:passwd@127.0.0.1:1080</span><br><span class="line">git config --global http.proxy socks5://username:passwd@127.0.0.1:1080</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="Git删除所有commit记录"><a href="#Git删除所有commit记录" class="headerlink" title="Git删除所有commit记录"></a>Git删除所有commit记录</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git checkout --orphan latest_branch # 基于当前分支建立新分支latest_branch</span><br><span class="line">git add -A</span><br><span class="line">git commit -am &quot;first commit&quot;</span><br><span class="line">git branch -D master # 删除master分支</span><br><span class="line">git branch -m master # 重命名latest_branch分支为master</span><br><span class="line">git push -f origin master # 强制推送</span><br></pre></td></tr></table></figure>
 
 
     </div>
@@ -420,21 +394,6 @@
     
     
       
-  <div class="popular-posts-header">相关文章</div>
-  <ul class="popular-posts">
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\posts\d392dh\" rel="bookmark">Caddy安装和常用命令</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\posts\d827b859\" rel="bookmark">ffmpeg常用命令总结</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\posts\1d063ae7\" rel="bookmark">linux常用命令总结</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\posts\dj8392A\" rel="bookmark">npm命令总结</a></div>
-    </li>
-  </ul>
 
 
     <footer class="post-footer">
@@ -447,7 +406,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://blog.kervias.com/posts/dwqdwq/" title="Git常用命令总结">https://blog.kervias.com/posts/dwqdwq/</a>
+      <a href="https://blog.kervias.com/posts/5e683b0e/" title="Python的pip缓存">https://blog.kervias.com/posts/5e683b0e/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -455,22 +414,16 @@
 </ul>
 </div>
 
-          <div class="post-tags">
-              <a href="/tags/%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/" rel="tag"><i class="fa fa-tag"></i> 命令总结</a>
-          </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/posts/9c5438d1/" rel="prev" title="linux学习05 - linux环境变量与文件查找">
-                  <i class="fa fa-chevron-left"></i> linux学习05 - linux环境变量与文件查找
+                <a href="/posts/d827b859/" rel="prev" title="ffmpeg常用命令总结">
+                  <i class="fa fa-chevron-left"></i> ffmpeg常用命令总结
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/posts/e2efb148/" rel="next" title="Halo博客服务器迁移">
-                  Halo博客服务器迁移 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -592,9 +545,9 @@
 
 <script>
   var disqus_config = function() {
-    this.page.url = "https://blog.kervias.com/posts/dwqdwq/";
-    this.page.identifier = "posts/dwqdwq/";
-    this.page.title = "Git常用命令总结";
+    this.page.url = "https://blog.kervias.com/posts/5e683b0e/";
+    this.page.identifier = "posts/5e683b0e/";
+    this.page.title = "Python的pip缓存";
     };
   NexT.utils.loadComments('#disqus_thread', () => {
     if (window.DISQUS) {

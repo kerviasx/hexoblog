@@ -9,8 +9,31 @@
     <atom:link href="https://blog.kervias.com/atom.xml" rel="self" type="application/rss+xml"/>
     
     <description></description>
-    <pubDate>Tue, 08 Dec 2020 03:20:05 GMT</pubDate>
+    <pubDate>Thu, 10 Dec 2020 08:50:10 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>Python的pip缓存</title>
+      <link>https://blog.kervias.com/posts/5e683b0e/</link>
+      <guid>https://blog.kervias.com/posts/5e683b0e/</guid>
+      <pubDate>Thu, 10 Dec 2020 08:30:15 GMT</pubDate>
+      
+      <description>&lt;blockquote&gt;
+&lt;p&gt;pip安装时默认会有缓存，存储在C盘占用空间&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+      
+      
+      
+      <content:encoded><![CDATA[<blockquote><p>pip安装时默认会有缓存，存储在C盘占用空间</p></blockquote><a id="more"></a><h1 id="查看缓存位置"><a href="#查看缓存位置" class="headerlink" title="查看缓存位置"></a>查看缓存位置</h1><ul><li>win10下默认缓存路径为：<code>C:\Users\用户名\AppData\Local\pip\cache</code></li><li>linux下默认缓存路径为：<code>~/.cache/pip</code></li></ul><h2 id="通过Python命令查看"><a href="#通过Python命令查看" class="headerlink" title="通过Python命令查看"></a>通过Python命令查看</h2><figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pip.utils.appdirs <span class="keyword">import</span> user_cache_dir  <span class="comment"># before pip v.10</span></span><br><span class="line"><span class="keyword">from</span> pip._internal.utils.appdirs <span class="keyword">import</span> user_cache_dir  <span class="comment"># since pip v.10</span></span><br><span class="line"><span class="built_in">print</span>(user_cache_dir(<span class="string">&#x27;pip&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(user_cache_dir(<span class="string">&#x27;wheel&#x27;</span>))</span><br></pre></td></tr></table></figure><h1 id="修改缓存位置"><a href="#修改缓存位置" class="headerlink" title="修改缓存位置"></a>修改缓存位置</h1><h2 id="通过命令的方式"><a href="#通过命令的方式" class="headerlink" title="通过命令的方式"></a>通过命令的方式</h2><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip config <span class="built_in">set</span> <span class="built_in">global</span>.<span class="keyword">cache</span><span class="params">-dir</span> <span class="string">&quot;新的路径&quot;</span></span><br></pre></td></tr></table></figure><h2 id="通过修改配置文件的方式"><a href="#通过修改配置文件的方式" class="headerlink" title="通过修改配置文件的方式"></a>通过修改配置文件的方式</h2><ul><li><p>win10配置文件路径: <code>%APPDATA%\pip\pip.ini</code></p></li><li><p>linux配置文件路径：<code>~/.config/pip/pip.conf</code></p><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[global]</span></span><br><span class="line"><span class="attr">cache-dir</span> = /home/pi/udisk/.cache/pip <span class="comment"># pip缓存位置</span></span><br><span class="line"><span class="attr">index-url</span> = https://pypi.python.org/simple <span class="comment"># pip源</span></span><br><span class="line"><span class="attr">trusted-host</span> = pypi.python.org <span class="comment"># 信任的host</span></span><br></pre></td></tr></table></figure></li></ul><h2 id="设置某次pip安装没有缓存"><a href="#设置某次pip安装没有缓存" class="headerlink" title="设置某次pip安装没有缓存"></a>设置某次pip安装没有缓存</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># pip安装时添加--<span class="keyword">no</span>-cache-<span class="keyword">dir</span>参数</span><br><span class="line">pip install requests --<span class="keyword">no</span>-cache-<span class="keyword">dir</span></span><br></pre></td></tr></table></figure>]]></content:encoded>
+      
+      
+      <category domain="https://blog.kervias.com/categories/%E6%8A%80%E5%B7%A7/">技巧</category>
+      
+      
+      
+      <comments>https://blog.kervias.com/posts/5e683b0e/#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>ffmpeg常用命令总结</title>
