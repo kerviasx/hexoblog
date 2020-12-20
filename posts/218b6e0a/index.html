@@ -23,22 +23,21 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="参考博客 :point_right: 网址">
+<meta name="description" content="新建swap分区创建分区文件1dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;&#x2F;root&#x2F;swapfile bs&#x3D;1M count&#x3D;2048   dd:  用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。 if: 输入文件名，缺省为标准输入，即指定源文件 of: 输出文件名，缺省为标准输出，即指定目的文件 &#x2F;dev&#x2F;zero: 创建一个指定长度用于初始化的空文件 bs: bytes，设置读入&#x2F;输出">
 <meta property="og:type" content="article">
-<meta property="og:title" content="解决Unix-like、Windows系统之间文本换行符不同的问题">
-<meta property="og:url" content="https://blog.kervias.com/posts/8af9e030/index.html">
+<meta property="og:title" content="linux添加虚拟内存swap">
+<meta property="og:url" content="https://blog.kervias.com/posts/218b6e0a/index.html">
 <meta property="og:site_name" content="kervias">
-<meta property="og:description" content="参考博客 :point_right: 网址">
+<meta property="og:description" content="新建swap分区创建分区文件1dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;&#x2F;root&#x2F;swapfile bs&#x3D;1M count&#x3D;2048   dd:  用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。 if: 输入文件名，缺省为标准输入，即指定源文件 of: 输出文件名，缺省为标准输出，即指定目的文件 &#x2F;dev&#x2F;zero: 创建一个指定长度用于初始化的空文件 bs: bytes，设置读入&#x2F;输出">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172001.png">
-<meta property="article:published_time" content="2020-02-03T02:02:31.000Z">
-<meta property="article:modified_time" content="2020-12-02T02:06:06.700Z">
+<meta property="article:published_time" content="2020-12-20T12:42:24.000Z">
+<meta property="article:modified_time" content="2020-12-20T12:57:27.309Z">
 <meta property="article:author" content="kervias">
+<meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172001.png">
 
 
-<link rel="canonical" href="https://blog.kervias.com/posts/8af9e030/">
+<link rel="canonical" href="https://blog.kervias.com/posts/218b6e0a/">
 
 
 <script class="page-configurations">
@@ -50,7 +49,7 @@
     lang   : 'zh-CN'
   };
 </script>
-<title>解决Unix-like、Windows系统之间文本换行符不同的问题 | kervias</title>
+<title>linux添加虚拟内存swap | kervias</title>
   
 
 
@@ -219,7 +218,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CRLF%E6%9D%A5%E5%8E%86"><span class="nav-number">2.</span> <span class="nav-text">CRLF来历</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9A%E6%96%87%E6%9C%AC%E7%B1%BB%E5%9E%8B%E6%96%87%E4%BB%B6%E4%BA%92%E8%BD%AC"><span class="nav-number">3.1.</span> <span class="nav-text">问题一：文本类型文件互转</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%BA%8C%EF%BC%9Adoc%E6%96%87%E6%A1%A3%E4%B9%B1%E7%A0%81"><span class="nav-number">3.2.</span> <span class="nav-text">问题二：doc文档乱码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%89%EF%BC%9AFTP%E4%BC%A0%E6%96%87%E4%BB%B6%E6%97%B6%E4%B9%B1%E7%A0%81"><span class="nav-number">3.3.</span> <span class="nav-text">问题三：FTP传文件时乱码</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B0%E5%BB%BAswap%E5%88%86%E5%8C%BA"><span class="nav-number">1.</span> <span class="nav-text">新建swap分区</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%88%86%E5%8C%BA%E6%96%87%E4%BB%B6"><span class="nav-number">1.1.</span> <span class="nav-text">创建分区文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%E3%80%81%E5%BB%BA%E7%AB%8Bswap%E5%88%86%E5%8C%BA%E5%B9%B6%E5%90%AF%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">修改文件权限、建立swap分区并启用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E6%95%B4swap%E5%88%86%E5%8C%BA%E4%BD%BF%E7%94%A8%E4%BC%98%E5%85%88%E7%BA%A7"><span class="nav-number">2.</span> <span class="nav-text">调整swap分区使用优先级</span></a></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -307,7 +306,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/8af9e030/">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/218b6e0a/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
@@ -320,7 +319,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          解决Unix-like、Windows系统之间文本换行符不同的问题
+          linux添加虚拟内存swap
         </h1>
 
         <div class="post-meta-container">
@@ -330,16 +329,10 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
+      
 
-      <time title="创建时间：2020-02-03 10:02:31" itemprop="dateCreated datePublished" datetime="2020-02-03T10:02:31+08:00">2020-02-03</time>
+      <time title="创建时间：2020-12-20 20:42:24 / 修改时间：20:57:27" itemprop="dateCreated datePublished" datetime="2020-12-20T20:42:24+08:00">2020-12-20</time>
     </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-12-02 10:06:06" itemprop="dateModified" datetime="2020-12-02T10:06:06+08:00">2020-12-02</time>
-      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -367,35 +360,31 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <blockquote>
-<p>参考博客 :point_right: <a target="_blank" rel="noopener" href="https://sphenginx.github.io/2014/12/24/CRLF-in-Unix-like_Windows-os/">网址</a></p>
-</blockquote>
-<a id="more"></a>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>\r是回车符,\n是换行符，各个系统的换行标志：</p>
-<blockquote>
-<p>win 用 \r\n<br>linux/unix 用 \n<br>Mac OS 用 \r</p>
-</blockquote>
-<p>CR用符号’\r’表示, 十进制ASCII代码是13, 十六进制代码为OxOD<br>LF使用’\n’符号表示, ASCII代码是10, 十六制为0x0A<br>所以：<br>Windows下用的是OAOD，即CR&amp;LF，<br>linux/unix用的是OA，即LF<br>MacOS用的是OD，即CR</p>
-<h2 id="CRLF来历"><a href="#CRLF来历" class="headerlink" title="CRLF来历"></a>CRLF来历</h2><p>计算机还没有出现之前，有一种叫做电传打字机（Teletype Model 33）的玩意，每秒钟可以打10个字符。但是它有一个问题，就是打完一行换行的时候，要用去0.2秒，正好可以打两个字符。要是在这0.2秒里面，又有新的字符传过来，那么这个字符将丢失。</p>
-<p>于是，研制人员想了个办法解决这个问题，就是在每行后面加两个表示结束的字符。一个叫做“回车”，告诉打字机把打印头定位在左边界；另一个叫做“换行”，告诉打字机把纸向下移一行。这就是“换行”和“回车”的来历，从它们的英语名字上也可以看出一二。</p>
-<p>后来，计算机发明了，这两个概念也就被般到了计算机上。那时，存储器很贵，一些科学家认为在每行结尾加两个字符太浪费了，加一个就可以。于是，就出现了分歧。Unix 系统里，每行结尾只有“&lt;换行&gt;”，即“\n”；Windows系统里面，每行结尾是“&lt;回车&gt;&lt;换行&gt;”，即“ \r\n”；Mac系统里，每行结尾是“&lt;回车&gt;”。一个直接后果是，Unix/Mac系统下的文件在Windows里打开的话，所有文字会变成一行；而Windows里的文件在Unix/Mac下打开的话，在每行的结尾可能会多出一个^M符号。</p>
-<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="问题一：文本类型文件互转"><a href="#问题一：文本类型文件互转" class="headerlink" title="问题一：文本类型文件互转"></a>问题一：文本类型文件互转</h3><blockquote>
-<p>包括 <code>txt</code> <code>sh</code>等文件</p>
-</blockquote>
-<p><strong>方法一</strong><br>使用<code>notepad++</code>中的格式转换功能，见图</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172001.png"></p>
-<p><strong>方法二</strong><br>针对<code>sh</code>文件，可以使用vim工具<br>在vim模式下，输入<code>set ff</code>发现文件类型为<code>format=dos</code><br>在vim模式下，可以使用<code>set ff=unix</code>改变format为<code>unix</code></p>
-<h3 id="问题二：doc文档乱码"><a href="#问题二：doc文档乱码" class="headerlink" title="问题二：doc文档乱码"></a>问题二：doc文档乱码</h3><blockquote>
-<p>Windows下编写的doc文档，在Linux下查看（用Open Office）一般都会乱码</p>
-</blockquote>
+        <h1 id="新建swap分区"><a href="#新建swap分区" class="headerlink" title="新建swap分区"></a>新建swap分区</h1><h2 id="创建分区文件"><a href="#创建分区文件" class="headerlink" title="创建分区文件"></a>创建分区文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dd if=/dev/zero of=/root/swapfile bs=1M count=2048</span><br></pre></td></tr></table></figure>
+
 <ul>
-<li>  解决方法：先用Open Office打开，然后再全选，把字体设置为SYSong18030，OK中文简体和繁体都显示正常了。</li>
+<li>dd:  用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。</li>
+<li>if: 输入文件名，缺省为标准输入，即指定源文件</li>
+<li>of: 输出文件名，缺省为标准输出，即指定目的文件</li>
+<li>/dev/zero: 创建一个指定长度用于初始化的空文件</li>
+<li>bs: bytes，设置读入/输出的块大小</li>
+<li>count: 拷贝块的个数</li>
+<li>上述命令指定了/root/swapfile 大小为2G</li>
 </ul>
-<h3 id="问题三：FTP传文件时乱码"><a href="#问题三：FTP传文件时乱码" class="headerlink" title="问题三：FTP传文件时乱码"></a>问题三：FTP传文件时乱码</h3><blockquote>
-<p>在不同平台间使用FTP软件传送文件时, 在ascii文本模式传输模式下, 一些FTP客户端程序会自动对换行格式进行转换，经过这种传输的文件字节数可能会发生变化”)问题四：在不同平台间使用FTP软件传送文件时, 在ascii文本模式传输模式下, 一些FTP客户端程序会自动对换行格式进行转换，经过这种传输的文件字节数可能会发生变化</p>
-</blockquote>
-<ul>
-<li>  解决方法：如果你不想ftp修改原文件, 可以使用bin模式(二进制模式)传输文本。</li>
+<h2 id="修改文件权限、建立swap分区并启用"><a href="#修改文件权限、建立swap分区并启用" class="headerlink" title="修改文件权限、建立swap分区并启用"></a>修改文件权限、建立swap分区并启用</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">chmod 0600 /root/swapfile</span><br><span class="line">mkswap /root/swapfile</span><br><span class="line">swapon /root/swapfile</span><br></pre></td></tr></table></figure>
+
+<h1 id="调整swap分区使用优先级"><a href="#调整swap分区使用优先级" class="headerlink" title="调整swap分区使用优先级"></a>调整swap分区使用优先级</h1><ul>
+<li><p>查看当前swap使用优先级</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/sys/vm/swappiness</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改swap使用优先级</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sysctl vm.swappiness=60 # 一般设为60，表明系统内存剩余100-60=40时，开始使用交换内存</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>永久修改swap使用优先级</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/sysctl.conf # 打开文件</span><br></pre></td></tr></table></figure>
+
+<p>找到文件中 <code> vm.swappiness=0</code>这一行，修改其值即可。如果没有这一行，则添加这一行。</p>
+</li>
 </ul>
 
     </div>
@@ -416,7 +405,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://blog.kervias.com/posts/8af9e030/" title="解决Unix-like、Windows系统之间文本换行符不同的问题">https://blog.kervias.com/posts/8af9e030/</a>
+      <a href="https://blog.kervias.com/posts/218b6e0a/" title="linux添加虚拟内存swap">https://blog.kervias.com/posts/218b6e0a/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -424,19 +413,19 @@
 </ul>
 </div>
 
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+          </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/posts/33eb66fd/" rel="prev" title="linux服务器上传文件到百度网盘">
-                  <i class="fa fa-chevron-left"></i> linux服务器上传文件到百度网盘
+                <a href="/posts/5e683b0e/" rel="prev" title="Python的pip缓存">
+                  <i class="fa fa-chevron-left"></i> Python的pip缓存
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/posts/db70b640/" rel="next" title="Linux下将python脚本封装成服务">
-                  Linux下将python脚本封装成服务 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -558,9 +547,9 @@
 
 <script>
   var disqus_config = function() {
-    this.page.url = "https://blog.kervias.com/posts/8af9e030/";
-    this.page.identifier = "posts/8af9e030/";
-    this.page.title = "解决Unix-like、Windows系统之间文本换行符不同的问题";
+    this.page.url = "https://blog.kervias.com/posts/218b6e0a/";
+    this.page.identifier = "posts/218b6e0a/";
+    this.page.title = "linux添加虚拟内存swap";
     };
   NexT.utils.loadComments('#disqus_thread', () => {
     if (window.DISQUS) {

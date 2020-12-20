@@ -9,8 +9,34 @@
     <atom:link href="https://blog.kervias.com/atom.xml" rel="self" type="application/rss+xml"/>
     
     <description></description>
-    <pubDate>Thu, 10 Dec 2020 08:50:52 GMT</pubDate>
+    <pubDate>Sun, 20 Dec 2020 12:57:27 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>linux添加虚拟内存swap</title>
+      <link>https://blog.kervias.com/posts/218b6e0a/</link>
+      <guid>https://blog.kervias.com/posts/218b6e0a/</guid>
+      <pubDate>Sun, 20 Dec 2020 12:42:24 GMT</pubDate>
+      
+        
+        
+      <description>&lt;h1 id=&quot;新建swap分区&quot;&gt;&lt;a href=&quot;#新建swap分区&quot; class=&quot;headerlink&quot; title=&quot;新建swap分区&quot;&gt;&lt;/a&gt;新建swap分区&lt;/h1&gt;&lt;h2 id=&quot;创建分区文件&quot;&gt;&lt;a href=&quot;#创建分区文件&quot; class=&quot;headerli</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<h1 id="新建swap分区"><a href="#新建swap分区" class="headerlink" title="新建swap分区"></a>新建swap分区</h1><h2 id="创建分区文件"><a href="#创建分区文件" class="headerlink" title="创建分区文件"></a>创建分区文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dd if=/dev/zero of=/root/swapfile bs=1M count=2048</span><br></pre></td></tr></table></figure><ul><li>dd:  用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。</li><li>if: 输入文件名，缺省为标准输入，即指定源文件</li><li>of: 输出文件名，缺省为标准输出，即指定目的文件</li><li>/dev/zero: 创建一个指定长度用于初始化的空文件</li><li>bs: bytes，设置读入/输出的块大小</li><li>count: 拷贝块的个数</li><li>上述命令指定了/root/swapfile 大小为2G</li></ul><h2 id="修改文件权限、建立swap分区并启用"><a href="#修改文件权限、建立swap分区并启用" class="headerlink" title="修改文件权限、建立swap分区并启用"></a>修改文件权限、建立swap分区并启用</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">chmod 0600 /root/swapfile</span><br><span class="line">mkswap /root/swapfile</span><br><span class="line">swapon /root/swapfile</span><br></pre></td></tr></table></figure><h1 id="调整swap分区使用优先级"><a href="#调整swap分区使用优先级" class="headerlink" title="调整swap分区使用优先级"></a>调整swap分区使用优先级</h1><ul><li><p>查看当前swap使用优先级</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/sys/vm/swappiness</span><br></pre></td></tr></table></figure></li><li><p>修改swap使用优先级</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sysctl vm.swappiness=60 # 一般设为60，表明系统内存剩余100-60=40时，开始使用交换内存</span><br></pre></td></tr></table></figure></li><li><p>永久修改swap使用优先级</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/sysctl.conf # 打开文件</span><br></pre></td></tr></table></figure><p>找到文件中 <code> vm.swappiness=0</code>这一行，修改其值即可。如果没有这一行，则添加这一行。</p></li></ul>]]></content:encoded>
+      
+      
+      <category domain="https://blog.kervias.com/categories/linux/">linux</category>
+      
+      
+      <category domain="https://blog.kervias.com/tags/linux/">linux</category>
+      
+      
+      <comments>https://blog.kervias.com/posts/218b6e0a/#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>Python的pip缓存</title>
