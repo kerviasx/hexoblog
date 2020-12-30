@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto+Sans+SC:300,300italic,400,400italic,700,700italic|Noto+Serif+SC:300,300italic,400,400italic,700,700italic|Roboto+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+<meta name="description" content="学习总结：Python高级编程第2版 - 第2章 - 语法最佳实践 - 类级别以下  字符串与字节 集合类型 迭代器 生成器 装饰器 上下文管理器 - with语句 for … else … 函数注解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python3高级编程第2版-语法类级别以下">
+<meta property="og:url" content="https://blog.kervias.com/posts/70c4792/index.html">
+<meta property="og:site_name" content="kervias">
+<meta property="og:description" content="学习总结：Python高级编程第2版 - 第2章 - 语法最佳实践 - 类级别以下  字符串与字节 集合类型 迭代器 生成器 装饰器 上下文管理器 - with语句 for … else … 函数注解">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-12-29T15:51:06.000Z">
+<meta property="article:modified_time" content="2020-12-30T04:44:01.048Z">
+<meta property="article:author" content="kervias">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.kervias.com/posts/70c4792/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>Python3高级编程第2版-语法类级别以下 | kervias</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="kervias" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">kervias</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-留言板">
+
+    <a href="/messageboard/" rel="section"><i class="fa fa-comment-dots fa-fw"></i>留言板</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E5%AD%97%E8%8A%82"><span class="nav-number">1.</span> <span class="nav-text">字符串与字节</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%BF%9B%E9%98%B6"><span class="nav-number">2.</span> <span class="nav-text">数据结构进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%97%E8%A1%A8"><span class="nav-number">2.1.</span> <span class="nav-text">列表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%E6%8E%A8%E5%AF%BC%E5%BC%8F"><span class="nav-number">2.1.1.</span> <span class="nav-text">列表推导式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#enumerate-%E6%9E%9A%E4%B8%BE"><span class="nav-number">2.1.2.</span> <span class="nav-text">enumerate(枚举)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#zip-%E5%8E%8B%E5%8C%85%E8%A7%A3%E5%8C%85"><span class="nav-number">2.1.3.</span> <span class="nav-text">zip 压包解包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E5%85%B8"><span class="nav-number">2.2.</span> <span class="nav-text">字典</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E5%85%B8%E6%8E%A8%E5%AF%BC"><span class="nav-number">2.2.1.</span> <span class="nav-text">字典推导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#keys-values-items"><span class="nav-number">2.2.2.</span> <span class="nav-text">keys() values() items()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E5%90%88"><span class="nav-number">2.3.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E6%8E%A8%E5%AF%BC"><span class="nav-number">2.3.1.</span> <span class="nav-text">集合推导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#set-%E5%92%8Cfrozenset"><span class="nav-number">2.3.2.</span> <span class="nav-text">set()和frozenset()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#collections%E5%BA%93"><span class="nav-number">2.4.</span> <span class="nav-text">collections库</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8iter%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">使用iter函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">3.2.</span> <span class="nav-text">自定义迭代器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97%E7%AE%80%E5%8D%95%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">斐波那契数列简单生成器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#send%E5%87%BD%E6%95%B0"><span class="nav-number">4.2.</span> <span class="nav-text">send函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E4%BD%9C%E4%B8%BA%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">4.3.</span> <span class="nav-text">类成员函数作为生成器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A3%85%E9%A5%B0%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">装饰器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#staticmethod%E5%92%8C-classmethod"><span class="nav-number">5.1.</span> <span class="nav-text">@staticmethod和@classmethod</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E5%8F%82%E8%A3%85%E9%A5%B0%E5%99%A8"><span class="nav-number">5.2.</span> <span class="nav-text">无参装饰器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0"><span class="nav-number">5.2.1.</span> <span class="nav-text">作为一个函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E7%B1%BB"><span class="nav-number">5.2.2.</span> <span class="nav-text">作为一个类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%A6%E5%8F%82%E8%A3%85%E9%A5%B0%E5%99%A8"><span class="nav-number">5.3.</span> <span class="nav-text">带参装饰器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0-1"><span class="nav-number">5.3.1.</span> <span class="nav-text">作为一个函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E7%B1%BB-1"><span class="nav-number">5.3.2.</span> <span class="nav-text">作为一个类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%9D%E5%AD%98%E5%87%BD%E6%95%B0%E5%85%83%E6%95%B0%E6%8D%AE"><span class="nav-number">5.4.</span> <span class="nav-text">保存函数元数据</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86%E5%99%A8-with-%E8%AF%AD%E5%8F%A5"><span class="nav-number">6.</span> <span class="nav-text">上下文管理器 - with 语句</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E7%B1%BB-2"><span class="nav-number">6.1.</span> <span class="nav-text">作为一个类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0-2"><span class="nav-number">6.2.</span> <span class="nav-text">作为一个函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#for-%E2%80%A6-else-%E2%80%A6-%E8%AF%AD%E5%8F%A5"><span class="nav-number">7.</span> <span class="nav-text">for … else … 语句</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E6%B3%A8%E8%A7%A3"><span class="nav-number">8.</span> <span class="nav-text">函数注解</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="kervias"
+      src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+  <p class="site-author-name" itemprop="name">kervias</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">63</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/kerviasx" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;kerviasx" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:cxz.kervia@gmail.com" title="E-Mail → mailto:cxz.kervia@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.cnblogs.com/kervia/" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kervia&#x2F;" rel="noopener" target="_blank">博客园</a>
+        </li>
+    </ul>
+  </div>
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/kerviasx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.kervias.com/posts/70c4792/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg/2020-04/kervias_logo-1.png">
+      <meta itemprop="name" content="kervias">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kervias">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python3高级编程第2版-语法类级别以下
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-29 23:51:06" itemprop="dateCreated datePublished" datetime="2020-12-29T23:51:06+08:00">2020-12-29</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2020-12-30 12:44:01" itemprop="dateModified" datetime="2020-12-30T12:44:01+08:00">2020-12-30</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/python-syntax/" itemprop="url" rel="index"><span itemprop="name">python_syntax</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>学习总结：Python高级编程第2版 - 第2章 - 语法最佳实践 - 类级别以下</p>
+<ul>
+<li>字符串与字节</li>
+<li>集合类型</li>
+<li>迭代器</li>
+<li>生成器</li>
+<li>装饰器</li>
+<li>上下文管理器 - with语句</li>
+<li>for … else …</li>
+<li>函数注解</li>
+</ul>
+</blockquote>
+<a id="more"></a>
+
+<h1 id="字符串与字节"><a href="#字符串与字节" class="headerlink" title="字符串与字节"></a>字符串与字节</h1><ul>
+<li>str: 字符串</li>
+<li> bytes: 字节数组</li>
+<li>bytearray: 可变字节数组</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="built_in">bytes</span>([<span class="number">100</span>,<span class="number">121</span>,<span class="number">101</span>]))</span><br><span class="line"><span class="string">b&#x27;dye&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">list</span>(<span class="string">b&#x27;dye&#x27;</span>)</span><br><span class="line">[<span class="number">100</span>, <span class="number">121</span>, <span class="number">101</span>]</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m = <span class="string">b&quot;你好&quot;</span></span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span></span><br><span class="line">SyntaxError: <span class="built_in">bytes</span> can only contain ASCII literal characters.</span><br></pre></td></tr></table></figure>
+
+<p>Unicode字符串中包含无法用字节表示的”抽象”文本. 因此<strong>如果Unicode字符串没有被转换成二进制数据的话，是无法保存在磁盘中或通过网络发送的</strong>。</p>
+<p>将字符串对象编码为字节序列的方式：</p>
+<ul>
+<li>str.encode(encoding, errors)</li>
+<li>bytes(source, encoding, errors)</li>
+</ul>
+<p>将二进制数据转化为字符串的方式：</p>
+<ul>
+<li>bytes.decode(encoding, errors)</li>
+<li>str(source, encoding, error)</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">&quot;你好&quot;</span>.encode()</span><br><span class="line"><span class="string">b&#x27;\xe4\xbd\xa0\xe5\xa5\xbd&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>t = <span class="string">&quot;你好&quot;</span>.encode()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>t</span><br><span class="line"><span class="string">b&#x27;\xe4\xbd\xa0\xe5\xa5\xbd&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>t.decode()</span><br><span class="line"><span class="string">&#x27;你好&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="built_in">type</span>(t))</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> &#x27;<span class="title">bytes</span>&#x27;&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="数据结构进阶"><a href="#数据结构进阶" class="headerlink" title="数据结构进阶"></a>数据结构进阶</h1><h2 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h2><p>下面的用法几乎适用于任何可迭代对象</p>
+<h3 id="列表推导式"><a href="#列表推导式" class="headerlink" title="列表推导式"></a>列表推导式</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>[i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>) <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>]</span><br></pre></td></tr></table></figure>
+
+<h3 id="enumerate-枚举"><a href="#enumerate-枚举" class="headerlink" title="enumerate(枚举)"></a>enumerate(枚举)</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i, ele <span class="keyword">in</span> <span class="built_in">enumerate</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]):</span><br><span class="line"><span class="meta">... </span>    print(i, ele)</span><br><span class="line">...</span><br><span class="line"><span class="number">0</span> <span class="number">1</span></span><br><span class="line"><span class="number">1</span> <span class="number">2</span></span><br><span class="line"><span class="number">2</span> <span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="zip-压包解包"><a href="#zip-压包解包" class="headerlink" title="zip 压包解包"></a>zip 压包解包</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> item <span class="keyword">in</span> <span class="built_in">zip</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], [<span class="number">4</span>,<span class="number">5</span>]):</span><br><span class="line"><span class="meta">... </span>    print(item)</span><br><span class="line">...</span><br><span class="line">(<span class="number">1</span>, <span class="number">4</span>)</span><br><span class="line">(<span class="number">2</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> item <span class="keyword">in</span> <span class="built_in">zip</span>(*<span class="built_in">zip</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], [<span class="number">4</span>,<span class="number">5</span>])):</span><br><span class="line"><span class="meta">... </span>    print(item)</span><br><span class="line">...</span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">(<span class="number">4</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a,b,*c = <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a,b,c</span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>])</span><br></pre></td></tr></table></figure>
+
+<h2 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h2><h3 id="字典推导"><a href="#字典推导" class="headerlink" title="字典推导"></a>字典推导</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;i:i*<span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> (<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>) <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>&#125;</span><br><span class="line">&#123;<span class="number">2</span>: <span class="number">4</span>, <span class="number">4</span>: <span class="number">8</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="keys-values-items"><a href="#keys-values-items" class="headerlink" title="keys() values() items()"></a>keys() values() items()</h3><p>三者返回的是视图对象</p>
+<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="集合推导"><a href="#集合推导" class="headerlink" title="集合推导"></a>集合推导</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;i <span class="keyword">for</span> i <span class="keyword">in</span> (<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">2</span>)&#125;</span><br><span class="line">&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="set-和frozenset"><a href="#set-和frozenset" class="headerlink" title="set()和frozenset()"></a>set()和frozenset()</h3><p><strong>frozenset()</strong> 返回一个冻结的集合，冻结后集合不能再添加或删除任何元素。</p>
+<h2 id="collections库"><a href="#collections库" class="headerlink" title="collections库"></a>collections库</h2><ul>
+<li>Counter：字典的子类，提供了可哈希对象的计数功能</li>
+<li>defaultdict：字典的子类，提供了一个工厂函数，为字典查询提供了默认值</li>
+<li>OrderedDict：字典的子类，保留了他们被添加的顺序</li>
+<li>namedtuple：创建命名元组子类的工厂函数</li>
+<li>deque：类似列表容器，实现了在两端快速添加(append)和弹出(pop)</li>
+<li>ChainMap：类似字典的容器类，将多个映射集合到一个视图里面</li>
+</ul>
+<h1 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h1><p>迭代器只不过是实现迭代器协议的容器对象。它基于以下两个方法：</p>
+<ul>
+<li>__next__：返回容器下一个元素</li>
+<li>__iter__：返回迭代器本身</li>
+</ul>
+<h2 id="使用iter函数"><a href="#使用iter函数" class="headerlink" title="使用iter函数"></a>使用iter函数</h2><p>迭代器可以利用内置iter函数和一个序列来构建，如下例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>obj = <span class="built_in">iter</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(obj)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(obj)</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(obj)</span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(obj)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br></pre></td></tr></table></figure>
+
+<p>当遍历结束后，可以得到StopIteration异常，捕获到这种异常可停止循环。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>obj = <span class="built_in">iter</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> obj:</span><br><span class="line"><span class="meta">... </span>    print(i)</span><br><span class="line">...</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义迭代器"><a href="#自定义迭代器" class="headerlink" title="自定义迭代器"></a>自定义迭代器</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyIter</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, step</span>):</span></span><br><span class="line">        self.step = step</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__next__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;return the next element&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> self.step &lt;= <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">raise</span> StopIteration</span><br><span class="line">        self.step -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> self.step+<span class="number">1</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;return the iterator self&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> self</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> ele <span class="keyword">in</span> MyIter(<span class="number">4</span>):</span><br><span class="line"><span class="meta">... </span>    print(ele)</span><br><span class="line">...</span><br><span class="line"><span class="number">4</span></span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h1><p>基于yield语句，生成器可以暂停函数并返回一个中间结果。该函数会保存执行上下文，稍后在必要时可以恢复。</p>
+<h2 id="斐波那契数列简单生成器"><a href="#斐波那契数列简单生成器" class="headerlink" title="斐波那契数列简单生成器"></a>斐波那契数列简单生成器</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fibonacci</span>():</span></span><br><span class="line">    a, b = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> b</span><br><span class="line">        a, b = b, a + b</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>fib = fibonacci()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(fib)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(fib)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(fib)</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(fib)</span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">type</span>(fib)</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> &#x27;<span class="title">generator</span>&#x27;&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>该函数返回一个generator对象，该对象是一个特殊的迭代器，它知道如何保存上下文。</p>
+<p>上述斐波那契数列迭代器对象可以被无限次调用，就像是数列一样。</p>
+<h2 id="send函数"><a href="#send函数" class="headerlink" title="send函数"></a>send函数</h2><p>send函数的作用和next类似，但会将send函数内部传入的值变为yield的返回值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">MyGenerator</span>():</span></span><br><span class="line"><span class="meta">... </span>    value = <span class="keyword">yield</span> <span class="string">&quot;Hello&quot;</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> value</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = MyGenerator()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="string">&#x27;Hello&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = MyGenerator()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="string">&#x27;Hello&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen.send(<span class="string">&quot;Hi&quot;</span>)</span><br><span class="line"><span class="string">&#x27;Hi&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = MyGenerator()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen.send(<span class="string">&quot;Hi&quot;</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: can<span class="string">&#x27;t send non-None value to a just-started generator</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&gt;&gt;&gt; gen = MyGenerator()</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; gen.send(None)</span></span><br><span class="line"><span class="string">&#x27;</span>Hello<span class="string">&#x27;</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; gen.send(&quot;Hi&quot;)</span></span><br><span class="line"><span class="string">&#x27;</span>Hi<span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>send函数可以根据客户端代码来改变自身行为，为了完成这一行为，还添加了两个函数：</p>
+<ul>
+<li>throw：允许客户端发送要抛出的各类异常</li>
+<li>close：引发特定异常，GeneratorExit</li>
+</ul>
+<h2 id="类成员函数作为生成器"><a href="#类成员函数作为生成器" class="headerlink" title="类成员函数作为生成器"></a>类成员函数作为生成器</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">fibonacci</span>(<span class="params">self</span>):</span></span><br><span class="line"><span class="meta">... </span>        a, b = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line"><span class="meta">... </span>        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line"><span class="meta">... </span>            <span class="keyword">yield</span> b</span><br><span class="line"><span class="meta">... </span>            a, b = b, a + b</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>aa = A()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i, obj <span class="keyword">in</span> <span class="built_in">enumerate</span>(aa.fibonacci()):</span><br><span class="line"><span class="meta">... </span>    print(i, obj)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">if</span> i &gt; <span class="number">5</span>:</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">break</span></span><br><span class="line">...</span><br><span class="line"><span class="number">0</span> <span class="number">1</span></span><br><span class="line"><span class="number">1</span> <span class="number">1</span></span><br><span class="line"><span class="number">2</span> <span class="number">2</span></span><br><span class="line"><span class="number">3</span> <span class="number">3</span></span><br><span class="line"><span class="number">4</span> <span class="number">5</span></span><br><span class="line"><span class="number">5</span> <span class="number">8</span></span><br><span class="line"><span class="number">6</span> <span class="number">13</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h1><p>装饰器是一个可调用对象，即函数或者实现了<code>__call__</code>方法的类。</p>
+<h2 id="staticmethod和-classmethod"><a href="#staticmethod和-classmethod" class="headerlink" title="@staticmethod和@classmethod"></a>@staticmethod和@classmethod</h2><ul>
+<li>@staticmethod或@classmethod，就可以不需要实例化，直接类名.方法名()来调用。</li>
+<li>@staticmethod不需要表示自身对象的self和自身类的cls参数，就跟使用函数一样。</li>
+<li>@classmethod也不需要self参数，但第一个参数需要是表示自身类的cls参数。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 简化前写法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">static_method</span>():</span></span><br><span class="line">        print(<span class="string">&quot;staticmethod&quot;</span>)</span><br><span class="line">    static_method = <span class="built_in">staticmethod</span>(static_method)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">class_method</span>(<span class="params">cls</span>):</span></span><br><span class="line">        cls.static_method()</span><br><span class="line">        print(<span class="string">&quot;classmethod&quot;</span>)</span><br><span class="line">    class_method = <span class="built_in">classmethod</span>(class_method)</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 简化后写法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">static_method</span>():</span></span><br><span class="line">        print(<span class="string">&quot;staticmethod&quot;</span>)</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">class_method</span>(<span class="params">cls</span>):</span></span><br><span class="line">        cls.static_method()</span><br><span class="line">        print(<span class="string">&quot;classmethod&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="无参装饰器"><a href="#无参装饰器" class="headerlink" title="无参装饰器"></a>无参装饰器</h2><h3 id="作为一个函数"><a href="#作为一个函数" class="headerlink" title="作为一个函数"></a>作为一个函数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用装饰器之前</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span>(<span class="params">func</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">        print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">        <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line">say_sth = decorator(say_sth)</span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器之后</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span>(<span class="params">func</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">        print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">        <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@decorator</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"> say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="作为一个类"><a href="#作为一个类" class="headerlink" title="作为一个类"></a>作为一个类</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用装饰器之前</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, function</span>):</span></span><br><span class="line">        self.function = function</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, *args, **kwargs</span>):</span></span><br><span class="line">        print(<span class="string">&quot;%s 调用&quot;</span> % self.function.__name__)</span><br><span class="line">        <span class="keyword">return</span> self.function(*args, **kwargs)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth = DecoratorClass(say_sth)</span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器之后</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, function</span>):</span></span><br><span class="line">        self.function = function</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, *args, **kwargs</span>):</span></span><br><span class="line">        print(<span class="string">&quot;%s 调用&quot;</span> % self.function.__name__)</span><br><span class="line">        <span class="keyword">return</span> self.function(*args, **kwargs)</span><br><span class="line"></span><br><span class="line"><span class="meta">@DecoratorClass</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="带参装饰器"><a href="#带参装饰器" class="headerlink" title="带参装饰器"></a>带参装饰器</h2><h3 id="作为一个函数-1"><a href="#作为一个函数-1" class="headerlink" title="作为一个函数"></a>作为一个函数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用装饰器之前</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span>(<span class="params">say=<span class="literal">True</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner_wrapper</span>(<span class="params">func</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">            <span class="keyword">if</span> say:</span><br><span class="line">                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line">    <span class="keyword">return</span> inner_wrapper</span><br><span class="line"></span><br><span class="line">say_sth = decorator(say=<span class="literal">False</span>)(say_sth)</span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器之后</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span>(<span class="params">say=<span class="literal">True</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner_wrapper</span>(<span class="params">func</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">            <span class="keyword">if</span> say:</span><br><span class="line">                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line">    <span class="keyword">return</span> inner_wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@decorator(<span class="params">say=<span class="literal">False</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="作为一个类-1"><a href="#作为一个类-1" class="headerlink" title="作为一个类"></a>作为一个类</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用装饰器之前</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, say=<span class="literal">True</span></span>):</span></span><br><span class="line">        self.say = say</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, func</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">            <span class="keyword">if</span> self.say:</span><br><span class="line">                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth = DecoratorClass(say=<span class="literal">False</span>)(say_sth)</span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器之后</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, say=<span class="literal">True</span></span>):</span></span><br><span class="line">        self.say = say</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, func</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">            <span class="keyword">if</span> self.say:</span><br><span class="line">                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@DecoratorClass(<span class="params">say=<span class="literal">False</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="保存函数元数据"><a href="#保存函数元数据" class="headerlink" title="保存函数元数据"></a>保存函数元数据</h2><p>上述示例均未保存函数的元数据（主要是文档字符串和原始函数名）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, say=<span class="literal">True</span></span>):</span></span><br><span class="line"><span class="meta">... </span>        self.say = say</span><br><span class="line">...</span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, func</span>):</span></span><br><span class="line"><span class="meta">... </span>        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line"><span class="meta">... </span>            <span class="string">&quot;&quot;&quot;wrapper doc&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">... </span>            <span class="keyword">if</span> self.say:</span><br><span class="line"><span class="meta">... </span>                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line"><span class="meta">... </span>            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">return</span> wrapper</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>@DecoratorClass(say=<span class="literal">True</span>)</span><br><span class="line"><span class="meta">... </span><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line"><span class="meta">... </span>    <span class="string">&quot;&quot;&quot;say_sth doc&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">... </span>    print(words)</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>say_sth.__name__</span><br><span class="line"><span class="string">&#x27;wrapper&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>say_sth.__doc__</span><br><span class="line"><span class="string">&#x27;wrapper doc&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>为了解决这个问题，我们需要使用functools中的wraps()装饰器。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, say=<span class="literal">True</span></span>):</span></span><br><span class="line"><span class="meta">... </span>        self.say = say</span><br><span class="line">...</span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, func</span>):</span></span><br><span class="line"><span class="meta">... </span>        @wraps(func)</span><br><span class="line"><span class="meta">... </span>        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line"><span class="meta">... </span>            <span class="string">&quot;&quot;&quot;wrapper doc&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">... </span>            <span class="keyword">if</span> self.say:</span><br><span class="line"><span class="meta">... </span>                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line"><span class="meta">... </span>            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">return</span> wrapper</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>@DecoratorClass(say=<span class="literal">True</span>)</span><br><span class="line"><span class="meta">... </span><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line"><span class="meta">... </span>    <span class="string">&quot;&quot;&quot;say_sth doc&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">... </span>    print(words)</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>say_sth.__name__</span><br><span class="line"><span class="string">&#x27;say_sth&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>say_sth.__doc__</span><br><span class="line"><span class="string">&#x27;say_sth doc&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="上下文管理器-with-语句"><a href="#上下文管理器-with-语句" class="headerlink" title="上下文管理器 - with 语句"></a>上下文管理器 - with 语句</h1><ul>
+<li>关闭一个文件</li>
+<li>释放一个锁</li>
+<li>创建一个临时的代码布丁</li>
+<li>在特殊环境运行中受保护的代码</li>
+</ul>
+<h2 id="作为一个类-2"><a href="#作为一个类-2" class="headerlink" title="作为一个类"></a>作为一个类</h2><p>任何实现了上下文管理器协议的对象都可以用作上下文管理器，该协议包含两个方法：</p>
+<ul>
+<li><code>__enter__(self)</code>:  任何返回值都会绑定到指定的as子句</li>
+<li><code>__exit__(self, exc_type, exc_value, traceback)</code>: 退出时需要执行的操作</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileOpen</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self,filename, mode, encoding=<span class="string">&#x27;utf-8&#x27;</span></span>):</span></span><br><span class="line">        self.filename = filename</span><br><span class="line">        self.mode = mode</span><br><span class="line">        self.encoding=encoding</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.fp = <span class="built_in">open</span>(self.filename, self.mode, encoding=self.encoding)</span><br><span class="line">        <span class="keyword">return</span> self.fp</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span>(<span class="params">self, exc_type, exc_value, traceback</span>):</span></span><br><span class="line">        self.fp.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> FileOpen(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    print(f.readline())</span><br></pre></td></tr></table></figure>
+
+<h2 id="作为一个函数-2"><a href="#作为一个函数-2" class="headerlink" title="作为一个函数"></a>作为一个函数</h2><p>使用contextlib模块，yield分割语句。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> contextlib</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextlib.contextmanager</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">FileOpen</span>(<span class="params">file_name, mode, encoding=<span class="string">&#x27;utf-8&#x27;</span></span>):</span></span><br><span class="line">    file_handler = <span class="built_in">open</span>(file_name, mode, encoding=<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">yield</span> file_handler</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> exc:</span><br><span class="line">        print(<span class="string">&#x27;the exception was thrown&#x27;</span>)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        file_handler.close()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">with</span> FileOpen(<span class="string">&quot;test1.txt&quot;</span>, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    print(f.readline())</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="for-…-else-…-语句"><a href="#for-…-else-…-语句" class="headerlink" title="for … else … 语句"></a>for … else … 语句</h1><p>else子句在for循环语句中正常循环结束才会执行，如果由于break语句退出循环，则else子句不会被执行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line"><span class="meta">... </span>     <span class="keyword">pass</span></span><br><span class="line"><span class="meta">... </span><span class="keyword">else</span>:</span><br><span class="line"><span class="meta">... </span>     print(<span class="string">&quot;no break&quot;</span>)</span><br><span class="line">...</span><br><span class="line">no <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="函数注解"><a href="#函数注解" class="headerlink" title="函数注解"></a>函数注解</h1><p>可以指定参数类型和返回值类型，但是实际调用时，并不会强制要求参数与注解类型一致。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">test</span>(<span class="params">a: <span class="built_in">str</span>, b: <span class="built_in">int</span> = <span class="number">2</span></span>) -&gt; str:</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">return</span> a + <span class="built_in">str</span>(b)</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>test.__annotations__</span><br><span class="line">&#123;&#x27;a&#x27;: &lt;class &#x27;str&#x27;&gt;, &#x27;b&#x27;: &lt;class &#x27;int&#x27;&gt;, &#x27;return&#x27;: &lt;class &#x27;str&#x27;&gt;&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>test(<span class="string">&quot;11&quot;</span>, <span class="string">&quot;33&quot;</span>)</span><br><span class="line"><span class="string">&#x27;1133&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\posts\6631b2cf\" rel="bookmark">python项目库依赖文件生成</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>kervias
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.kervias.com/posts/70c4792/" title="Python3高级编程第2版-语法类级别以下">https://blog.kervias.com/posts/70c4792/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/python/" rel="tag"><i class="fa fa-tag"></i> python</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/218b6e0a/" rel="prev" title="linux添加虚拟内存swap">
+                  <i class="fa fa-chevron-left"></i> linux添加虚拟内存swap
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+      <div class="tabs tabs-comment">
+        <ul class="nav-tabs">
+            <li class="tab"><a href="#comment-utterances">utterances</a></li>
+            <li class="tab"><a href="#comment-disqus">disqus</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane utterances" id="comment-utterances">
+              
+  <div class="comments">
+    <div id="utterances-container"></div>
+  </div>
+  
+            </div>
+            <div class="tab-pane disqus" id="comment-disqus">
+              
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+            </div>
+        </div>
+      </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kervias</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.kervias.com/posts/70c4792/";
+    this.page.identifier = "posts/70c4792/";
+    this.page.title = "Python3高级编程第2版-语法类级别以下";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpskerviascom.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+<script>
+NexT.utils.loadComments('#utterances-container', () => {
+  const script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', "kerviasx/blog-ustterance-comments");
+  script.setAttribute('issue-term', "title");
+  script.setAttribute('theme', "github-light");
+  script.crossOrigin = 'anonymous';
+  script.async = true;
+  document.querySelector('#utterances-container').appendChild(script);
+});
+</script>
+
+</body>
+</html>

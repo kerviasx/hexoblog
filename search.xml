@@ -1140,6 +1140,155 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>Python3高级编程第2版-语法类级别以下</title>
+    <url>/posts/70c4792/</url>
+    <content><![CDATA[<blockquote>
+<p>学习总结：Python高级编程第2版 - 第2章 - 语法最佳实践 - 类级别以下</p>
+<ul>
+<li>字符串与字节</li>
+<li>集合类型</li>
+<li>迭代器</li>
+<li>生成器</li>
+<li>装饰器</li>
+<li>上下文管理器 - with语句</li>
+<li>for … else …</li>
+<li>函数注解</li>
+</ul>
+</blockquote>
+<a id="more"></a>
+
+<h1 id="字符串与字节"><a href="#字符串与字节" class="headerlink" title="字符串与字节"></a>字符串与字节</h1><ul>
+<li>str: 字符串</li>
+<li> bytes: 字节数组</li>
+<li>bytearray: 可变字节数组</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="built_in">bytes</span>([<span class="number">100</span>,<span class="number">121</span>,<span class="number">101</span>]))</span><br><span class="line"><span class="string">b&#x27;dye&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">list</span>(<span class="string">b&#x27;dye&#x27;</span>)</span><br><span class="line">[<span class="number">100</span>, <span class="number">121</span>, <span class="number">101</span>]</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m = <span class="string">b&quot;你好&quot;</span></span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span></span><br><span class="line">SyntaxError: <span class="built_in">bytes</span> can only contain ASCII literal characters.</span><br></pre></td></tr></table></figure>
+
+<p>Unicode字符串中包含无法用字节表示的”抽象”文本. 因此<strong>如果Unicode字符串没有被转换成二进制数据的话，是无法保存在磁盘中或通过网络发送的</strong>。</p>
+<p>将字符串对象编码为字节序列的方式：</p>
+<ul>
+<li>str.encode(encoding, errors)</li>
+<li>bytes(source, encoding, errors)</li>
+</ul>
+<p>将二进制数据转化为字符串的方式：</p>
+<ul>
+<li>bytes.decode(encoding, errors)</li>
+<li>str(source, encoding, error)</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">&quot;你好&quot;</span>.encode()</span><br><span class="line"><span class="string">b&#x27;\xe4\xbd\xa0\xe5\xa5\xbd&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>t = <span class="string">&quot;你好&quot;</span>.encode()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>t</span><br><span class="line"><span class="string">b&#x27;\xe4\xbd\xa0\xe5\xa5\xbd&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>t.decode()</span><br><span class="line"><span class="string">&#x27;你好&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="built_in">type</span>(t))</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> &#x27;<span class="title">bytes</span>&#x27;&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="数据结构进阶"><a href="#数据结构进阶" class="headerlink" title="数据结构进阶"></a>数据结构进阶</h1><h2 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h2><p>下面的用法几乎适用于任何可迭代对象</p>
+<h3 id="列表推导式"><a href="#列表推导式" class="headerlink" title="列表推导式"></a>列表推导式</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>[i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>) <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>]</span><br></pre></td></tr></table></figure>
+
+<h3 id="enumerate-枚举"><a href="#enumerate-枚举" class="headerlink" title="enumerate(枚举)"></a>enumerate(枚举)</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i, ele <span class="keyword">in</span> <span class="built_in">enumerate</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]):</span><br><span class="line"><span class="meta">... </span>    print(i, ele)</span><br><span class="line">...</span><br><span class="line"><span class="number">0</span> <span class="number">1</span></span><br><span class="line"><span class="number">1</span> <span class="number">2</span></span><br><span class="line"><span class="number">2</span> <span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="zip-压包解包"><a href="#zip-压包解包" class="headerlink" title="zip 压包解包"></a>zip 压包解包</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> item <span class="keyword">in</span> <span class="built_in">zip</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], [<span class="number">4</span>,<span class="number">5</span>]):</span><br><span class="line"><span class="meta">... </span>    print(item)</span><br><span class="line">...</span><br><span class="line">(<span class="number">1</span>, <span class="number">4</span>)</span><br><span class="line">(<span class="number">2</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> item <span class="keyword">in</span> <span class="built_in">zip</span>(*<span class="built_in">zip</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], [<span class="number">4</span>,<span class="number">5</span>])):</span><br><span class="line"><span class="meta">... </span>    print(item)</span><br><span class="line">...</span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">(<span class="number">4</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a,b,*c = <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a,b,c</span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>])</span><br></pre></td></tr></table></figure>
+
+<h2 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h2><h3 id="字典推导"><a href="#字典推导" class="headerlink" title="字典推导"></a>字典推导</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;i:i*<span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> (<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>) <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>&#125;</span><br><span class="line">&#123;<span class="number">2</span>: <span class="number">4</span>, <span class="number">4</span>: <span class="number">8</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="keys-values-items"><a href="#keys-values-items" class="headerlink" title="keys() values() items()"></a>keys() values() items()</h3><p>三者返回的是视图对象</p>
+<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="集合推导"><a href="#集合推导" class="headerlink" title="集合推导"></a>集合推导</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;i <span class="keyword">for</span> i <span class="keyword">in</span> (<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">2</span>)&#125;</span><br><span class="line">&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="set-和frozenset"><a href="#set-和frozenset" class="headerlink" title="set()和frozenset()"></a>set()和frozenset()</h3><p><strong>frozenset()</strong> 返回一个冻结的集合，冻结后集合不能再添加或删除任何元素。</p>
+<h2 id="collections库"><a href="#collections库" class="headerlink" title="collections库"></a>collections库</h2><ul>
+<li>Counter：字典的子类，提供了可哈希对象的计数功能</li>
+<li>defaultdict：字典的子类，提供了一个工厂函数，为字典查询提供了默认值</li>
+<li>OrderedDict：字典的子类，保留了他们被添加的顺序</li>
+<li>namedtuple：创建命名元组子类的工厂函数</li>
+<li>deque：类似列表容器，实现了在两端快速添加(append)和弹出(pop)</li>
+<li>ChainMap：类似字典的容器类，将多个映射集合到一个视图里面</li>
+</ul>
+<h1 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h1><p>迭代器只不过是实现迭代器协议的容器对象。它基于以下两个方法：</p>
+<ul>
+<li>__next__：返回容器下一个元素</li>
+<li>__iter__：返回迭代器本身</li>
+</ul>
+<h2 id="使用iter函数"><a href="#使用iter函数" class="headerlink" title="使用iter函数"></a>使用iter函数</h2><p>迭代器可以利用内置iter函数和一个序列来构建，如下例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>obj = <span class="built_in">iter</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(obj)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(obj)</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(obj)</span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(obj)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br></pre></td></tr></table></figure>
+
+<p>当遍历结束后，可以得到StopIteration异常，捕获到这种异常可停止循环。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>obj = <span class="built_in">iter</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> obj:</span><br><span class="line"><span class="meta">... </span>    print(i)</span><br><span class="line">...</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义迭代器"><a href="#自定义迭代器" class="headerlink" title="自定义迭代器"></a>自定义迭代器</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyIter</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, step</span>):</span></span><br><span class="line">        self.step = step</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__next__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;return the next element&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> self.step &lt;= <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">raise</span> StopIteration</span><br><span class="line">        self.step -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> self.step+<span class="number">1</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;return the iterator self&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> self</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> ele <span class="keyword">in</span> MyIter(<span class="number">4</span>):</span><br><span class="line"><span class="meta">... </span>    print(ele)</span><br><span class="line">...</span><br><span class="line"><span class="number">4</span></span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h1><p>基于yield语句，生成器可以暂停函数并返回一个中间结果。该函数会保存执行上下文，稍后在必要时可以恢复。</p>
+<h2 id="斐波那契数列简单生成器"><a href="#斐波那契数列简单生成器" class="headerlink" title="斐波那契数列简单生成器"></a>斐波那契数列简单生成器</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fibonacci</span>():</span></span><br><span class="line">    a, b = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> b</span><br><span class="line">        a, b = b, a + b</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>fib = fibonacci()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(fib)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(fib)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(fib)</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(fib)</span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">type</span>(fib)</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> &#x27;<span class="title">generator</span>&#x27;&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>该函数返回一个generator对象，该对象是一个特殊的迭代器，它知道如何保存上下文。</p>
+<p>上述斐波那契数列迭代器对象可以被无限次调用，就像是数列一样。</p>
+<h2 id="send函数"><a href="#send函数" class="headerlink" title="send函数"></a>send函数</h2><p>send函数的作用和next类似，但会将send函数内部传入的值变为yield的返回值。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">MyGenerator</span>():</span></span><br><span class="line"><span class="meta">... </span>    value = <span class="keyword">yield</span> <span class="string">&quot;Hello&quot;</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> value</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = MyGenerator()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="string">&#x27;Hello&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = MyGenerator()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="string">&#x27;Hello&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen.send(<span class="string">&quot;Hi&quot;</span>)</span><br><span class="line"><span class="string">&#x27;Hi&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = MyGenerator()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen.send(<span class="string">&quot;Hi&quot;</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: can<span class="string">&#x27;t send non-None value to a just-started generator</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&gt;&gt;&gt; gen = MyGenerator()</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; gen.send(None)</span></span><br><span class="line"><span class="string">&#x27;</span>Hello<span class="string">&#x27;</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; gen.send(&quot;Hi&quot;)</span></span><br><span class="line"><span class="string">&#x27;</span>Hi<span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>send函数可以根据客户端代码来改变自身行为，为了完成这一行为，还添加了两个函数：</p>
+<ul>
+<li>throw：允许客户端发送要抛出的各类异常</li>
+<li>close：引发特定异常，GeneratorExit</li>
+</ul>
+<h2 id="类成员函数作为生成器"><a href="#类成员函数作为生成器" class="headerlink" title="类成员函数作为生成器"></a>类成员函数作为生成器</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">fibonacci</span>(<span class="params">self</span>):</span></span><br><span class="line"><span class="meta">... </span>        a, b = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line"><span class="meta">... </span>        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line"><span class="meta">... </span>            <span class="keyword">yield</span> b</span><br><span class="line"><span class="meta">... </span>            a, b = b, a + b</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>aa = A()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i, obj <span class="keyword">in</span> <span class="built_in">enumerate</span>(aa.fibonacci()):</span><br><span class="line"><span class="meta">... </span>    print(i, obj)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">if</span> i &gt; <span class="number">5</span>:</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">break</span></span><br><span class="line">...</span><br><span class="line"><span class="number">0</span> <span class="number">1</span></span><br><span class="line"><span class="number">1</span> <span class="number">1</span></span><br><span class="line"><span class="number">2</span> <span class="number">2</span></span><br><span class="line"><span class="number">3</span> <span class="number">3</span></span><br><span class="line"><span class="number">4</span> <span class="number">5</span></span><br><span class="line"><span class="number">5</span> <span class="number">8</span></span><br><span class="line"><span class="number">6</span> <span class="number">13</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h1><p>装饰器是一个可调用对象，即函数或者实现了<code>__call__</code>方法的类。</p>
+<h2 id="staticmethod和-classmethod"><a href="#staticmethod和-classmethod" class="headerlink" title="@staticmethod和@classmethod"></a>@staticmethod和@classmethod</h2><ul>
+<li>@staticmethod或@classmethod，就可以不需要实例化，直接类名.方法名()来调用。</li>
+<li>@staticmethod不需要表示自身对象的self和自身类的cls参数，就跟使用函数一样。</li>
+<li>@classmethod也不需要self参数，但第一个参数需要是表示自身类的cls参数。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 简化前写法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">static_method</span>():</span></span><br><span class="line">        print(<span class="string">&quot;staticmethod&quot;</span>)</span><br><span class="line">    static_method = <span class="built_in">staticmethod</span>(static_method)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">class_method</span>(<span class="params">cls</span>):</span></span><br><span class="line">        cls.static_method()</span><br><span class="line">        print(<span class="string">&quot;classmethod&quot;</span>)</span><br><span class="line">    class_method = <span class="built_in">classmethod</span>(class_method)</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 简化后写法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">static_method</span>():</span></span><br><span class="line">        print(<span class="string">&quot;staticmethod&quot;</span>)</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">class_method</span>(<span class="params">cls</span>):</span></span><br><span class="line">        cls.static_method()</span><br><span class="line">        print(<span class="string">&quot;classmethod&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="无参装饰器"><a href="#无参装饰器" class="headerlink" title="无参装饰器"></a>无参装饰器</h2><h3 id="作为一个函数"><a href="#作为一个函数" class="headerlink" title="作为一个函数"></a>作为一个函数</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用装饰器之前</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span>(<span class="params">func</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">        print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">        <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line">say_sth = decorator(say_sth)</span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器之后</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span>(<span class="params">func</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">        print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">        <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@decorator</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"> say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="作为一个类"><a href="#作为一个类" class="headerlink" title="作为一个类"></a>作为一个类</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用装饰器之前</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, function</span>):</span></span><br><span class="line">        self.function = function</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, *args, **kwargs</span>):</span></span><br><span class="line">        print(<span class="string">&quot;%s 调用&quot;</span> % self.function.__name__)</span><br><span class="line">        <span class="keyword">return</span> self.function(*args, **kwargs)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth = DecoratorClass(say_sth)</span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器之后</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, function</span>):</span></span><br><span class="line">        self.function = function</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, *args, **kwargs</span>):</span></span><br><span class="line">        print(<span class="string">&quot;%s 调用&quot;</span> % self.function.__name__)</span><br><span class="line">        <span class="keyword">return</span> self.function(*args, **kwargs)</span><br><span class="line"></span><br><span class="line"><span class="meta">@DecoratorClass</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="带参装饰器"><a href="#带参装饰器" class="headerlink" title="带参装饰器"></a>带参装饰器</h2><h3 id="作为一个函数-1"><a href="#作为一个函数-1" class="headerlink" title="作为一个函数"></a>作为一个函数</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用装饰器之前</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span>(<span class="params">say=<span class="literal">True</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner_wrapper</span>(<span class="params">func</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">            <span class="keyword">if</span> say:</span><br><span class="line">                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line">    <span class="keyword">return</span> inner_wrapper</span><br><span class="line"></span><br><span class="line">say_sth = decorator(say=<span class="literal">False</span>)(say_sth)</span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器之后</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span>(<span class="params">say=<span class="literal">True</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner_wrapper</span>(<span class="params">func</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">            <span class="keyword">if</span> say:</span><br><span class="line">                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line">    <span class="keyword">return</span> inner_wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@decorator(<span class="params">say=<span class="literal">False</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="作为一个类-1"><a href="#作为一个类-1" class="headerlink" title="作为一个类"></a>作为一个类</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用装饰器之前</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, say=<span class="literal">True</span></span>):</span></span><br><span class="line">        self.say = say</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, func</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">            <span class="keyword">if</span> self.say:</span><br><span class="line">                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth = DecoratorClass(say=<span class="literal">False</span>)(say_sth)</span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器之后</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, say=<span class="literal">True</span></span>):</span></span><br><span class="line">        self.say = say</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, func</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line">            <span class="keyword">if</span> self.say:</span><br><span class="line">                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@DecoratorClass(<span class="params">say=<span class="literal">False</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line">    print(words)</span><br><span class="line"></span><br><span class="line">say_sth(<span class="string">&quot;Hi~&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="保存函数元数据"><a href="#保存函数元数据" class="headerlink" title="保存函数元数据"></a>保存函数元数据</h2><p>上述示例均未保存函数的元数据（主要是文档字符串和原始函数名）</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, say=<span class="literal">True</span></span>):</span></span><br><span class="line"><span class="meta">... </span>        self.say = say</span><br><span class="line">...</span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, func</span>):</span></span><br><span class="line"><span class="meta">... </span>        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line"><span class="meta">... </span>            <span class="string">&quot;&quot;&quot;wrapper doc&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">... </span>            <span class="keyword">if</span> self.say:</span><br><span class="line"><span class="meta">... </span>                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line"><span class="meta">... </span>            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">return</span> wrapper</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>@DecoratorClass(say=<span class="literal">True</span>)</span><br><span class="line"><span class="meta">... </span><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line"><span class="meta">... </span>    <span class="string">&quot;&quot;&quot;say_sth doc&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">... </span>    print(words)</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>say_sth.__name__</span><br><span class="line"><span class="string">&#x27;wrapper&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>say_sth.__doc__</span><br><span class="line"><span class="string">&#x27;wrapper doc&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>为了解决这个问题，我们需要使用functools中的wraps()装饰器。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">DecoratorClass</span>:</span></span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, say=<span class="literal">True</span></span>):</span></span><br><span class="line"><span class="meta">... </span>        self.say = say</span><br><span class="line">...</span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self, func</span>):</span></span><br><span class="line"><span class="meta">... </span>        @wraps(func)</span><br><span class="line"><span class="meta">... </span>        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span>(<span class="params">*args, **kwargs</span>):</span></span><br><span class="line"><span class="meta">... </span>            <span class="string">&quot;&quot;&quot;wrapper doc&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">... </span>            <span class="keyword">if</span> self.say:</span><br><span class="line"><span class="meta">... </span>                print(<span class="string">&quot;%s 调用&quot;</span> % func.__name__)</span><br><span class="line"><span class="meta">... </span>            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">return</span> wrapper</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>@DecoratorClass(say=<span class="literal">True</span>)</span><br><span class="line"><span class="meta">... </span><span class="function"><span class="keyword">def</span> <span class="title">say_sth</span>(<span class="params">words=<span class="string">&quot;Hello&quot;</span></span>):</span></span><br><span class="line"><span class="meta">... </span>    <span class="string">&quot;&quot;&quot;say_sth doc&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">... </span>    print(words)</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>say_sth.__name__</span><br><span class="line"><span class="string">&#x27;say_sth&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>say_sth.__doc__</span><br><span class="line"><span class="string">&#x27;say_sth doc&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="上下文管理器-with-语句"><a href="#上下文管理器-with-语句" class="headerlink" title="上下文管理器 - with 语句"></a>上下文管理器 - with 语句</h1><ul>
+<li>关闭一个文件</li>
+<li>释放一个锁</li>
+<li>创建一个临时的代码布丁</li>
+<li>在特殊环境运行中受保护的代码</li>
+</ul>
+<h2 id="作为一个类-2"><a href="#作为一个类-2" class="headerlink" title="作为一个类"></a>作为一个类</h2><p>任何实现了上下文管理器协议的对象都可以用作上下文管理器，该协议包含两个方法：</p>
+<ul>
+<li><code>__enter__(self)</code>:  任何返回值都会绑定到指定的as子句</li>
+<li><code>__exit__(self, exc_type, exc_value, traceback)</code>: 退出时需要执行的操作</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileOpen</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self,filename, mode, encoding=<span class="string">&#x27;utf-8&#x27;</span></span>):</span></span><br><span class="line">        self.filename = filename</span><br><span class="line">        self.mode = mode</span><br><span class="line">        self.encoding=encoding</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.fp = <span class="built_in">open</span>(self.filename, self.mode, encoding=self.encoding)</span><br><span class="line">        <span class="keyword">return</span> self.fp</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span>(<span class="params">self, exc_type, exc_value, traceback</span>):</span></span><br><span class="line">        self.fp.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> FileOpen(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    print(f.readline())</span><br></pre></td></tr></table></figure>
+
+<h2 id="作为一个函数-2"><a href="#作为一个函数-2" class="headerlink" title="作为一个函数"></a>作为一个函数</h2><p>使用contextlib模块，yield分割语句。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> contextlib</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextlib.contextmanager</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">FileOpen</span>(<span class="params">file_name, mode, encoding=<span class="string">&#x27;utf-8&#x27;</span></span>):</span></span><br><span class="line">    file_handler = <span class="built_in">open</span>(file_name, mode, encoding=<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">yield</span> file_handler</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> exc:</span><br><span class="line">        print(<span class="string">&#x27;the exception was thrown&#x27;</span>)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        file_handler.close()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">with</span> FileOpen(<span class="string">&quot;test1.txt&quot;</span>, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    print(f.readline())</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="for-…-else-…-语句"><a href="#for-…-else-…-语句" class="headerlink" title="for … else … 语句"></a>for … else … 语句</h1><p>else子句在for循环语句中正常循环结束才会执行，如果由于break语句退出循环，则else子句不会被执行。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line"><span class="meta">... </span>     <span class="keyword">pass</span></span><br><span class="line"><span class="meta">... </span><span class="keyword">else</span>:</span><br><span class="line"><span class="meta">... </span>     print(<span class="string">&quot;no break&quot;</span>)</span><br><span class="line">...</span><br><span class="line">no <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="函数注解"><a href="#函数注解" class="headerlink" title="函数注解"></a>函数注解</h1><p>可以指定参数类型和返回值类型，但是实际调用时，并不会强制要求参数与注解类型一致。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">test</span>(<span class="params">a: <span class="built_in">str</span>, b: <span class="built_in">int</span> = <span class="number">2</span></span>) -&gt; str:</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">return</span> a + <span class="built_in">str</span>(b)</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>test.__annotations__</span><br><span class="line">&#123;&#x27;a&#x27;: &lt;class &#x27;str&#x27;&gt;, &#x27;b&#x27;: &lt;class &#x27;int&#x27;&gt;, &#x27;return&#x27;: &lt;class &#x27;str&#x27;&gt;&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>test(<span class="string">&quot;11&quot;</span>, <span class="string">&quot;33&quot;</span>)</span><br><span class="line"><span class="string">&#x27;1133&#x27;</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>python_syntax</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Python爬虫下载腾讯课堂回放视频</title>
     <url>/posts/21543/</url>
     <content><![CDATA[<blockquote>
@@ -1402,110 +1551,6 @@ docker部署</code></pre>
       <tags>
         <tag>xpath</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>SQL Server数据库(1) - 基本知识</title>
-    <url>/posts/f50c229a/</url>
-    <content><![CDATA[<h3 id="基本常识"><a href="#基本常识" class="headerlink" title="基本常识"></a>基本常识</h3><p>sa(super administrator): 超级管理员</p>
-<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h3><figure class="highlight bash"><figcaption><span>基本命令.txt</span></figcaption><table><tr><td class="code"><pre><span class="line">net start mssqlserver //开启SQL Server服务</span><br><span class="line">net stop mssqlserver  //关闭SQL Server服务</span><br></pre></td></tr></table></figure>
-<a id="more"></a>
-
-
-<h3 id="SQL语句"><a href="#SQL语句" class="headerlink" title="SQL语句"></a>SQL语句</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">print @@version <span class="comment">--查看数据库版本</span></span><br><span class="line">setuser <span class="comment">--使用默认用户sa</span></span><br><span class="line">setuser &#x27;new_user&#x27; <span class="comment">--使用用户new_user</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">user</span> <span class="comment">--查询当前操作的用户的用户名</span></span><br><span class="line"><span class="keyword">use</span> <span class="keyword">master</span> <span class="comment">--使用master数据库</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">user</span> df <span class="comment">--删除用户df</span></span><br><span class="line"><span class="keyword">drop</span> login df <span class="comment">--删除登录名df</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">database</span> mybase <span class="comment">--删除mybase数据库</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这是单行注释</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	这是多行注释</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
-
-
-<h3 id="SQL-Server的5个系统数据库"><a href="#SQL-Server的5个系统数据库" class="headerlink" title="SQL Server的5个系统数据库"></a>SQL Server的5个系统数据库</h3><ol>
-<li><p>master</p>
-<ul>
-<li>记录SQL Server系统的所有系统级信息.<br>例如:登录账户信息,链接服务器和系统配置设置,记录其他所有数据库的存在,数据文件的位置,SQL Server的初始化信息等.</li>
-<li>如果master不存在,无法启动SQL Server;</li>
-</ul>
-</li>
-<li><p>msdb</p>
-<ul>
-<li>用于SQL Server代理计划警报和作业,数据库定时执行某些操作,数据库邮件等;</li>
-</ul>
-</li>
-<li><p>model</p>
-<ul>
-<li>用作于SQL Server实例上创建的所有数据库的模板. </li>
-<li>对model数据库的修改(数据库大小/排序规则/恢复模式/其他数据库选项)将应用于以后创建的所有的数据库.在model中创建一张表,以后创建其他数据库都默认有一张同样的表;4</li>
-</ul>
-</li>
-<li><p>tempdb</p>
-<ul>
-<li><p>一个工作空间,用于保存临时对象或中间集.一个全局资源,可供链接到SQL Server的所有实例用户使用.</p>
-</li>
-<li><p>每次启动SQL Server时都会重新创建tempdb;</p>
-</li>
-</ul>
-</li>
-</ol>
-<ol start="5">
-<li><p>Resource</p>
-<ul>
-<li>一个只读数据库.包含SQL Server包括的系统对象.</li>
-<li>系统对象在物理上保留在Resource数据库中, 但在逻辑上显示在每个数据库的sys架构中.</li>
-</ul>
-</li>
-</ol>
-<h3 id="通过设计器创建数据库和表"><a href="#通过设计器创建数据库和表" class="headerlink" title="通过设计器创建数据库和表"></a>通过设计器创建数据库和表</h3><p>每个数据库都有且只有一个主数据文件(.mdf), 日志文件(_log.ldf); 任意多个次要数据文件(.ndf), 多个事务日志文件;</p>
-<ul>
-<li><p>文件组: 可将多个数据文件逻辑分到一组,方便日后管理维护(备份/将表建立在对应文件组上等);</p>
-</li>
-<li><p>分离:对要分离的数据库,右击,分离,删除链接;</p>
-</li>
-<li><p>附加:右击数据库,选择附加,找到目录下的数据库文件;</p>
-</li>
-<li><p>脱机:暂时不用这个数据库,右击脱机,还在原来的目录,需要恢复,右击联机;</p>
-</li>
-</ul>
-<p>生成兼容脚本移动数据库:右击数据库→任务→生成脚本,可选生成向下版本,可选项根据需求;</p>
-<p><strong>注</strong>:</p>
-<ol>
-<li><p>附加和分离是在数据库版本是一样的情况下进行的,不同版本是会出错;</p>
-</li>
-<li><p>报错:”不允许保存更改.您所做的更改要求删除并重新创建以下表.您对无法重新创建的表进行了更改或者启用了”阻止保存要求重新创建表的更改”选项”;</p>
-<p> 解决方法:工具→选项→Designer/设计→ 勾去  阻止保存要求重新创建表的更改;</p>
-</li>
-<li><p>报错:附加数据库时报错”..拒绝访问..”;</p>
-<p> 权限问题,设置数据库文件安全为:Everyone;</p>
-</li>
-<li><p>低版本向高版本是兼容的,高版本向低版本是不兼容的;</p>
-</li>
-</ol>
-<h3 id="数据库的数据类型"><a href="#数据库的数据类型" class="headerlink" title="数据库的数据类型"></a>数据库的数据类型</h3><p><strong>image</strong>:用来存储 byte[]类型;</p>
-<p><strong>字符串类型</strong>:<br>    char,nchar,varchar,nvarchar,text,ntext,varchar(max),nvarchar(max)都属于字符串类型,下面是对应的区别;</p>
-<p>(1) <strong>带n和不带n的区别</strong>:</p>
-<pre><code>   char: char(2),表示可以**存储2个字节**,比如:ab,12,赵;
-
-   nchar:nchar(2),表示可以**存储两个字符**,每个字符占用2个字节,比如:貂蝉,ab,12;
-
-   总结:
-
-   不带n:存储**中文**占用**2**个字节;存储**数字/英文**等占用**1**个字节;
-
-   带n:无论存储**中文/英文/数字**,每个字符都占用**2**个字节;
-
-   带n的数据类型最长4000,nchar(4000)/nvarchar(4000);
-
-   不带n的数据类型最长是8000,char(8000)/varchar(8000);</code></pre>
-<p>(2)  <strong>带var和不带var的区别</strong>:</p>
-<p>​       不带var: 固定长度,存储1个字符,也要占用10个字节,会自动补9个空格,占满10个字节;<br>​       带var: 可变长度,会根据实际存储的字符大小动态重新分配存储空间,相对节省存储空间;<br>​       10: 表示存储最大10个字节,无论是固定长度还是可变长度,超过后都会报错;</p>
-<p>(3)  <strong>大字符串存储时</strong></p>
-<p>   SQL 2005前用:text和ntext;</p>
-<p>   SQL 2005后用:varchar(max)/nvarchar(max);max表示4GB内存;</p>
-<p> 注:对于双字节字符,用nvarchar解决;</p>
-<p><strong>bit类型</strong>:</p>
-<p>​    在程序中和查询语句中bit的类型的值都是1(true)和0(false),但是在设计器中必须输入true/false;</p>
-<p>   注:详细的数据类型文档,在  帮助→索引中搜索”数据类型 [SQL Server]”都会有详细的解释文档;</p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ol>
-<li><a href="https://www.cnblogs.com/sauerkraut/p/6651154.html">https://www.cnblogs.com/sauerkraut/p/6651154.html</a></li>
-</ol>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
   </entry>
   <entry>
     <title>Scrapy框架学习(1)</title>
@@ -1841,6 +1886,110 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>SQL Server数据库(1) - 基本知识</title>
+    <url>/posts/f50c229a/</url>
+    <content><![CDATA[<h3 id="基本常识"><a href="#基本常识" class="headerlink" title="基本常识"></a>基本常识</h3><p>sa(super administrator): 超级管理员</p>
+<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h3><figure class="highlight bash"><figcaption><span>基本命令.txt</span></figcaption><table><tr><td class="code"><pre><span class="line">net start mssqlserver //开启SQL Server服务</span><br><span class="line">net stop mssqlserver  //关闭SQL Server服务</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+
+
+<h3 id="SQL语句"><a href="#SQL语句" class="headerlink" title="SQL语句"></a>SQL语句</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">print @@version <span class="comment">--查看数据库版本</span></span><br><span class="line">setuser <span class="comment">--使用默认用户sa</span></span><br><span class="line">setuser &#x27;new_user&#x27; <span class="comment">--使用用户new_user</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">user</span> <span class="comment">--查询当前操作的用户的用户名</span></span><br><span class="line"><span class="keyword">use</span> <span class="keyword">master</span> <span class="comment">--使用master数据库</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">user</span> df <span class="comment">--删除用户df</span></span><br><span class="line"><span class="keyword">drop</span> login df <span class="comment">--删除登录名df</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">database</span> mybase <span class="comment">--删除mybase数据库</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这是单行注释</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	这是多行注释</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="SQL-Server的5个系统数据库"><a href="#SQL-Server的5个系统数据库" class="headerlink" title="SQL Server的5个系统数据库"></a>SQL Server的5个系统数据库</h3><ol>
+<li><p>master</p>
+<ul>
+<li>记录SQL Server系统的所有系统级信息.<br>例如:登录账户信息,链接服务器和系统配置设置,记录其他所有数据库的存在,数据文件的位置,SQL Server的初始化信息等.</li>
+<li>如果master不存在,无法启动SQL Server;</li>
+</ul>
+</li>
+<li><p>msdb</p>
+<ul>
+<li>用于SQL Server代理计划警报和作业,数据库定时执行某些操作,数据库邮件等;</li>
+</ul>
+</li>
+<li><p>model</p>
+<ul>
+<li>用作于SQL Server实例上创建的所有数据库的模板. </li>
+<li>对model数据库的修改(数据库大小/排序规则/恢复模式/其他数据库选项)将应用于以后创建的所有的数据库.在model中创建一张表,以后创建其他数据库都默认有一张同样的表;4</li>
+</ul>
+</li>
+<li><p>tempdb</p>
+<ul>
+<li><p>一个工作空间,用于保存临时对象或中间集.一个全局资源,可供链接到SQL Server的所有实例用户使用.</p>
+</li>
+<li><p>每次启动SQL Server时都会重新创建tempdb;</p>
+</li>
+</ul>
+</li>
+</ol>
+<ol start="5">
+<li><p>Resource</p>
+<ul>
+<li>一个只读数据库.包含SQL Server包括的系统对象.</li>
+<li>系统对象在物理上保留在Resource数据库中, 但在逻辑上显示在每个数据库的sys架构中.</li>
+</ul>
+</li>
+</ol>
+<h3 id="通过设计器创建数据库和表"><a href="#通过设计器创建数据库和表" class="headerlink" title="通过设计器创建数据库和表"></a>通过设计器创建数据库和表</h3><p>每个数据库都有且只有一个主数据文件(.mdf), 日志文件(_log.ldf); 任意多个次要数据文件(.ndf), 多个事务日志文件;</p>
+<ul>
+<li><p>文件组: 可将多个数据文件逻辑分到一组,方便日后管理维护(备份/将表建立在对应文件组上等);</p>
+</li>
+<li><p>分离:对要分离的数据库,右击,分离,删除链接;</p>
+</li>
+<li><p>附加:右击数据库,选择附加,找到目录下的数据库文件;</p>
+</li>
+<li><p>脱机:暂时不用这个数据库,右击脱机,还在原来的目录,需要恢复,右击联机;</p>
+</li>
+</ul>
+<p>生成兼容脚本移动数据库:右击数据库→任务→生成脚本,可选生成向下版本,可选项根据需求;</p>
+<p><strong>注</strong>:</p>
+<ol>
+<li><p>附加和分离是在数据库版本是一样的情况下进行的,不同版本是会出错;</p>
+</li>
+<li><p>报错:”不允许保存更改.您所做的更改要求删除并重新创建以下表.您对无法重新创建的表进行了更改或者启用了”阻止保存要求重新创建表的更改”选项”;</p>
+<p> 解决方法:工具→选项→Designer/设计→ 勾去  阻止保存要求重新创建表的更改;</p>
+</li>
+<li><p>报错:附加数据库时报错”..拒绝访问..”;</p>
+<p> 权限问题,设置数据库文件安全为:Everyone;</p>
+</li>
+<li><p>低版本向高版本是兼容的,高版本向低版本是不兼容的;</p>
+</li>
+</ol>
+<h3 id="数据库的数据类型"><a href="#数据库的数据类型" class="headerlink" title="数据库的数据类型"></a>数据库的数据类型</h3><p><strong>image</strong>:用来存储 byte[]类型;</p>
+<p><strong>字符串类型</strong>:<br>    char,nchar,varchar,nvarchar,text,ntext,varchar(max),nvarchar(max)都属于字符串类型,下面是对应的区别;</p>
+<p>(1) <strong>带n和不带n的区别</strong>:</p>
+<pre><code>   char: char(2),表示可以**存储2个字节**,比如:ab,12,赵;
+
+   nchar:nchar(2),表示可以**存储两个字符**,每个字符占用2个字节,比如:貂蝉,ab,12;
+
+   总结:
+
+   不带n:存储**中文**占用**2**个字节;存储**数字/英文**等占用**1**个字节;
+
+   带n:无论存储**中文/英文/数字**,每个字符都占用**2**个字节;
+
+   带n的数据类型最长4000,nchar(4000)/nvarchar(4000);
+
+   不带n的数据类型最长是8000,char(8000)/varchar(8000);</code></pre>
+<p>(2)  <strong>带var和不带var的区别</strong>:</p>
+<p>​       不带var: 固定长度,存储1个字符,也要占用10个字节,会自动补9个空格,占满10个字节;<br>​       带var: 可变长度,会根据实际存储的字符大小动态重新分配存储空间,相对节省存储空间;<br>​       10: 表示存储最大10个字节,无论是固定长度还是可变长度,超过后都会报错;</p>
+<p>(3)  <strong>大字符串存储时</strong></p>
+<p>   SQL 2005前用:text和ntext;</p>
+<p>   SQL 2005后用:varchar(max)/nvarchar(max);max表示4GB内存;</p>
+<p> 注:对于双字节字符,用nvarchar解决;</p>
+<p><strong>bit类型</strong>:</p>
+<p>​    在程序中和查询语句中bit的类型的值都是1(true)和0(false),但是在设计器中必须输入true/false;</p>
+<p>   注:详细的数据类型文档,在  帮助→索引中搜索”数据类型 [SQL Server]”都会有详细的解释文档;</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ol>
+<li><a href="https://www.cnblogs.com/sauerkraut/p/6651154.html">https://www.cnblogs.com/sauerkraut/p/6651154.html</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Telegram-cli使用教程</title>
     <url>/posts/scja9c88h/</url>
     <content><![CDATA[<blockquote>
@@ -1858,62 +2007,6 @@ docker部署</code></pre>
 </ul>
 <hr>
 <p><strong>更多命令尚待学习….</strong></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>telegram</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Telegram-cli安装教程</title>
-    <url>/posts/e82je8eeq/</url>
-    <content><![CDATA[<blockquote>
-<p>Telegram是著名的加密聊天软件，它的命令行版本为Telegram-cli。</p>
-</blockquote>
-<a id="more"></a>
-<blockquote>
-<p>详情请见github项目地址：<a href="https://github.com/vysheng/tg/">https://github.com/vysheng/tg/</a></p>
-</blockquote>
-<p>​    在没有图形界面的linux服务器上面，安装<code>Telegram-cli</code>无疑是最合适的。我接触Telegram-cli的最初目的是在服务器上写个脚本，用于每天的群组签到。这里记录下Telegram-cli的安装过程。</p>
-<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><ul>
-<li>OS：centos7</li>
-<li>安装方式：编译安装</li>
-<li>其他系统的安装教程可以看github项目中README</li>
-<li>据说centos7可以使用yum直接安装，但目前暂未找到yum源</li>
-</ul>
-<h2 id="安装Telegram-cli"><a href="#安装Telegram-cli" class="headerlink" title="安装Telegram-cli"></a>安装Telegram-cli</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --recursive https://github.com/vysheng/tg.git &amp;&amp; <span class="built_in">cd</span> tg</span><br><span class="line">yum -y install lua-devel openssl-devel libconfig-devel readline-devel libevent-devel jansson-devel python-devel</span><br><span class="line">./configure</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
-
-<p>​    依次运行上述命令后，telegram-cli已经安装完成，可执行文件在当前目录下的<code>bin/telegram-cli</code></p>
-<h2 id="登录Telegram-cli"><a href="#登录Telegram-cli" class="headerlink" title="登录Telegram-cli"></a>登录Telegram-cli</h2><p>在登录Telegram-cli之前需要在<code>https://my.telegram.org/apps</code>获取pub密钥。我选择创建的application类型为desktop。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200329170931.png"></p>
-<p>将<code>Public keys</code>复制，回到服务器端。执行以下命令，将密钥保存到<code>mytg-server.pub</code>文件中。</p>
-<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">vim mytg-<span class="keyword">server</span>.pub</span><br></pre></td></tr></table></figure>
-
-<p>上述操作完毕之后，就可以登录了。</p>
-<p>执行命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -k mytg-server.pub</span><br></pre></td></tr></table></figure>
-
-<p>之后会让你输入电话号码和验证码，登录就是了。</p>
-<p>登录完毕后可以按<code>ctrl-c</code>键退出，或者使用命令<code>quit</code>或<code>safe_quit</code>退出。</p>
-<h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><p>如果之前登录过，后面就不需要重新登录，这里发送消息测试一下。</p>
-<ol>
-<li><p>交互命令行模式</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W</span><br></pre></td></tr></table></figure>
-
-<p>执行上述命令进入命令行模式。</p>
-<ul>
-<li>向用户或群组发送消息：<code>msg &lt;username/channelname&gt; &lt;msg&gt;</code></li>
-</ul>
-</li>
-<li><p>直接发消息</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W -e <span class="string">&quot;msg &lt;username/channelname&gt; &lt;msg&gt;&quot;</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<p>:warning: 用户名或者群组名包含<code>空格</code>或者<code>#</code>​字符需要替换为<code>_</code></p>
-<p>其他使用方法可以见我的另一篇博客</p>
 ]]></content>
       <categories>
         <category>linux</category>
@@ -2083,6 +2176,62 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>Telegram-cli安装教程</title>
+    <url>/posts/e82je8eeq/</url>
+    <content><![CDATA[<blockquote>
+<p>Telegram是著名的加密聊天软件，它的命令行版本为Telegram-cli。</p>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<p>详情请见github项目地址：<a href="https://github.com/vysheng/tg/">https://github.com/vysheng/tg/</a></p>
+</blockquote>
+<p>​    在没有图形界面的linux服务器上面，安装<code>Telegram-cli</code>无疑是最合适的。我接触Telegram-cli的最初目的是在服务器上写个脚本，用于每天的群组签到。这里记录下Telegram-cli的安装过程。</p>
+<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><ul>
+<li>OS：centos7</li>
+<li>安装方式：编译安装</li>
+<li>其他系统的安装教程可以看github项目中README</li>
+<li>据说centos7可以使用yum直接安装，但目前暂未找到yum源</li>
+</ul>
+<h2 id="安装Telegram-cli"><a href="#安装Telegram-cli" class="headerlink" title="安装Telegram-cli"></a>安装Telegram-cli</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --recursive https://github.com/vysheng/tg.git &amp;&amp; <span class="built_in">cd</span> tg</span><br><span class="line">yum -y install lua-devel openssl-devel libconfig-devel readline-devel libevent-devel jansson-devel python-devel</span><br><span class="line">./configure</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>​    依次运行上述命令后，telegram-cli已经安装完成，可执行文件在当前目录下的<code>bin/telegram-cli</code></p>
+<h2 id="登录Telegram-cli"><a href="#登录Telegram-cli" class="headerlink" title="登录Telegram-cli"></a>登录Telegram-cli</h2><p>在登录Telegram-cli之前需要在<code>https://my.telegram.org/apps</code>获取pub密钥。我选择创建的application类型为desktop。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200329170931.png"></p>
+<p>将<code>Public keys</code>复制，回到服务器端。执行以下命令，将密钥保存到<code>mytg-server.pub</code>文件中。</p>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">vim mytg-<span class="keyword">server</span>.pub</span><br></pre></td></tr></table></figure>
+
+<p>上述操作完毕之后，就可以登录了。</p>
+<p>执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -k mytg-server.pub</span><br></pre></td></tr></table></figure>
+
+<p>之后会让你输入电话号码和验证码，登录就是了。</p>
+<p>登录完毕后可以按<code>ctrl-c</code>键退出，或者使用命令<code>quit</code>或<code>safe_quit</code>退出。</p>
+<h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><p>如果之前登录过，后面就不需要重新登录，这里发送消息测试一下。</p>
+<ol>
+<li><p>交互命令行模式</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W</span><br></pre></td></tr></table></figure>
+
+<p>执行上述命令进入命令行模式。</p>
+<ul>
+<li>向用户或群组发送消息：<code>msg &lt;username/channelname&gt; &lt;msg&gt;</code></li>
+</ul>
+</li>
+<li><p>直接发消息</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bin/telegram-cli -W -e <span class="string">&quot;msg &lt;username/channelname&gt; &lt;msg&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>:warning: 用户名或者群组名包含<code>空格</code>或者<code>#</code>​字符需要替换为<code>_</code></p>
+<p>其他使用方法可以见我的另一篇博客</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>telegram</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>WebDriver下载地址</title>
     <url>/posts/6b450c9b/</url>
     <content><![CDATA[<blockquote>
@@ -2179,6 +2328,38 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>docker安装forsaken mail</title>
+    <url>/posts/918f076b/</url>
+    <content><![CDATA[<blockquote>
+<p>记录安装forsaken mail的步骤</p>
+</blockquote>
+<a id="more"></a>
+
+<p>服务器系统：Centos7<br>docker版本：Docker version 19.03.5, build 633a0ea</p>
+<h2 id="1-docker拉取镜像并创建容器运行"><a href="#1-docker拉取镜像并创建容器运行" class="headerlink" title="1. docker拉取镜像并创建容器运行"></a>1. docker拉取镜像并创建容器运行</h2><figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker</span> run --name forsaken-mail --restart=always -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail </span><br></pre></td></tr></table></figure>
+<p>:warning: 如果创建了镜像但是因为端口被占用无法运行, 可以在杀死端口对应进程后执行以下命令</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker</span> run -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail:latest </span><br></pre></td></tr></table></figure>
+<h2 id="2-配置Caddy"><a href="#2-配置Caddy" class="headerlink" title="2. 配置Caddy"></a>2. 配置Caddy</h2><p>:point_right: <a href="/archives/d392dh">Caddy安装教程</a><br>（1） 打开文件</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>caddy<span class="regexp">/conf.d/</span>Caddyfile.conf</span><br></pre></td></tr></table></figure>
+<p>（2）向文件中添加配置信息</p>
+<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="attribute">https</span>:<span class="comment">//yourdomain &#123;</span></span><br><span class="line">    gzip</span><br><span class="line">    tls xx<span class="variable">@xx</span>.xx</span><br><span class="line">    proxy / <span class="attribute">localhost</span>:yourport </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意： <code>域名</code> <code>邮箱</code> <code>端口</code> 三者的填写<br>(3) 重启caddy服务</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">systemctl restart caddy</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-forsaken-mail一键安装脚本"><a href="#3-forsaken-mail一键安装脚本" class="headerlink" title="3. forsaken mail一键安装脚本"></a>3. forsaken mail一键安装脚本</h2><p><strong>前提</strong>：</p>
+<ul>
+<li>OS: Centos7+</li>
+<li>国外服务器</li>
+<li>确保端口25和3000没有进程占用</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">sudo yum -y <span class="keyword">install</span> wget curl vim lsof</span><br><span class="line">sudo yum remove docker docker-<span class="keyword">client</span> docker-<span class="keyword">client</span>-latest \</span><br><span class="line">                  docker-common docker-latest \</span><br><span class="line">                  docker-latest-logrotate docker-logrotate \</span><br><span class="line">                  docker-<span class="keyword">engine</span></span><br><span class="line">sudo yum <span class="keyword">install</span> -y yum-utils device-mapper-persistent-<span class="keyword">data</span> lvm2</span><br><span class="line">sudo yum-config-manager \</span><br><span class="line">    <span class="comment">--add-repo \</span></span><br><span class="line">    https://download.docker.com/linux/centos/docker-ce.repo</span><br><span class="line">sudo yum <span class="keyword">install</span> docker-ce docker-ce-cli containerd.io</span><br><span class="line">systemctl <span class="keyword">enable</span> docker </span><br><span class="line">systemctl <span class="keyword">start</span> docker</span><br><span class="line">docker run -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail:latest</span><br><span class="line">sudo yum <span class="keyword">install</span> epel-<span class="keyword">release</span></span><br><span class="line">yum -y <span class="keyword">install</span> caddy</span><br><span class="line">systemctl <span class="keyword">enable</span> caddy</span><br></pre></td></tr></table></figure>
+<p>上述命令执行完毕后，进行文章中的第二步操作，配置caddy</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>crontab定时任务发邮件的问题</title>
     <url>/posts/a50980cb/</url>
     <content><![CDATA[<p>在用 crontab -e 命令创建定时任务后，发现定时任务中的发邮件并未执行。</p>
@@ -2210,38 +2391,6 @@ docker部署</code></pre>
       <tags>
         <tag>cron</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>docker安装forsaken mail</title>
-    <url>/posts/918f076b/</url>
-    <content><![CDATA[<blockquote>
-<p>记录安装forsaken mail的步骤</p>
-</blockquote>
-<a id="more"></a>
-
-<p>服务器系统：Centos7<br>docker版本：Docker version 19.03.5, build 633a0ea</p>
-<h2 id="1-docker拉取镜像并创建容器运行"><a href="#1-docker拉取镜像并创建容器运行" class="headerlink" title="1. docker拉取镜像并创建容器运行"></a>1. docker拉取镜像并创建容器运行</h2><figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker</span> run --name forsaken-mail --restart=always -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail </span><br></pre></td></tr></table></figure>
-<p>:warning: 如果创建了镜像但是因为端口被占用无法运行, 可以在杀死端口对应进程后执行以下命令</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker</span> run -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail:latest </span><br></pre></td></tr></table></figure>
-<h2 id="2-配置Caddy"><a href="#2-配置Caddy" class="headerlink" title="2. 配置Caddy"></a>2. 配置Caddy</h2><p>:point_right: <a href="/archives/d392dh">Caddy安装教程</a><br>（1） 打开文件</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>caddy<span class="regexp">/conf.d/</span>Caddyfile.conf</span><br></pre></td></tr></table></figure>
-<p>（2）向文件中添加配置信息</p>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="attribute">https</span>:<span class="comment">//yourdomain &#123;</span></span><br><span class="line">    gzip</span><br><span class="line">    tls xx<span class="variable">@xx</span>.xx</span><br><span class="line">    proxy / <span class="attribute">localhost</span>:yourport </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注意： <code>域名</code> <code>邮箱</code> <code>端口</code> 三者的填写<br>(3) 重启caddy服务</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">systemctl restart caddy</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-forsaken-mail一键安装脚本"><a href="#3-forsaken-mail一键安装脚本" class="headerlink" title="3. forsaken mail一键安装脚本"></a>3. forsaken mail一键安装脚本</h2><p><strong>前提</strong>：</p>
-<ul>
-<li>OS: Centos7+</li>
-<li>国外服务器</li>
-<li>确保端口25和3000没有进程占用</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">sudo yum -y <span class="keyword">install</span> wget curl vim lsof</span><br><span class="line">sudo yum remove docker docker-<span class="keyword">client</span> docker-<span class="keyword">client</span>-latest \</span><br><span class="line">                  docker-common docker-latest \</span><br><span class="line">                  docker-latest-logrotate docker-logrotate \</span><br><span class="line">                  docker-<span class="keyword">engine</span></span><br><span class="line">sudo yum <span class="keyword">install</span> -y yum-utils device-mapper-persistent-<span class="keyword">data</span> lvm2</span><br><span class="line">sudo yum-config-manager \</span><br><span class="line">    <span class="comment">--add-repo \</span></span><br><span class="line">    https://download.docker.com/linux/centos/docker-ce.repo</span><br><span class="line">sudo yum <span class="keyword">install</span> docker-ce docker-ce-cli containerd.io</span><br><span class="line">systemctl <span class="keyword">enable</span> docker </span><br><span class="line">systemctl <span class="keyword">start</span> docker</span><br><span class="line">docker run -d -p <span class="number">25</span>:<span class="number">25</span> -p <span class="number">3000</span>:<span class="number">3000</span> denghongcai/forsaken-mail:latest</span><br><span class="line">sudo yum <span class="keyword">install</span> epel-<span class="keyword">release</span></span><br><span class="line">yum -y <span class="keyword">install</span> caddy</span><br><span class="line">systemctl <span class="keyword">enable</span> caddy</span><br></pre></td></tr></table></figure>
-<p>上述命令执行完毕后，进行文章中的第二步操作，配置caddy</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
   </entry>
   <entry>
     <title>docker常用命令总结</title>
@@ -2283,6 +2432,44 @@ docker部署</code></pre>
 <p>具体查找网站其他教程，官方网站网址：<a href="https://www.daocloud.io/">https://www.daocloud.io/</a></p>
 </li>
 </ul>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>docker搭建gitea</title>
+    <url>/posts/dewho6/</url>
+    <content><![CDATA[<blockquote>
+<p>参考博客 :point_right: <a href="http://www.siya89.com/blog/docker-gitea-go">文章</a></p>
+</blockquote>
+<a id="more"></a>
+<h2 id="1-gitea-简介"><a href="#1-gitea-简介" class="headerlink" title="1.gitea 简介"></a>1.<code>gitea</code> 简介</h2><p><code>gitea</code> 是在 <code>gitHub</code> 上 <code>fork</code> 于 <code>gogs</code> 的项目，同样具有 <code>gogs</code> 易安装，跨平台，轻量级的特点。gitea 采用 <a href="https://github.com/go-macaron/macaron">Macaron</a> 框架开发。</p>
+<h2 id="2-docker-获取gitea镜像"><a href="#2-docker-获取gitea镜像" class="headerlink" title="2.docker 获取gitea镜像"></a>2.<code>docker</code> 获取<code>gitea</code>镜像</h2><figure class="highlight haskell"><table><tr><td class="code"><pre><span class="line"><span class="meta"># pull gitea镜像</span></span><br><span class="line"> docker pull gitea/gitea</span><br><span class="line"></span><br><span class="line"><span class="meta"># 创建一个本地可以挂载到容器的目录 </span></span><br><span class="line"> mkdir -p /<span class="class"><span class="keyword">data</span>/gitea</span></span><br><span class="line"></span><br><span class="line"><span class="meta"># 给 gitea 加上权限保证其可读可写</span></span><br><span class="line"> cd /<span class="class"><span class="keyword">data</span> &amp;&amp; chmod -<span class="type">R</span> 777 gitea</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-docker-获取mysql镜像"><a href="#3-docker-获取mysql镜像" class="headerlink" title="3.docker 获取mysql镜像"></a>3.<code>docker</code> 获取<code>mysql</code>镜像</h2><p>gitea支持 <code>mysql</code>，<code>PgSql</code>，<code>MSSql</code>，<code>SqlLite3</code>数据库。<br>这里我使用<code>mysql</code>数据库存储，使用<code>mysql容器</code>与<code>gitea容器</code>链接。</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="comment"># pull mysql 5.7镜像</span></span><br><span class="line"> <span class="attribute">docker</span> pull mysql:<span class="number">5</span>.<span class="number">7</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-docker创建mysql容器"><a href="#4-docker创建mysql容器" class="headerlink" title="4.docker创建mysql容器"></a>4.<code>docker</code>创建<code>mysql</code>容器</h2><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">docker <span class="builtin-name">run</span> <span class="attribute">--name</span>=mysql_git -d -p 10812:3306 -e <span class="attribute">MYSQL_PASSWORD</span>=password mysql:5.7</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>参数说明</p>
+</blockquote>
+<pre><code>--name=mysql_git：指定创建的容器名为mysql_git
+-p 10812:3306: 将容器的3306端口映射到主机10812端口
+-e MYSQL_ROOT_PASSWORD=password: 指定mysql的root密码为password</code></pre>
+<h2 id="5-进入mysql容器，创建数据库"><a href="#5-进入mysql容器，创建数据库" class="headerlink" title="5.进入mysql容器，创建数据库"></a>5.进入<code>mysql</code>容器，创建数据库</h2><figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">docker exec -<span class="keyword">it</span> mysql_git bash <span class="comment">#执行命令进入容器</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">mysql</span> -u root -p <span class="comment">#执行该命令后输入root密码</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172034.png"></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span> gitea_db; <span class="comment">#创建gitea_db数据库</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172044.png"></p>
+<p>最后执行<code>exit</code>退出容器</p>
+<h2 id="6-docker-创建容器并运行"><a href="#6-docker-创建容器并运行" class="headerlink" title="6.docker 创建容器并运行"></a>6.<code>docker</code> 创建容器并运行</h2><figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 初次执行 run gitea，注意这里 gitea 是前台启动，启动后 command + C 退出就好了</span></span><br><span class="line"><span class="comment"># 宿主机 10023 映射到 gitea 容器的 22 ssh 端口</span></span><br><span class="line"><span class="comment"># 宿主机 10081 映射到 gitea 容器的 3000 http 端口</span></span><br><span class="line"><span class="comment"># /data/gitea 目录挂在到容器中的 /data 目录</span></span><br><span class="line"><span class="attribute">docker</span> run --name=gitea -p <span class="number">10023</span>:<span class="number">22</span> -p <span class="number">10081</span>:<span class="number">3000</span> --link mysql_git:db -v /data/gitea:/data gitea/gitea</span><br></pre></td></tr></table></figure>
+<p>:key: <code>--link mysql_git:db</code><br>&emsp;&emsp;:point_right:<code>db</code> 就是在gitea容器中mysql_git数据库的地址</p>
+<h2 id="7-最后"><a href="#7-最后" class="headerlink" title="7.最后"></a>7.最后</h2><p>访问地址 <code>http://ip:10081/</code> 即是 gitea 地址，首先要配置好你的数据库。</p>
+<p>仓库风格如下<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172100.png"></p>
 ]]></content>
       <categories>
         <category>linux</category>
@@ -2380,42 +2567,37 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>docker搭建gitea</title>
-    <url>/posts/dewho6/</url>
+    <title>hexo本地项目迁移(更换文件夹)</title>
+    <url>/posts/ae561650/</url>
     <content><![CDATA[<blockquote>
-<p>参考博客 :point_right: <a href="http://www.siya89.com/blog/docker-gitea-go">文章</a></p>
+<p>有时候, 我们可能需要将本地hexo博客项目备份, 或者将本地项目换个文件夹.<br>但是如果我们直接将文件夹移动位置时会发现移动后输入hexo s启动报错,所以我们有必要知道如何将本地项目更换文件夹.<br>如果能做到这一点, 我们还可以备份到另一台电脑, 在其他环境重新编辑部署hexo博客.</p>
 </blockquote>
 <a id="more"></a>
-<h2 id="1-gitea-简介"><a href="#1-gitea-简介" class="headerlink" title="1.gitea 简介"></a>1.<code>gitea</code> 简介</h2><p><code>gitea</code> 是在 <code>gitHub</code> 上 <code>fork</code> 于 <code>gogs</code> 的项目，同样具有 <code>gogs</code> 易安装，跨平台，轻量级的特点。gitea 采用 <a href="https://github.com/go-macaron/macaron">Macaron</a> 框架开发。</p>
-<h2 id="2-docker-获取gitea镜像"><a href="#2-docker-获取gitea镜像" class="headerlink" title="2.docker 获取gitea镜像"></a>2.<code>docker</code> 获取<code>gitea</code>镜像</h2><figure class="highlight haskell"><table><tr><td class="code"><pre><span class="line"><span class="meta"># pull gitea镜像</span></span><br><span class="line"> docker pull gitea/gitea</span><br><span class="line"></span><br><span class="line"><span class="meta"># 创建一个本地可以挂载到容器的目录 </span></span><br><span class="line"> mkdir -p /<span class="class"><span class="keyword">data</span>/gitea</span></span><br><span class="line"></span><br><span class="line"><span class="meta"># 给 gitea 加上权限保证其可读可写</span></span><br><span class="line"> cd /<span class="class"><span class="keyword">data</span> &amp;&amp; chmod -<span class="type">R</span> 777 gitea</span></span><br></pre></td></tr></table></figure>
 
-
-
-<h2 id="3-docker-获取mysql镜像"><a href="#3-docker-获取mysql镜像" class="headerlink" title="3.docker 获取mysql镜像"></a>3.<code>docker</code> 获取<code>mysql</code>镜像</h2><p>gitea支持 <code>mysql</code>，<code>PgSql</code>，<code>MSSql</code>，<code>SqlLite3</code>数据库。<br>这里我使用<code>mysql</code>数据库存储，使用<code>mysql容器</code>与<code>gitea容器</code>链接。</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="comment"># pull mysql 5.7镜像</span></span><br><span class="line"> <span class="attribute">docker</span> pull mysql:<span class="number">5</span>.<span class="number">7</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-docker创建mysql容器"><a href="#4-docker创建mysql容器" class="headerlink" title="4.docker创建mysql容器"></a>4.<code>docker</code>创建<code>mysql</code>容器</h2><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">docker <span class="builtin-name">run</span> <span class="attribute">--name</span>=mysql_git -d -p 10812:3306 -e <span class="attribute">MYSQL_PASSWORD</span>=password mysql:5.7</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>参数说明</p>
+<p>进入正题, 简单的三个步骤: </p>
 </blockquote>
-<pre><code>--name=mysql_git：指定创建的容器名为mysql_git
--p 10812:3306: 将容器的3306端口映射到主机10812端口
--e MYSQL_ROOT_PASSWORD=password: 指定mysql的root密码为password</code></pre>
-<h2 id="5-进入mysql容器，创建数据库"><a href="#5-进入mysql容器，创建数据库" class="headerlink" title="5.进入mysql容器，创建数据库"></a>5.进入<code>mysql</code>容器，创建数据库</h2><figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">docker exec -<span class="keyword">it</span> mysql_git bash <span class="comment">#执行命令进入容器</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">mysql</span> -u root -p <span class="comment">#执行该命令后输入root密码</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172034.png"></p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span> gitea_db; <span class="comment">#创建gitea_db数据库</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172044.png"></p>
-<p>最后执行<code>exit</code>退出容器</p>
-<h2 id="6-docker-创建容器并运行"><a href="#6-docker-创建容器并运行" class="headerlink" title="6.docker 创建容器并运行"></a>6.<code>docker</code> 创建容器并运行</h2><figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 初次执行 run gitea，注意这里 gitea 是前台启动，启动后 command + C 退出就好了</span></span><br><span class="line"><span class="comment"># 宿主机 10023 映射到 gitea 容器的 22 ssh 端口</span></span><br><span class="line"><span class="comment"># 宿主机 10081 映射到 gitea 容器的 3000 http 端口</span></span><br><span class="line"><span class="comment"># /data/gitea 目录挂在到容器中的 /data 目录</span></span><br><span class="line"><span class="attribute">docker</span> run --name=gitea -p <span class="number">10023</span>:<span class="number">22</span> -p <span class="number">10081</span>:<span class="number">3000</span> --link mysql_git:db -v /data/gitea:/data gitea/gitea</span><br></pre></td></tr></table></figure>
-<p>:key: <code>--link mysql_git:db</code><br>&emsp;&emsp;:point_right:<code>db</code> 就是在gitea容器中mysql_git数据库的地址</p>
-<h2 id="7-最后"><a href="#7-最后" class="headerlink" title="7.最后"></a>7.最后</h2><p>访问地址 <code>http://ip:10081/</code> 即是 gitea 地址，首先要配置好你的数据库。</p>
-<p>仓库风格如下<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172100.png"></p>
+<ol>
+<li><p>在新环境下新建文件夹<br> 新建的文件夹用来放置之前的项目<br> 注意: <strong>不要用hexo init初始化</strong></p>
+</li>
+<li><p>复制原先项目文件<br> 这里我们只需要复制除了.deploy_git, node_modules, public三个文件夹之外, 其他的文件全部复制到新建文件夹里面.</p>
+</li>
+<li><p>安装所需插件(node_modules)<br>在新建文件夹内, 右键git bash here<br>输入命令:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install //已经安装阿里镜像的可以用cnpm install</span><br></pre></td></tr></table></figure>
+<p>这一步是根据package.json文件安装需要的模块, 具体文件内容可以自己打开看看.</p>
+</li>
+</ol>
+<p>这样我们就完成了项目迁移!</p>
+<blockquote>
+<p>如果想知道如何迁移到其他电脑,可以参考这个博客:<br><a href="https://andyvj.coding.me/2019/02/19/190219-03/">hexo 迁移更换电脑，或多电脑终端更新博客</a></p>
+</blockquote>
 ]]></content>
       <categories>
-        <category>linux</category>
+        <category>博客</category>
       </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
   </entry>
   <entry>
     <title>ffmpeg常用命令总结</title>
@@ -2474,87 +2656,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>命令总结</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>hexo本地项目迁移(更换文件夹)</title>
-    <url>/posts/ae561650/</url>
-    <content><![CDATA[<blockquote>
-<p>有时候, 我们可能需要将本地hexo博客项目备份, 或者将本地项目换个文件夹.<br>但是如果我们直接将文件夹移动位置时会发现移动后输入hexo s启动报错,所以我们有必要知道如何将本地项目更换文件夹.<br>如果能做到这一点, 我们还可以备份到另一台电脑, 在其他环境重新编辑部署hexo博客.</p>
-</blockquote>
-<a id="more"></a>
-
-<blockquote>
-<p>进入正题, 简单的三个步骤: </p>
-</blockquote>
-<ol>
-<li><p>在新环境下新建文件夹<br> 新建的文件夹用来放置之前的项目<br> 注意: <strong>不要用hexo init初始化</strong></p>
-</li>
-<li><p>复制原先项目文件<br> 这里我们只需要复制除了.deploy_git, node_modules, public三个文件夹之外, 其他的文件全部复制到新建文件夹里面.</p>
-</li>
-<li><p>安装所需插件(node_modules)<br>在新建文件夹内, 右键git bash here<br>输入命令:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install //已经安装阿里镜像的可以用cnpm install</span><br></pre></td></tr></table></figure>
-<p>这一步是根据package.json文件安装需要的模块, 具体文件内容可以自己打开看看.</p>
-</li>
-</ol>
-<p>这样我们就完成了项目迁移!</p>
-<blockquote>
-<p>如果想知道如何迁移到其他电脑,可以参考这个博客:<br><a href="https://andyvj.coding.me/2019/02/19/190219-03/">hexo 迁移更换电脑，或多电脑终端更新博客</a></p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux下搭建selenium环境</title>
-    <url>/posts/65c4a6d8/</url>
-    <content><![CDATA[<blockquote>
-<p>记录在linux服务器上搭建selenium环境，用于Python爬虫</p>
-</blockquote>
-<a id="more"></a>
-
-<h1 id="Centos7"><a href="#Centos7" class="headerlink" title="Centos7"></a>Centos7</h1><ol>
-<li><p>添加 yum 信息</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">vim</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">yum</span><span class="selector-class">.repos</span><span class="selector-class">.d</span>/<span class="selector-tag">google-chrome</span><span class="selector-class">.repo</span></span><br></pre></td></tr></table></figure>
-
-<p>向文件中添加以下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[google-chrome]</span></span><br><span class="line"><span class="attr">name</span>=google-chrome</span><br><span class="line"><span class="attr">baseurl</span>=http://dl.google.com/linux/chrome/rpm/stable/<span class="variable">$basearch</span></span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=https://dl-ssl.google.com/linux/linux_signing_key.pub</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<ol start="2">
-<li><p>安装chrome</p>
-<p>Google官方源安装：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> google-chrome-stable</span><br></pre></td></tr></table></figure>
-
-<p>Google官方源可能在中国无法使用，导致安装失败或者在国内无法更新，可以添加以下参数来安装：　　</p>
-<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">yum -y install google-chrome-<span class="keyword">stable</span> <span class="comment">--nogpgcheck</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加 chrome 到环境变量中</p>
-<p>找到chrome路径，并做个软连接，方便使用:</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">which google-chrome-stable</span><br><span class="line">ln -s xxx <span class="regexp">/bin/</span>chrome <span class="comment"># xxx为chrome可执行文件路径</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载webdriver</p>
-<p>以chromedriver为例，<a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a> ,选择对应版本的driver</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-11/20201108234442.png"></p>
-<p>Python代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">chromeOptions = webdriver.ChromeOptions()</span><br><span class="line"><span class="comment"># 加载无窗口浏览器</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line"><span class="comment">#chromeOptions.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--lang=en_US&#x27;</span>)</span><br><span class="line"><span class="comment"># 以根用户打身份运行Chrome，使用-no-sandbox标记重新运行Chrome,禁止沙箱启动</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--no-sandbox&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(options=chromeOptions, executable_path=driver_path) <span class="comment">#driver_path为driver路径</span></span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>selenium</tag>
       </tags>
   </entry>
   <entry>
@@ -2636,6 +2737,54 @@ docker部署</code></pre>
       <categories>
         <category>linux</category>
       </categories>
+  </entry>
+  <entry>
+    <title>linux下搭建selenium环境</title>
+    <url>/posts/65c4a6d8/</url>
+    <content><![CDATA[<blockquote>
+<p>记录在linux服务器上搭建selenium环境，用于Python爬虫</p>
+</blockquote>
+<a id="more"></a>
+
+<h1 id="Centos7"><a href="#Centos7" class="headerlink" title="Centos7"></a>Centos7</h1><ol>
+<li><p>添加 yum 信息</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">vim</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">yum</span><span class="selector-class">.repos</span><span class="selector-class">.d</span>/<span class="selector-tag">google-chrome</span><span class="selector-class">.repo</span></span><br></pre></td></tr></table></figure>
+
+<p>向文件中添加以下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[google-chrome]</span></span><br><span class="line"><span class="attr">name</span>=google-chrome</span><br><span class="line"><span class="attr">baseurl</span>=http://dl.google.com/linux/chrome/rpm/stable/<span class="variable">$basearch</span></span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=https://dl-ssl.google.com/linux/linux_signing_key.pub</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="2">
+<li><p>安装chrome</p>
+<p>Google官方源安装：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> google-chrome-stable</span><br></pre></td></tr></table></figure>
+
+<p>Google官方源可能在中国无法使用，导致安装失败或者在国内无法更新，可以添加以下参数来安装：　　</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">yum -y install google-chrome-<span class="keyword">stable</span> <span class="comment">--nogpgcheck</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加 chrome 到环境变量中</p>
+<p>找到chrome路径，并做个软连接，方便使用:</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">which google-chrome-stable</span><br><span class="line">ln -s xxx <span class="regexp">/bin/</span>chrome <span class="comment"># xxx为chrome可执行文件路径</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载webdriver</p>
+<p>以chromedriver为例，<a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a> ,选择对应版本的driver</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-11/20201108234442.png"></p>
+<p>Python代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">chromeOptions = webdriver.ChromeOptions()</span><br><span class="line"><span class="comment"># 加载无窗口浏览器</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line"><span class="comment">#chromeOptions.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--lang=en_US&#x27;</span>)</span><br><span class="line"><span class="comment"># 以根用户打身份运行Chrome，使用-no-sandbox标记重新运行Chrome,禁止沙箱启动</span></span><br><span class="line">chromeOptions.add_argument(<span class="string">&#x27;--no-sandbox&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(options=chromeOptions, executable_path=driver_path) <span class="comment">#driver_path为driver路径</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>爬虫</category>
+      </categories>
+      <tags>
+        <tag>selenium</tag>
+      </tags>
   </entry>
   <entry>
     <title>linux学习02 - 基本概念和操作</title>
@@ -3213,6 +3362,24 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>linux服务器上传文件到百度网盘</title>
+    <url>/posts/33eb66fd/</url>
+    <content><![CDATA[<blockquote>
+<p>记录linux如何直接上传文件到百度网盘</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="1-安装python3和相关库"><a href="#1-安装python3和相关库" class="headerlink" title="1. 安装python3和相关库"></a>1. 安装python3和相关库</h1><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> python3</span><br><span class="line">pip3 <span class="keyword">install</span> requests</span><br><span class="line">pip3 <span class="keyword">install</span> bypy</span><br></pre></td></tr></table></figure>
+<p><code>bypy</code>就是连接百度网盘的工具</p>
+<h1 id="2-身份认证"><a href="#2-身份认证" class="headerlink" title="2. 身份认证"></a>2. 身份认证</h1><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">bypy</span> <span class="literal">info</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172131.png"><br>访问要求的网址，获得授权码，前提是浏览器需要登录了网页版百度网盘</p>
+<p>将授权码复制到命令行中，按下enter键，就能认证成功</p>
+<p>:warning: 如果输入bypy info提示编码问题，可以修改linux默认编码解决，参考我的另一篇博客 <a href="/archives/%E4%BF%AE%E6%94%B9linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%BB%98%E8%AE%A4%E7%BC%96%E7%A0%81%E4%B8%BAutf8#more">修改linux默认编码为utf8</a></p>
+<h1 id="3-一些常用命令"><a href="#3-一些常用命令" class="headerlink" title="3. 一些常用命令"></a>3. 一些常用命令</h1><figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">bypy </span>list                 <span class="comment"># 显示文档</span></span><br><span class="line"><span class="keyword">bypy </span>upload filename -v   <span class="comment"># 上传某文件，显示进度</span></span><br><span class="line"><span class="keyword">bypy </span>-c                   <span class="comment"># 取消令牌文件。一段时间后要重新授权</span></span><br><span class="line"><span class="keyword">bypy </span>downdir filename     <span class="comment"># 下载</span></span><br><span class="line"><span class="keyword">bypy </span><span class="built_in">compare</span>              <span class="comment"># 比较本地目录和网盘目录</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>linux服务器上传文件到onedrive</title>
     <url>/posts/83e8a4ac/</url>
     <content><![CDATA[<blockquote>
@@ -3257,24 +3424,6 @@ docker部署</code></pre>
 <p>然后上传命令和上面一样，只需要把<code>OneDriveUploader</code>改成<code>OneDriveUploader.exe</code>即可。</p>
 <p>最后经测试，该版本的上传已经完全能应对各种稀奇古怪的字符问题，如果有问题可以回复下，贴上报错代码，方便修复。</p>
 ]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>linux服务器上传文件到百度网盘</title>
-    <url>/posts/33eb66fd/</url>
-    <content><![CDATA[<blockquote>
-<p>记录linux如何直接上传文件到百度网盘</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="1-安装python3和相关库"><a href="#1-安装python3和相关库" class="headerlink" title="1. 安装python3和相关库"></a>1. 安装python3和相关库</h1><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> python3</span><br><span class="line">pip3 <span class="keyword">install</span> requests</span><br><span class="line">pip3 <span class="keyword">install</span> bypy</span><br></pre></td></tr></table></figure>
-<p><code>bypy</code>就是连接百度网盘的工具</p>
-<h1 id="2-身份认证"><a href="#2-身份认证" class="headerlink" title="2. 身份认证"></a>2. 身份认证</h1><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">bypy</span> <span class="literal">info</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172131.png"><br>访问要求的网址，获得授权码，前提是浏览器需要登录了网页版百度网盘</p>
-<p>将授权码复制到命令行中，按下enter键，就能认证成功</p>
-<p>:warning: 如果输入bypy info提示编码问题，可以修改linux默认编码解决，参考我的另一篇博客 <a href="/archives/%E4%BF%AE%E6%94%B9linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%BB%98%E8%AE%A4%E7%BC%96%E7%A0%81%E4%B8%BAutf8#more">修改linux默认编码为utf8</a></p>
-<h1 id="3-一些常用命令"><a href="#3-一些常用命令" class="headerlink" title="3. 一些常用命令"></a>3. 一些常用命令</h1><figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">bypy </span>list                 <span class="comment"># 显示文档</span></span><br><span class="line"><span class="keyword">bypy </span>upload filename -v   <span class="comment"># 上传某文件，显示进度</span></span><br><span class="line"><span class="keyword">bypy </span>-c                   <span class="comment"># 取消令牌文件。一段时间后要重新授权</span></span><br><span class="line"><span class="keyword">bypy </span>downdir filename     <span class="comment"># 下载</span></span><br><span class="line"><span class="keyword">bypy </span><span class="built_in">compare</span>              <span class="comment"># 比较本地目录和网盘目录</span></span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>linux</category>
       </categories>
@@ -3372,6 +3521,28 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>python项目库依赖文件生成</title>
+    <url>/posts/6631b2cf/</url>
+    <content><![CDATA[<blockquote>
+<p>在创建 python 项目后, 往往该项目有许多依赖的 python 库, 当部署到服务器或者其他平台时, 我们可以直接用 pip 针对依赖文件 requirements.txt安装所需的库.</p>
+</blockquote>
+<a id="more"></a>
+
+<h2 id="依赖文件requirements-txt"><a href="#依赖文件requirements-txt" class="headerlink" title="依赖文件requirements.txt"></a>依赖文件requirements.txt</h2><p>我们可以用下面命令一键安装所有库.</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<h2 id="自动生成requirements-txt"><a href="#自动生成requirements-txt" class="headerlink" title="自动生成requirements.txt"></a>自动生成requirements.txt</h2><p>以Pycharm IDE为例.<br>打开界面下方的 Terminal, 输入以下命令,可以自动生成当前项目的依赖库文件 requirements.txt</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">pip freeze&gt;requirements.txt</span><br></pre></td></tr></table></figure>
+<p>生成后的文件内容以下为例:</p>
+<figure class="highlight python"><figcaption><span>requirements.txt</span></figcaption><table><tr><td class="code"><pre><span class="line">Django==<span class="number">2.1</span><span class="number">.5</span></span><br><span class="line">pytz==<span class="number">2019.2</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>技巧</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Python的pip缓存</title>
     <url>/posts/5e683b0e/</url>
     <content><![CDATA[<blockquote>
@@ -3403,28 +3574,6 @@ docker部署</code></pre>
       <categories>
         <category>技巧</category>
       </categories>
-  </entry>
-  <entry>
-    <title>python项目库依赖文件生成</title>
-    <url>/posts/6631b2cf/</url>
-    <content><![CDATA[<blockquote>
-<p>在创建 python 项目后, 往往该项目有许多依赖的 python 库, 当部署到服务器或者其他平台时, 我们可以直接用 pip 针对依赖文件 requirements.txt安装所需的库.</p>
-</blockquote>
-<a id="more"></a>
-
-<h2 id="依赖文件requirements-txt"><a href="#依赖文件requirements-txt" class="headerlink" title="依赖文件requirements.txt"></a>依赖文件requirements.txt</h2><p>我们可以用下面命令一键安装所有库.</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
-
-<h2 id="自动生成requirements-txt"><a href="#自动生成requirements-txt" class="headerlink" title="自动生成requirements.txt"></a>自动生成requirements.txt</h2><p>以Pycharm IDE为例.<br>打开界面下方的 Terminal, 输入以下命令,可以自动生成当前项目的依赖库文件 requirements.txt</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">pip freeze&gt;requirements.txt</span><br></pre></td></tr></table></figure>
-<p>生成后的文件内容以下为例:</p>
-<figure class="highlight python"><figcaption><span>requirements.txt</span></figcaption><table><tr><td class="code"><pre><span class="line">Django==<span class="number">2.1</span><span class="number">.5</span></span><br><span class="line">pytz==<span class="number">2019.2</span></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>技巧</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-      </tags>
   </entry>
   <entry>
     <title>unix网络编程2-IPC-0-前言</title>
@@ -3563,6 +3712,23 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>win10查看连过的WIFI密码</title>
+    <url>/posts/22bb2050/</url>
+    <content><![CDATA[<blockquote>
+<p>在win10上查看连过的WIFI密码，这里通过cmd命令的方式查看.</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="1-查看单个WIFI的密码"><a href="#1-查看单个WIFI的密码" class="headerlink" title="1. 查看单个WIFI的密码"></a>1. 查看单个WIFI的密码</h3><p>注意下面的WIFI名指定为需要查询的WIFI名</p>
+<figure class="highlight bash"><figcaption><span>查看单个WIFI密码.bat</span></figcaption><table><tr><td class="code"><pre><span class="line">netsh wlan show profile name=<span class="string">&quot;WIFI名&quot;</span> key=clear</span><br></pre></td></tr></table></figure>
+<p>结果中的关键内容就是WIFI密码</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210455.png"></p>
+<h3 id="2-查看所有连过的WIFI名"><a href="#2-查看所有连过的WIFI名" class="headerlink" title="2. 查看所有连过的WIFI名"></a>2. 查看所有连过的WIFI名</h3><p>这里与上一条命令不同的是WIFI名换成了通配符 “*”，不过这个不能直接查看密码,再利用上面的命令进行查看密码</p>
+<figure class="highlight bash"><figcaption><span>查看所有WIFI密码.bat</span></figcaption><table><tr><td class="code"><pre><span class="line">netsh wlan show profile * key=clear</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>技巧</category>
+      </categories>
+  </entry>
+  <entry>
     <title>unix网络编程2-IPC-2-Posix IPC</title>
     <url>/posts/f9ac59e8/</url>
     <content><![CDATA[<p>继续学习《unix网络编程卷2: 进程间通信》，本篇主要记录第2章 Posix IPC 的相关内容。</p>
@@ -3631,23 +3797,6 @@ docker部署</code></pre>
         <tag>unix</tag>
         <tag>IPC</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>win10查看连过的WIFI密码</title>
-    <url>/posts/22bb2050/</url>
-    <content><![CDATA[<blockquote>
-<p>在win10上查看连过的WIFI密码，这里通过cmd命令的方式查看.</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="1-查看单个WIFI的密码"><a href="#1-查看单个WIFI的密码" class="headerlink" title="1. 查看单个WIFI的密码"></a>1. 查看单个WIFI的密码</h3><p>注意下面的WIFI名指定为需要查询的WIFI名</p>
-<figure class="highlight bash"><figcaption><span>查看单个WIFI密码.bat</span></figcaption><table><tr><td class="code"><pre><span class="line">netsh wlan show profile name=<span class="string">&quot;WIFI名&quot;</span> key=clear</span><br></pre></td></tr></table></figure>
-<p>结果中的关键内容就是WIFI密码</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410210455.png"></p>
-<h3 id="2-查看所有连过的WIFI名"><a href="#2-查看所有连过的WIFI名" class="headerlink" title="2. 查看所有连过的WIFI名"></a>2. 查看所有连过的WIFI名</h3><p>这里与上一条命令不同的是WIFI名换成了通配符 “*”，不过这个不能直接查看密码,再利用上面的命令进行查看密码</p>
-<figure class="highlight bash"><figcaption><span>查看所有WIFI密码.bat</span></figcaption><table><tr><td class="code"><pre><span class="line">netsh wlan show profile * key=clear</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>技巧</category>
-      </categories>
   </entry>
   <entry>
     <title>xshell密钥登录服务器的配置过程</title>
@@ -3813,6 +3962,58 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>搭建文件服务器</title>
+    <url>/posts/3937af73/</url>
+    <content><![CDATA[<blockquote>
+<p>记录搭建文件服务器的几种方式</p>
+</blockquote>
+<a id="more"></a>
+
+<h1 id="一、配置nginx文件搭建简单文件服务器"><a href="#一、配置nginx文件搭建简单文件服务器" class="headerlink" title="一、配置nginx文件搭建简单文件服务器"></a>一、配置nginx文件搭建简单文件服务器</h1><ol>
+<li>安装</li>
+</ol>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> nginx</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建并编辑配置文件</li>
+</ol>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/etc/</span>nginx<span class="regexp">/conf.d/</span>file_server.conf</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>配置文件内容模板</li>
+</ol>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">  <span class="attribute">listen</span> <span class="number">2020</span>; </span><br><span class="line">  <span class="attribute">server_name</span> localhost; <span class="comment">#ip或者服务器的域名</span></span><br><span class="line">  <span class="attribute">charset</span> utf-<span class="number">8</span>; <span class="comment"># 避免中文乱码 </span></span><br><span class="line">  <span class="attribute">root</span> /var/file_server; <span class="comment"># 存放文件的目录 </span></span><br><span class="line">  <span class="attribute">location</span> / &#123; </span><br><span class="line">    <span class="attribute">autoindex</span> <span class="literal">on</span>; <span class="comment"># 索引 </span></span><br><span class="line">    <span class="attribute">autoindex_exact_size</span> <span class="literal">on</span>; <span class="comment"># 显示文件大小 </span></span><br><span class="line">    <span class="attribute">autoindex_localtime</span> <span class="literal">on</span>; <span class="comment"># 显示文件时间 </span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>启动nginx</li>
+</ol>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">systemctl <span class="literal">start</span> nginx</span><br></pre></td></tr></table></figure>
+
+<p>创建成功演示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-05/20200821000816.png"></p>
+<h1 id="二、使用github项目中的FileBrowser"><a href="#二、使用github项目中的FileBrowser" class="headerlink" title="二、使用github项目中的FileBrowser"></a>二、使用github项目中的FileBrowser</h1><p><strong>项目地址</strong>: <a href="https://github.com/filebrowser/filebrowser/">https://github.com/filebrowser/filebrowser/</a></p>
+<p>由于docker配置比较简单并且易于管理，所以选择docker安装filebrowser。</p>
+<p>命令参考：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server<span class="regexp">/:/</span>srv \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/filebrowser.db:/</span>database.db \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/.filebrowser.json:/</span>.filebrowser.json \</span><br><span class="line">    -p <span class="number">2020</span>:<span class="number">80</span> \</span><br><span class="line">    -d \</span><br><span class="line">    filebrowser/filebrowser</span><br></pre></td></tr></table></figure>
+
+<p>上述命令指定映射的需要显示文件的系统路径为<code>/var/file_server/</code></p>
+<p>运行上述命令前，需要将其中<code>/var/file_server_log/filebrowser.db</code>和<code>/var/file_server_log/.filebrowser.json</code>这两个文件先创建好，否则会报错。</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/var/</span>file_server_log/filebrowser.db</span><br><span class="line">touch <span class="regexp">/var/</span>file_server_log/.filebrowser.json</span><br></pre></td></tr></table></figure>
+
+<p>同时，.filebrowser.json 内容需要初始化一下，官方给出的内容如下：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;port&quot;</span>: <span class="number">80</span>,</span><br><span class="line">  <span class="attr">&quot;baseURL&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;address&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;log&quot;</span>: <span class="string">&quot;stdout&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;database&quot;</span>: <span class="string">&quot;/database.db&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;root&quot;</span>: <span class="string">&quot;/srv&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建成功演示如下图，第一次登陆时账号密码可以任意填写，作为新建的管理员账户。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-08/20200821000901.png"></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>文件服务器</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>服务器禁止被ping</title>
     <url>/posts/6898a3ea/</url>
     <content><![CDATA[<blockquote>
@@ -3864,58 +4065,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>安全</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>搭建文件服务器</title>
-    <url>/posts/3937af73/</url>
-    <content><![CDATA[<blockquote>
-<p>记录搭建文件服务器的几种方式</p>
-</blockquote>
-<a id="more"></a>
-
-<h1 id="一、配置nginx文件搭建简单文件服务器"><a href="#一、配置nginx文件搭建简单文件服务器" class="headerlink" title="一、配置nginx文件搭建简单文件服务器"></a>一、配置nginx文件搭建简单文件服务器</h1><ol>
-<li>安装</li>
-</ol>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> nginx</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>创建并编辑配置文件</li>
-</ol>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/etc/</span>nginx<span class="regexp">/conf.d/</span>file_server.conf</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>配置文件内容模板</li>
-</ol>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">  <span class="attribute">listen</span> <span class="number">2020</span>; </span><br><span class="line">  <span class="attribute">server_name</span> localhost; <span class="comment">#ip或者服务器的域名</span></span><br><span class="line">  <span class="attribute">charset</span> utf-<span class="number">8</span>; <span class="comment"># 避免中文乱码 </span></span><br><span class="line">  <span class="attribute">root</span> /var/file_server; <span class="comment"># 存放文件的目录 </span></span><br><span class="line">  <span class="attribute">location</span> / &#123; </span><br><span class="line">    <span class="attribute">autoindex</span> <span class="literal">on</span>; <span class="comment"># 索引 </span></span><br><span class="line">    <span class="attribute">autoindex_exact_size</span> <span class="literal">on</span>; <span class="comment"># 显示文件大小 </span></span><br><span class="line">    <span class="attribute">autoindex_localtime</span> <span class="literal">on</span>; <span class="comment"># 显示文件时间 </span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="4">
-<li>启动nginx</li>
-</ol>
-<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">systemctl <span class="literal">start</span> nginx</span><br></pre></td></tr></table></figure>
-
-<p>创建成功演示：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-05/20200821000816.png"></p>
-<h1 id="二、使用github项目中的FileBrowser"><a href="#二、使用github项目中的FileBrowser" class="headerlink" title="二、使用github项目中的FileBrowser"></a>二、使用github项目中的FileBrowser</h1><p><strong>项目地址</strong>: <a href="https://github.com/filebrowser/filebrowser/">https://github.com/filebrowser/filebrowser/</a></p>
-<p>由于docker配置比较简单并且易于管理，所以选择docker安装filebrowser。</p>
-<p>命令参考：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server<span class="regexp">/:/</span>srv \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/filebrowser.db:/</span>database.db \</span><br><span class="line">    -v <span class="regexp">/var/</span>file_server_log<span class="regexp">/.filebrowser.json:/</span>.filebrowser.json \</span><br><span class="line">    -p <span class="number">2020</span>:<span class="number">80</span> \</span><br><span class="line">    -d \</span><br><span class="line">    filebrowser/filebrowser</span><br></pre></td></tr></table></figure>
-
-<p>上述命令指定映射的需要显示文件的系统路径为<code>/var/file_server/</code></p>
-<p>运行上述命令前，需要将其中<code>/var/file_server_log/filebrowser.db</code>和<code>/var/file_server_log/.filebrowser.json</code>这两个文件先创建好，否则会报错。</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">touch <span class="regexp">/var/</span>file_server_log/filebrowser.db</span><br><span class="line">touch <span class="regexp">/var/</span>file_server_log/.filebrowser.json</span><br></pre></td></tr></table></figure>
-
-<p>同时，.filebrowser.json 内容需要初始化一下，官方给出的内容如下：</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;port&quot;</span>: <span class="number">80</span>,</span><br><span class="line">  <span class="attr">&quot;baseURL&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;address&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;log&quot;</span>: <span class="string">&quot;stdout&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;database&quot;</span>: <span class="string">&quot;/database.db&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;root&quot;</span>: <span class="string">&quot;/srv&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>创建成功演示如下图，第一次登陆时账号密码可以任意填写，作为新建的管理员账户。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-08/20200821000901.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>文件服务器</tag>
       </tags>
   </entry>
   <entry>
