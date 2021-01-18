@@ -40,6 +40,161 @@
       </tags>
   </entry>
   <entry>
+    <title>CentOS 7安装fail2ban+Firewall防止SSH爆破与CC攻击</title>
+    <url>/posts/191dc2a0/</url>
+    <content><![CDATA[<blockquote>
+<p>转载自：<a href="https://www.hosteacher.com/server-centos7-install-fail2ban.html">文章</a></p>
+</blockquote>
+<a id="more"></a>
+<p><strong>说明</strong>：差不多很多博主都会遇到被<code>CC</code>攻击和<code>SSH</code>爆破的情况，这个时候就需要做下防御措施了，对于<code>CentOS 7</code>来说，由于防火墙的因素，配置起来还是有点麻烦的，这里针对<code>CentOS 7</code>再分享个简单防<code>CC</code>攻击和<code>SSH</code>爆破的方法。<a href="https://www.hosteacher.com/linux-centos7-firewall.html">Linux安全-CentOS 7开放设置端口及firewall常用命令介绍</a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>fail2ban</code>可以监视你的系统日志，然后匹配日志的错误信息执行相应的屏蔽动作。网上大部分教程都是关于<code>fail2ban</code>+<code>iptables</code>组合，考虑到<code>CentOS 7</code>已经自带<code>Firewalld</code>，所以这里我们也可以利用<code>fail2ban</code>+<code>Firewalld</code>来防<code>CC</code>攻击和<code>SSH</code>爆破。</p>
+<p>本教程编辑文件使用<code>vi</code>命令，如果不会用的，可以使使用<code>FTP</code>工具，如<code>WinSCP</code>登录<code>VPS</code>操作。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p><strong>1、检查Firewalld是否启用</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#如果您已经安装iptables建议先关闭</span></span><br><span class="line">service iptables <span class="keyword">stop</span></span><br><span class="line"><span class="comment">#查看Firewalld状态</span></span><br><span class="line">firewall-cmd <span class="comment">--state</span></span><br><span class="line"><span class="comment">#启动firewalld</span></span><br><span class="line">systemctl <span class="keyword">start</span> firewalld</span><br><span class="line"><span class="comment">#设置开机启动</span></span><br><span class="line">systemctl <span class="keyword">enable</span> firewalld.service</span><br></pre></td></tr></table></figure>
+
+<p>启用<code>Firewalld</code>后会禁止所有端口连接，因此请务必放行常用的端口，以免被阻挡在外，以下是放行<code>SSH</code>端口（<code>22</code>）示例，供参考：</p>
+<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="comment">#放行22端口</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --zone=public --add-port=80/tcp --permanent</span></span><br><span class="line"><span class="comment">#重载配置</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --reload</span></span><br><span class="line"><span class="comment">#查看已放行端口</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --zone=public --list-ports</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2、安装fail2ban</strong><br><code>fail2ban</code>可以监控系统日志，并且根据一定规则匹配异常<code>IP</code>后使用<code>Firewalld</code>将其屏蔽，尤其是针对一些爆破/扫描等非常有效。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#CentOS内置源并未包含fail2ban，需要先安装epel源</span></span><br><span class="line">yum -y <span class="keyword">install</span> epel-<span class="keyword">release</span></span><br><span class="line"><span class="comment">#安装fial2ban</span></span><br><span class="line">yum -y <span class="keyword">install</span> fail2ban</span><br></pre></td></tr></table></figure>
+
+<p>安装成功后<code>fail2ban</code>配置文件位于<code>/etc/fail2ban</code>，其中<code>jail.conf</code>为主配置文件，相关的匹配规则位于<code>filter.d</code>目录，其它目录/文件一般很少用到，如果需要详细了解可自行搜索。</p>
+<p><strong>3、配置规则</strong><br>新建<code>jail.local</code>来覆盖<code>fail2ban</code>的一些默认规则：</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="comment">#新建配置</span></span><br><span class="line">vi /etc/fail2ban/jail.local</span><br><span class="line"><span class="comment">#默认配置</span></span><br><span class="line">[DEFAULT]</span><br><span class="line">ignoreip = 127.0.0.1/8</span><br><span class="line">bantime  = 86400</span><br><span class="line">findtime = 600</span><br><span class="line">maxretry = 5</span><br><span class="line"><span class="comment">#这里banaction必须用firewallcmd-ipset,这是fiewalll支持的关键，如果是用Iptables请不要这样填写</span></span><br><span class="line">banaction = firewallcmd-ipset</span><br><span class="line">action = %(action_mwl)s</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="symbol">ignoreip</span>：<span class="built_in">IP</span>白名单，白名单中的<span class="built_in">IP</span>不会屏蔽，可填写多个以（,）分隔</span><br><span class="line"><span class="symbol">bantime</span>：屏蔽时间，单位为秒（s）</span><br><span class="line"><span class="symbol">findtime</span>：时间范围</span><br><span class="line"><span class="symbol">maxretry</span>：最大次数</span><br><span class="line"><span class="symbol">banaction</span>：屏蔽<span class="built_in">IP</span>所使用的方法，上面使用firewalld屏蔽端口</span><br></pre></td></tr></table></figure>
+
+<h2 id="防止SSH爆破"><a href="#防止SSH爆破" class="headerlink" title="防止SSH爆破"></a>防止SSH爆破</h2><p>如果您还在使用默认<code>SSH</code>端口（<code>22</code>），可能每天都会被扫描，我们可以修改端口尽量避免被扫，参考：<a href="https://www.hosteacher.com/linux-modify-ssh-port.html">Linux安全-修改VPS默认SSH端口</a>，或者可以使用<code>fail2ban</code>将恶意<code>IP</code>屏蔽。</p>
+<p>继续修改<code>jail.local</code>这个配置文件，在后面追加如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[sshd]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">filter</span>  = sshd</span><br><span class="line"><span class="attr">port</span>    = <span class="number">22</span></span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">logpath</span> = /var/log/secure</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<figure class="highlight scss"><table><tr><td class="code"><pre><span class="line"><span class="selector-attr">[sshd]</span>：名称，可以随便填写</span><br><span class="line"><span class="attribute">filter</span>：规则名称，必须填写位于<span class="attribute">filter</span><span class="selector-class">.d</span>目录里面的规则，sshd是fail2ban内置规则</span><br><span class="line">port：对应的端口</span><br><span class="line">action：采取的行动</span><br><span class="line">logpath：需要监视的日志路径</span><br></pre></td></tr></table></figure>
+
+<p>到这一步，我们<code>jail.local</code>的规则看起来可能像下面这样子：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[DEFAULT]</span></span><br><span class="line"><span class="attr">ignoreip</span> = <span class="number">127.0</span>.<span class="number">0.1</span>/<span class="number">8</span></span><br><span class="line"><span class="attr">bantime</span>  = <span class="number">86400</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">600</span></span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">5</span></span><br><span class="line"><span class="attr">banaction</span> = firewallcmd-ipset</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"></span><br><span class="line"><span class="section">[sshd]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">filter</span>  = sshd</span><br><span class="line"><span class="attr">port</span>    = <span class="number">22</span></span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">logpath</span> = /var/log/secure</span><br></pre></td></tr></table></figure>
+
+<p>上面的配置意思是如果同一个<code>IP</code>，在<code>10</code>分钟内，如果连续超过<code>5</code>次错误，则使用<code>Firewalld</code>将他<code>IP ban</code>了。输入<code>systemctl start fail2ban</code>启动<code>fail2ban</code>来试试效果。</p>
+<p>使用另一台服务器不断尝试连接<code>SSH</code>，并且不断的将密码输入错误，你会发现连续超过<code>5</code>次后直接连不上，说明<code>IP</code>被<code>ban</code>了，可以输入：<code>fail2ban-client status sshd</code>查看被<code>ban</code>的<code>IP</code></p>
+<h2 id="防止CC攻击"><a href="#防止CC攻击" class="headerlink" title="防止CC攻击"></a>防止CC攻击</h2><p>这里仅以<code>Nginx</code>为例，使用<code>fail2ban</code>来监视<code>nginx</code>日志，匹配短时间内频繁请求的<code>IP</code>，并使用<code>firewalld</code>将其<code>IP</code>屏蔽，达到<code>CC</code>防护的作用。</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">vi <span class="regexp">/etc/</span>fail2ban<span class="regexp">/filter.d/</span>nginx-cc.conf</span><br><span class="line"></span><br><span class="line">[Definition]</span><br><span class="line">failregex =  -.*- .*HTTP/<span class="number">1</span>.* .* .*$</span><br><span class="line">ignoreregex =</span><br></pre></td></tr></table></figure>
+
+<p>继续修改<code>jail.local</code>追加如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[nginx-cc]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">port</span> = http,https</span><br><span class="line"><span class="attr">filter</span> = nginx-cc</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">60</span></span><br><span class="line"><span class="attr">bantime</span> = <span class="number">3600</span></span><br><span class="line"><span class="attr">logpath</span> = /usr/local/nginx/logs/access.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>上面的配置意思是如果在<code>60s</code>内，同一<code>IP</code>达到<code>20</code>次请求，则将其<code>IP ban 1</code>小时，上面只是为了测试，请根据自己的实际情况修改。<code>logpath</code>为<code>nginx</code>日志路径。</p>
+<h2 id="防止Wordpress爆破"><a href="#防止Wordpress爆破" class="headerlink" title="防止Wordpress爆破"></a>防止Wordpress爆破</h2><p>如果您经常分析日志会发现有大量机器人在扫描<code>wordpress</code>登录页面<code>wp-login.php</code>，虽然对方可能没成功，但是为了避免万一还是将他<code>IP</code>干掉为好。</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">vi</span> /etc/fail2ban/<span class="built_in">filter</span>.d/wordpress.<span class="keyword">conf</span></span><br><span class="line"></span><br><span class="line">[Definition]</span><br><span class="line">failregex = ^ -.* /<span class="keyword">wp</span>-login.php.* HTTP/<span class="number">1</span>\..<span class="comment">&quot;</span></span><br><span class="line">ignoreregex =</span><br></pre></td></tr></table></figure>
+
+<p>继续修改<code>jail.local</code>追加如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[wordpress]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">port</span> = http,https</span><br><span class="line"><span class="attr">filter</span> = wordpress</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">60</span></span><br><span class="line"><span class="attr">bantime</span> = <span class="number">3600</span></span><br><span class="line"><span class="attr">logpath</span> = /usr/local/nginx/logs/access.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当然，别忘记输入<code>systemctl restart fail2ban</code>重启<code>fail2ban</code>使其生效。</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#启动</span></span><br><span class="line">systemctl <span class="keyword">start</span> fail2ban</span><br><span class="line"><span class="comment">#停止</span></span><br><span class="line">systemctl <span class="keyword">stop</span> fail2ban</span><br><span class="line"><span class="comment">#开机启动</span></span><br><span class="line">systemctl <span class="keyword">enable</span> fail2ban</span><br><span class="line"><span class="comment">#查看被ban IP，其中sshd为名称，比如上面的[wordpress]</span></span><br><span class="line">fail2ban-<span class="keyword">client</span> <span class="keyword">status</span> sshd</span><br><span class="line"><span class="comment">#删除被ban IP</span></span><br><span class="line">fail2ban-<span class="keyword">client</span> <span class="keyword">set</span> sshd delignoreip <span class="number">192.168</span><span class="number">.111</span><span class="number">.111</span></span><br><span class="line"><span class="comment">#查看日志</span></span><br><span class="line">tail /<span class="keyword">var</span>/<span class="keyword">log</span>/fail2ban.log</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>fail2ban</code>已经内置很多匹配规则，位于<code>filter.d</code>目录下，包含了常见的<code>SSH/FTP/Nginx/Apache</code>等日志匹配，如果都还无法满足您的需求，您也可以自行新建规则来匹配异常<code>IP</code>。使用<code>fail2ban</code>+<code>Firewalld</code>来阻止恶意<code>IP</code>是行之有效的办法，可极大提高服务器安全。</p>
+<hr>
+<h2 id="实际测试"><a href="#实际测试" class="headerlink" title="实际测试"></a>实际测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415171736.png"></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Centos7使用rclone挂载谷歌团队盘</title>
+    <url>/posts/45226759/</url>
+    <content><![CDATA[<blockquote>
+<p>国外服务器文件上传和下载有时很慢，本地与服务器直接传输文件效率很低，这里通过将国外云盘作为中转的方式包含很多优点。</p>
+</blockquote>
+<a id="more"></a>
+<p>主要优势如下：</p>
+<ul>
+<li>国外服务器与国外云盘之间文件传输效率高</li>
+<li>本地与国外云盘之间文件传输可以通过xx工具提高下载速度</li>
+<li>大容量云盘可以存储大量数据（谷歌团队盘有1PB空间）</li>
+</ul>
+<p>首先非常感谢参考博客：<a href="https://omo.moe/archives/103/">https://omo.moe/archives/103/</a></p>
+<h2 id="安装环境配置"><a href="#安装环境配置" class="headerlink" title="安装环境配置"></a>安装环境配置</h2><p>在服务器执行以下命令，安装环境</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install wget unzip screen fuse fuse-devel</span><br><span class="line">wget https://downloads.rclone.org/rclone-current-linux-amd64.zip</span><br><span class="line">unzip rclone-current-linux-amd64.zip</span><br><span class="line">chmod 0755 ./rclone-*/rclone</span><br><span class="line">cp ./rclone-*/rclone /usr/bin/</span><br><span class="line">rm -rf ./rclone-*</span><br></pre></td></tr></table></figure>
+
+<h2 id="身份认证"><a href="#身份认证" class="headerlink" title="身份认证"></a>身份认证</h2><p>执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone config</span><br></pre></td></tr></table></figure>
+
+<p>如下图，name为最后挂载的盘名。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png"></p>
+<p>如下图，可以看到可以选择各种网盘进行挂载，这里选择第13个<code>google drive</code>(具体序号需联系实际)</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105448.png"></p>
+<p>如下图，配置<code>权限</code>等功能，主要看英文介绍，图中空白处直接按确认选择默认</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105741.png"></p>
+<p>如下图，将链接复制到浏览器打开，获取<code>认证码</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110051.png"></p>
+<p>选择Team Drive的编号，最后退出</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110457.png"></p>
+<h2 id="挂载云盘"><a href="#挂载云盘" class="headerlink" title="挂载云盘"></a>挂载云盘</h2><ul>
+<li><p>在服务器创建目录，用于目录映射</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mkdir /root/Gdrive</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>输入以下命令，需要注意参数</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone mount wellod:folder /root/Gdrive --allow-other --allow-non-empty --vfs-cache-mode writes &amp;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>wellod:floder</code>：wellod为第一步中输入的name, folder为云盘中的文件夹名</li>
+<li><code>/root/Gdrive</code>：服务器相对于云盘的映射地址</li>
+</ol>
+</li>
+<li><p>查看挂载是否成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401111343.png"></p>
+<p>成功就如上图所示。</p>
+</li>
+<li><p>文件上传和下载</p>
+<p>使用<code>cp</code>命令即可，也可以使用<code>rclone copy</code>等命令操作。</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Github+Hexo win10搭建个人博客教程(1) - 配置相关环境</title>
+    <url>/posts/45982/</url>
+    <content><![CDATA[<blockquote>
+<p> 本文是搭建hexo博客的第一部分, 主要记录一下自己的搭建过程, 这里讲一下相关环境的安装和配置.</p>
+</blockquote>
+<p>参考教程: <a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a><br>参考视频: <a href="https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868">https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868</a></p>
+<a id="more"></a>
+
+<h2 id="一-安装nodejs和git"><a href="#一-安装nodejs和git" class="headerlink" title="一. 安装nodejs和git"></a>一. 安装nodejs和git</h2><p>直接进官网下载安装</p>
+<p>安装完毕之后, 最后需要给nodejs添加环境变量, 譬如我的: D:\ASoftPro\Nodejs\</p>
+<p>打开cmd管理员<br>输入npm -v 查看版本<br>输入node -v 查看版本<br>我这里的安装环境是:</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">nodejs</span>: v<span class="number">10</span>.<span class="number">16</span>.<span class="number">1</span></span><br><span class="line"><span class="attribute">npm</span>:<span class="number">6</span>.<span class="number">9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="二-安装hexo"><a href="#二-安装hexo" class="headerlink" title="二. 安装hexo"></a>二. 安装hexo</h2><h3 id="1-安装淘宝镜像-因为直接访问国外比较慢"><a href="#1-安装淘宝镜像-因为直接访问国外比较慢" class="headerlink" title="1. 安装淘宝镜像,因为直接访问国外比较慢"></a>1. 安装淘宝镜像,因为直接访问国外比较慢</h3><p>安装镜像</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https:<span class="regexp">//</span>registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
+<p>查看版本</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">cnpm -v</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204534.png"></p>
+<h3 id="2-安装hexo"><a href="#2-安装hexo" class="headerlink" title="2. 安装hexo"></a>2. 安装hexo</h3><p>安装hexo和hexo中的git</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">cnpm <span class="keyword">install</span> -g hexo</span><br><span class="line">cnpm <span class="keyword">install</span> -g hexo-cli</span><br><span class="line">cnpm <span class="keyword">install</span> <span class="comment">--save hexo-deployer-git</span></span><br></pre></td></tr></table></figure>
+<p>查看版本</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo -v</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204547.png"></p>
+<h2 id="三-配置github"><a href="#三-配置github" class="headerlink" title="三. 配置github"></a>三. 配置github</h2><p><a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a></p>
+<h2 id="四-配置git"><a href="#四-配置git" class="headerlink" title="四. 配置git"></a>四. 配置git</h2><p>直接网上找教程,配置公钥等等</p>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>博客</tag>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Cron表达式</title>
     <url>/posts/6a1ed024/</url>
     <content><![CDATA[<blockquote>
@@ -169,187 +324,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Github+Hexo win10搭建个人博客教程(1) - 配置相关环境</title>
-    <url>/posts/45982/</url>
-    <content><![CDATA[<blockquote>
-<p> 本文是搭建hexo博客的第一部分, 主要记录一下自己的搭建过程, 这里讲一下相关环境的安装和配置.</p>
-</blockquote>
-<p>参考教程: <a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a><br>参考视频: <a href="https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868">https://www.bilibili.com/video/av44544186?from=search&amp;seid=6642965110887501868</a></p>
-<a id="more"></a>
-
-<h2 id="一-安装nodejs和git"><a href="#一-安装nodejs和git" class="headerlink" title="一. 安装nodejs和git"></a>一. 安装nodejs和git</h2><p>直接进官网下载安装</p>
-<p>安装完毕之后, 最后需要给nodejs添加环境变量, 譬如我的: D:\ASoftPro\Nodejs\</p>
-<p>打开cmd管理员<br>输入npm -v 查看版本<br>输入node -v 查看版本<br>我这里的安装环境是:</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">nodejs</span>: v<span class="number">10</span>.<span class="number">16</span>.<span class="number">1</span></span><br><span class="line"><span class="attribute">npm</span>:<span class="number">6</span>.<span class="number">9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="二-安装hexo"><a href="#二-安装hexo" class="headerlink" title="二. 安装hexo"></a>二. 安装hexo</h2><h3 id="1-安装淘宝镜像-因为直接访问国外比较慢"><a href="#1-安装淘宝镜像-因为直接访问国外比较慢" class="headerlink" title="1. 安装淘宝镜像,因为直接访问国外比较慢"></a>1. 安装淘宝镜像,因为直接访问国外比较慢</h3><p>安装镜像</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https:<span class="regexp">//</span>registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
-<p>查看版本</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">cnpm -v</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204534.png"></p>
-<h3 id="2-安装hexo"><a href="#2-安装hexo" class="headerlink" title="2. 安装hexo"></a>2. 安装hexo</h3><p>安装hexo和hexo中的git</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">cnpm <span class="keyword">install</span> -g hexo</span><br><span class="line">cnpm <span class="keyword">install</span> -g hexo-cli</span><br><span class="line">cnpm <span class="keyword">install</span> <span class="comment">--save hexo-deployer-git</span></span><br></pre></td></tr></table></figure>
-<p>查看版本</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo -v</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204547.png"></p>
-<h2 id="三-配置github"><a href="#三-配置github" class="headerlink" title="三. 配置github"></a>三. 配置github</h2><p><a href="https://blog.csdn.net/o_mario_o/article/details/80347863">https://blog.csdn.net/o_mario_o/article/details/80347863</a></p>
-<h2 id="四-配置git"><a href="#四-配置git" class="headerlink" title="四. 配置git"></a>四. 配置git</h2><p>直接网上找教程,配置公钥等等</p>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>博客</tag>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CentOS 7安装fail2ban+Firewall防止SSH爆破与CC攻击</title>
-    <url>/posts/191dc2a0/</url>
-    <content><![CDATA[<blockquote>
-<p>转载自：<a href="https://www.hosteacher.com/server-centos7-install-fail2ban.html">文章</a></p>
-</blockquote>
-<a id="more"></a>
-<p><strong>说明</strong>：差不多很多博主都会遇到被<code>CC</code>攻击和<code>SSH</code>爆破的情况，这个时候就需要做下防御措施了，对于<code>CentOS 7</code>来说，由于防火墙的因素，配置起来还是有点麻烦的，这里针对<code>CentOS 7</code>再分享个简单防<code>CC</code>攻击和<code>SSH</code>爆破的方法。<a href="https://www.hosteacher.com/linux-centos7-firewall.html">Linux安全-CentOS 7开放设置端口及firewall常用命令介绍</a></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>fail2ban</code>可以监视你的系统日志，然后匹配日志的错误信息执行相应的屏蔽动作。网上大部分教程都是关于<code>fail2ban</code>+<code>iptables</code>组合，考虑到<code>CentOS 7</code>已经自带<code>Firewalld</code>，所以这里我们也可以利用<code>fail2ban</code>+<code>Firewalld</code>来防<code>CC</code>攻击和<code>SSH</code>爆破。</p>
-<p>本教程编辑文件使用<code>vi</code>命令，如果不会用的，可以使使用<code>FTP</code>工具，如<code>WinSCP</code>登录<code>VPS</code>操作。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p><strong>1、检查Firewalld是否启用</strong></p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#如果您已经安装iptables建议先关闭</span></span><br><span class="line">service iptables <span class="keyword">stop</span></span><br><span class="line"><span class="comment">#查看Firewalld状态</span></span><br><span class="line">firewall-cmd <span class="comment">--state</span></span><br><span class="line"><span class="comment">#启动firewalld</span></span><br><span class="line">systemctl <span class="keyword">start</span> firewalld</span><br><span class="line"><span class="comment">#设置开机启动</span></span><br><span class="line">systemctl <span class="keyword">enable</span> firewalld.service</span><br></pre></td></tr></table></figure>
-
-<p>启用<code>Firewalld</code>后会禁止所有端口连接，因此请务必放行常用的端口，以免被阻挡在外，以下是放行<code>SSH</code>端口（<code>22</code>）示例，供参考：</p>
-<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="comment">#放行22端口</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --zone=public --add-port=80/tcp --permanent</span></span><br><span class="line"><span class="comment">#重载配置</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --reload</span></span><br><span class="line"><span class="comment">#查看已放行端口</span></span><br><span class="line">firewall-<span class="keyword">cmd</span><span class="bash"> --zone=public --list-ports</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>2、安装fail2ban</strong><br><code>fail2ban</code>可以监控系统日志，并且根据一定规则匹配异常<code>IP</code>后使用<code>Firewalld</code>将其屏蔽，尤其是针对一些爆破/扫描等非常有效。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#CentOS内置源并未包含fail2ban，需要先安装epel源</span></span><br><span class="line">yum -y <span class="keyword">install</span> epel-<span class="keyword">release</span></span><br><span class="line"><span class="comment">#安装fial2ban</span></span><br><span class="line">yum -y <span class="keyword">install</span> fail2ban</span><br></pre></td></tr></table></figure>
-
-<p>安装成功后<code>fail2ban</code>配置文件位于<code>/etc/fail2ban</code>，其中<code>jail.conf</code>为主配置文件，相关的匹配规则位于<code>filter.d</code>目录，其它目录/文件一般很少用到，如果需要详细了解可自行搜索。</p>
-<p><strong>3、配置规则</strong><br>新建<code>jail.local</code>来覆盖<code>fail2ban</code>的一些默认规则：</p>
-<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="comment">#新建配置</span></span><br><span class="line">vi /etc/fail2ban/jail.local</span><br><span class="line"><span class="comment">#默认配置</span></span><br><span class="line">[DEFAULT]</span><br><span class="line">ignoreip = 127.0.0.1/8</span><br><span class="line">bantime  = 86400</span><br><span class="line">findtime = 600</span><br><span class="line">maxretry = 5</span><br><span class="line"><span class="comment">#这里banaction必须用firewallcmd-ipset,这是fiewalll支持的关键，如果是用Iptables请不要这样填写</span></span><br><span class="line">banaction = firewallcmd-ipset</span><br><span class="line">action = %(action_mwl)s</span><br></pre></td></tr></table></figure>
-
-<p>参数说明：</p>
-<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="symbol">ignoreip</span>：<span class="built_in">IP</span>白名单，白名单中的<span class="built_in">IP</span>不会屏蔽，可填写多个以（,）分隔</span><br><span class="line"><span class="symbol">bantime</span>：屏蔽时间，单位为秒（s）</span><br><span class="line"><span class="symbol">findtime</span>：时间范围</span><br><span class="line"><span class="symbol">maxretry</span>：最大次数</span><br><span class="line"><span class="symbol">banaction</span>：屏蔽<span class="built_in">IP</span>所使用的方法，上面使用firewalld屏蔽端口</span><br></pre></td></tr></table></figure>
-
-<h2 id="防止SSH爆破"><a href="#防止SSH爆破" class="headerlink" title="防止SSH爆破"></a>防止SSH爆破</h2><p>如果您还在使用默认<code>SSH</code>端口（<code>22</code>），可能每天都会被扫描，我们可以修改端口尽量避免被扫，参考：<a href="https://www.hosteacher.com/linux-modify-ssh-port.html">Linux安全-修改VPS默认SSH端口</a>，或者可以使用<code>fail2ban</code>将恶意<code>IP</code>屏蔽。</p>
-<p>继续修改<code>jail.local</code>这个配置文件，在后面追加如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[sshd]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">filter</span>  = sshd</span><br><span class="line"><span class="attr">port</span>    = <span class="number">22</span></span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">logpath</span> = /var/log/secure</span><br></pre></td></tr></table></figure>
-
-<p>参数说明：</p>
-<figure class="highlight scss"><table><tr><td class="code"><pre><span class="line"><span class="selector-attr">[sshd]</span>：名称，可以随便填写</span><br><span class="line"><span class="attribute">filter</span>：规则名称，必须填写位于<span class="attribute">filter</span><span class="selector-class">.d</span>目录里面的规则，sshd是fail2ban内置规则</span><br><span class="line">port：对应的端口</span><br><span class="line">action：采取的行动</span><br><span class="line">logpath：需要监视的日志路径</span><br></pre></td></tr></table></figure>
-
-<p>到这一步，我们<code>jail.local</code>的规则看起来可能像下面这样子：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[DEFAULT]</span></span><br><span class="line"><span class="attr">ignoreip</span> = <span class="number">127.0</span>.<span class="number">0.1</span>/<span class="number">8</span></span><br><span class="line"><span class="attr">bantime</span>  = <span class="number">86400</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">600</span></span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">5</span></span><br><span class="line"><span class="attr">banaction</span> = firewallcmd-ipset</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"></span><br><span class="line"><span class="section">[sshd]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">filter</span>  = sshd</span><br><span class="line"><span class="attr">port</span>    = <span class="number">22</span></span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">logpath</span> = /var/log/secure</span><br></pre></td></tr></table></figure>
-
-<p>上面的配置意思是如果同一个<code>IP</code>，在<code>10</code>分钟内，如果连续超过<code>5</code>次错误，则使用<code>Firewalld</code>将他<code>IP ban</code>了。输入<code>systemctl start fail2ban</code>启动<code>fail2ban</code>来试试效果。</p>
-<p>使用另一台服务器不断尝试连接<code>SSH</code>，并且不断的将密码输入错误，你会发现连续超过<code>5</code>次后直接连不上，说明<code>IP</code>被<code>ban</code>了，可以输入：<code>fail2ban-client status sshd</code>查看被<code>ban</code>的<code>IP</code></p>
-<h2 id="防止CC攻击"><a href="#防止CC攻击" class="headerlink" title="防止CC攻击"></a>防止CC攻击</h2><p>这里仅以<code>Nginx</code>为例，使用<code>fail2ban</code>来监视<code>nginx</code>日志，匹配短时间内频繁请求的<code>IP</code>，并使用<code>firewalld</code>将其<code>IP</code>屏蔽，达到<code>CC</code>防护的作用。</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">vi <span class="regexp">/etc/</span>fail2ban<span class="regexp">/filter.d/</span>nginx-cc.conf</span><br><span class="line"></span><br><span class="line">[Definition]</span><br><span class="line">failregex =  -.*- .*HTTP/<span class="number">1</span>.* .* .*$</span><br><span class="line">ignoreregex =</span><br></pre></td></tr></table></figure>
-
-<p>继续修改<code>jail.local</code>追加如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[nginx-cc]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">port</span> = http,https</span><br><span class="line"><span class="attr">filter</span> = nginx-cc</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">60</span></span><br><span class="line"><span class="attr">bantime</span> = <span class="number">3600</span></span><br><span class="line"><span class="attr">logpath</span> = /usr/local/nginx/logs/access.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>上面的配置意思是如果在<code>60s</code>内，同一<code>IP</code>达到<code>20</code>次请求，则将其<code>IP ban 1</code>小时，上面只是为了测试，请根据自己的实际情况修改。<code>logpath</code>为<code>nginx</code>日志路径。</p>
-<h2 id="防止Wordpress爆破"><a href="#防止Wordpress爆破" class="headerlink" title="防止Wordpress爆破"></a>防止Wordpress爆破</h2><p>如果您经常分析日志会发现有大量机器人在扫描<code>wordpress</code>登录页面<code>wp-login.php</code>，虽然对方可能没成功，但是为了避免万一还是将他<code>IP</code>干掉为好。</p>
-<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">vi</span> /etc/fail2ban/<span class="built_in">filter</span>.d/wordpress.<span class="keyword">conf</span></span><br><span class="line"></span><br><span class="line">[Definition]</span><br><span class="line">failregex = ^ -.* /<span class="keyword">wp</span>-login.php.* HTTP/<span class="number">1</span>\..<span class="comment">&quot;</span></span><br><span class="line">ignoreregex =</span><br></pre></td></tr></table></figure>
-
-<p>继续修改<code>jail.local</code>追加如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[wordpress]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">port</span> = http,https</span><br><span class="line"><span class="attr">filter</span> = wordpress</span><br><span class="line"><span class="attr">action</span> = %(action_mwl)s</span><br><span class="line"><span class="attr">maxretry</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">findtime</span> = <span class="number">60</span></span><br><span class="line"><span class="attr">bantime</span> = <span class="number">3600</span></span><br><span class="line"><span class="attr">logpath</span> = /usr/local/nginx/logs/access.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>当然，别忘记输入<code>systemctl restart fail2ban</code>重启<code>fail2ban</code>使其生效。</p>
-<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">#启动</span></span><br><span class="line">systemctl <span class="keyword">start</span> fail2ban</span><br><span class="line"><span class="comment">#停止</span></span><br><span class="line">systemctl <span class="keyword">stop</span> fail2ban</span><br><span class="line"><span class="comment">#开机启动</span></span><br><span class="line">systemctl <span class="keyword">enable</span> fail2ban</span><br><span class="line"><span class="comment">#查看被ban IP，其中sshd为名称，比如上面的[wordpress]</span></span><br><span class="line">fail2ban-<span class="keyword">client</span> <span class="keyword">status</span> sshd</span><br><span class="line"><span class="comment">#删除被ban IP</span></span><br><span class="line">fail2ban-<span class="keyword">client</span> <span class="keyword">set</span> sshd delignoreip <span class="number">192.168</span><span class="number">.111</span><span class="number">.111</span></span><br><span class="line"><span class="comment">#查看日志</span></span><br><span class="line">tail /<span class="keyword">var</span>/<span class="keyword">log</span>/fail2ban.log</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>fail2ban</code>已经内置很多匹配规则，位于<code>filter.d</code>目录下，包含了常见的<code>SSH/FTP/Nginx/Apache</code>等日志匹配，如果都还无法满足您的需求，您也可以自行新建规则来匹配异常<code>IP</code>。使用<code>fail2ban</code>+<code>Firewalld</code>来阻止恶意<code>IP</code>是行之有效的办法，可极大提高服务器安全。</p>
-<hr>
-<h2 id="实际测试"><a href="#实际测试" class="headerlink" title="实际测试"></a>实际测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415171736.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>安全</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Centos7使用rclone挂载谷歌团队盘</title>
-    <url>/posts/45226759/</url>
-    <content><![CDATA[<blockquote>
-<p>国外服务器文件上传和下载有时很慢，本地与服务器直接传输文件效率很低，这里通过将国外云盘作为中转的方式包含很多优点。</p>
-</blockquote>
-<a id="more"></a>
-<p>主要优势如下：</p>
-<ul>
-<li>国外服务器与国外云盘之间文件传输效率高</li>
-<li>本地与国外云盘之间文件传输可以通过xx工具提高下载速度</li>
-<li>大容量云盘可以存储大量数据（谷歌团队盘有1PB空间）</li>
-</ul>
-<p>首先非常感谢参考博客：<a href="https://omo.moe/archives/103/">https://omo.moe/archives/103/</a></p>
-<h2 id="安装环境配置"><a href="#安装环境配置" class="headerlink" title="安装环境配置"></a>安装环境配置</h2><p>在服务器执行以下命令，安装环境</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install wget unzip screen fuse fuse-devel</span><br><span class="line">wget https://downloads.rclone.org/rclone-current-linux-amd64.zip</span><br><span class="line">unzip rclone-current-linux-amd64.zip</span><br><span class="line">chmod 0755 ./rclone-*/rclone</span><br><span class="line">cp ./rclone-*/rclone /usr/bin/</span><br><span class="line">rm -rf ./rclone-*</span><br></pre></td></tr></table></figure>
-
-<h2 id="身份认证"><a href="#身份认证" class="headerlink" title="身份认证"></a>身份认证</h2><p>执行命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone config</span><br></pre></td></tr></table></figure>
-
-<p>如下图，name为最后挂载的盘名。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105136.png"></p>
-<p>如下图，可以看到可以选择各种网盘进行挂载，这里选择第13个<code>google drive</code>(具体序号需联系实际)</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105448.png"></p>
-<p>如下图，配置<code>权限</code>等功能，主要看英文介绍，图中空白处直接按确认选择默认</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401105741.png"></p>
-<p>如下图，将链接复制到浏览器打开，获取<code>认证码</code>。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110051.png"></p>
-<p>选择Team Drive的编号，最后退出</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401110457.png"></p>
-<h2 id="挂载云盘"><a href="#挂载云盘" class="headerlink" title="挂载云盘"></a>挂载云盘</h2><ul>
-<li><p>在服务器创建目录，用于目录映射</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mkdir /root/Gdrive</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>输入以下命令，需要注意参数</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rclone mount wellod:folder /root/Gdrive --allow-other --allow-non-empty --vfs-cache-mode writes &amp;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><code>wellod:floder</code>：wellod为第一步中输入的name, folder为云盘中的文件夹名</li>
-<li><code>/root/Gdrive</code>：服务器相对于云盘的映射地址</li>
-</ol>
-</li>
-<li><p>查看挂载是否成功</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/20200401111343.png"></p>
-<p>成功就如上图所示。</p>
-</li>
-<li><p>文件上传和下载</p>
-<p>使用<code>cp</code>命令即可，也可以使用<code>rclone copy</code>等命令操作。</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Github+Hexo win10搭建个人博客教程(2) - 本地搭建博客并部署到github</title>
-    <url>/posts/44280/</url>
-    <content><![CDATA[<p><strong>提醒</strong>: 如果没看教程1,可能完成不了本篇文章的内容<br>这里我们在git上进行命令操作</p>
-<h2 id="一-本地博客创建"><a href="#一-本地博客创建" class="headerlink" title="一. 本地博客创建"></a>一. 本地博客创建</h2><p>首先我们需要在win10上建立一个新的文件夹, 这里我新建文件夹为blog02.<br>进入该文件夹, 右键选择 git bash here</p>
-<a id="more"></a>
-<h3 id="1-创建博客"><a href="#1-创建博客" class="headerlink" title="1.创建博客"></a>1.创建博客</h3><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">hexo <span class="keyword">init</span></span><br></pre></td></tr></table></figure>
-<p>命令结束之后, 博客就创建成功了!是不是很简单?</p>
-<h3 id="2-本地打开博客"><a href="#2-本地打开博客" class="headerlink" title="2.本地打开博客"></a>2.本地打开博客</h3><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo s</span></span><br></pre></td></tr></table></figure>
-<p>该命令会自动在本地localhost:4000创建博客, 达到预览效果</p>
-<p>在浏览器地址栏输入localhost:4000访问<br>如图:<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204651.png"></p>
-<h3 id="3-关闭博客"><a href="#3-关闭博客" class="headerlink" title="3. 关闭博客"></a>3. 关闭博客</h3><p>直接在git下按下ctrl+c就行.</p>
-<h2 id="二-将博客部署到github"><a href="#二-将博客部署到github" class="headerlink" title="二. 将博客部署到github"></a>二. 将博客部署到github</h2><p>注意: 需要事先配置好git信息,比如公钥等等</p>
-<h3 id="1-修改项目文件-config-yml"><a href="#1-修改项目文件-config-yml" class="headerlink" title="1. 修改项目文件_config.yml"></a>1. 修改项目文件_config.yml</h3><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204732.png"><br>图中type是采用git类型;<br>repo就是个人之前创建的repository地址<br>branch是指推送到哪个分支,这里选择master</p>
-<h3 id="2-部署到github"><a href="#2-部署到github" class="headerlink" title="2. 部署到github"></a>2. 部署到github</h3><p>在git中输入以下命令</p>
-<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo clean</span></span><br><span class="line"><span class="attribute">hexo g</span></span><br><span class="line"><span class="attribute">hexo d</span></span><br></pre></td></tr></table></figure>
-<p>这样我们的项目就成功部署到github上面了!<br>如果你的github用户名为username, 浏览器访问username.github.io,就可以看到部署的项目</p>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>博客</tag>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Github+Hexo win10搭建个人博客教程(3) - 安装主题</title>
     <url>/posts/21542/</url>
     <content><![CDATA[<blockquote>
@@ -380,113 +354,29 @@
       </tags>
   </entry>
   <entry>
-    <title>Halo博客H2数据库查询</title>
-    <url>/posts/2d3051dc/</url>
-    <content><![CDATA[<blockquote>
-<p>记录一下Halo博客中如何操作H2数据库。</p>
-</blockquote>
+    <title>Github+Hexo win10搭建个人博客教程(2) - 本地搭建博客并部署到github</title>
+    <url>/posts/44280/</url>
+    <content><![CDATA[<p><strong>提醒</strong>: 如果没看教程1,可能完成不了本篇文章的内容<br>这里我们在git上进行命令操作</p>
+<h2 id="一-本地博客创建"><a href="#一-本地博客创建" class="headerlink" title="一. 本地博客创建"></a>一. 本地博客创建</h2><p>首先我们需要在win10上建立一个新的文件夹, 这里我新建文件夹为blog02.<br>进入该文件夹, 右键选择 git bash here</p>
 <a id="more"></a>
-<h1 id="0-Halo博客数据库文件路径"><a href="#0-Halo博客数据库文件路径" class="headerlink" title="0. Halo博客数据库文件路径"></a>0. Halo博客数据库文件路径</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162738.png"></p>
-<h1 id="1-使用Halo提供的h2-console"><a href="#1-使用Halo提供的h2-console" class="headerlink" title="1. 使用Halo提供的h2-console"></a>1. 使用Halo提供的h2-console</h1><h2 id="1-1-打开h2-console功能"><a href="#1-1-打开h2-console功能" class="headerlink" title="1.1 打开h2-console功能"></a>1.1 打开h2-console功能</h2><pre><code> 修改Halo博客的配置文件(~/.halo/application.yaml)，具体如下图</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162751.png"></p>
-<pre>
-1. 将false改为true
-2. 设置完毕后重启容器
-</pre>
-<h2 id="1-2-访问网址"><a href="#1-2-访问网址" class="headerlink" title="1.2 访问网址"></a>1.2 访问网址</h2><pre><code> 网址：博客域名/h2-console</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162807.png"></p>
-<p>需要注意一下<code>JDBC URL</code>的填写，用户名和密码在配置文件中已有说明</p>
-<h2 id="1-3-测试"><a href="#1-3-测试" class="headerlink" title="1.3 测试"></a>1.3 测试</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> MENUS </span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162838.png"></p>
-<h1 id="2-在本地主机上使用数据库可视化工具"><a href="#2-在本地主机上使用数据库可视化工具" class="headerlink" title="2. 在本地主机上使用数据库可视化工具"></a>2. 在本地主机上使用数据库可视化工具</h1><blockquote>
-<p>在使用jdbc驱动版本选择时有坑，下面本人提供了一个版本，测试可用</p>
-</blockquote>
-<h2 id="2-1-工具介绍"><a href="#2-1-工具介绍" class="headerlink" title="2.1 工具介绍"></a>2.1 工具介绍</h2><pre><code>DBeaver 6.3.3(网址：https://dbeaver.io/)</code></pre>
-<h2 id="2-2-jdbc驱动jar包"><a href="#2-2-jdbc驱动jar包" class="headerlink" title="2.2 jdbc驱动jar包"></a>2.2 jdbc驱动jar包</h2><pre><code>下载下来，后面需要用到</code></pre>
-<p>/upload/2020/1/h2-2019-03-13-d5148978df7745808925f6f2ec3671b8.zip</p>
-<h2 id="2-3-创建数据库连接"><a href="#2-3-创建数据库连接" class="headerlink" title="2.3 创建数据库连接"></a>2.3 创建数据库连接</h2><ul>
-<li>新建数据库连接</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162902.png"></p>
-<ul>
-<li><p>选择H2 embedded<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162924.png"></p>
-</li>
-<li><p>选择db文件<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162943.png"></p>
-</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163001.png"></p>
-<p><strong>注意将后面的.mv.db删除掉</strong><br>用户名和密码就是配置文件中的H2用户名和密码</p>
-<h2 id="2-6-编辑驱动设置"><a href="#2-6-编辑驱动设置" class="headerlink" title="2.6 编辑驱动设置"></a>2.6 编辑驱动设置</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163038.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163114.png"></p>
-<h2 id="2-5-连接"><a href="#2-5-连接" class="headerlink" title="2.5 连接"></a>2.5 连接</h2><p>创建连接完毕后，连接数据库<br>可以看出Public中的存在的表<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163139.png"></p>
-<h2 id="2-6-测试"><a href="#2-6-测试" class="headerlink" title="2.6 测试"></a>2.6 测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163152.png"></p>
+<h3 id="1-创建博客"><a href="#1-创建博客" class="headerlink" title="1.创建博客"></a>1.创建博客</h3><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">hexo <span class="keyword">init</span></span><br></pre></td></tr></table></figure>
+<p>命令结束之后, 博客就创建成功了!是不是很简单?</p>
+<h3 id="2-本地打开博客"><a href="#2-本地打开博客" class="headerlink" title="2.本地打开博客"></a>2.本地打开博客</h3><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo s</span></span><br></pre></td></tr></table></figure>
+<p>该命令会自动在本地localhost:4000创建博客, 达到预览效果</p>
+<p>在浏览器地址栏输入localhost:4000访问<br>如图:<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204651.png"></p>
+<h3 id="3-关闭博客"><a href="#3-关闭博客" class="headerlink" title="3. 关闭博客"></a>3. 关闭博客</h3><p>直接在git下按下ctrl+c就行.</p>
+<h2 id="二-将博客部署到github"><a href="#二-将博客部署到github" class="headerlink" title="二. 将博客部署到github"></a>二. 将博客部署到github</h2><p>注意: 需要事先配置好git信息,比如公钥等等</p>
+<h3 id="1-修改项目文件-config-yml"><a href="#1-修改项目文件-config-yml" class="headerlink" title="1. 修改项目文件_config.yml"></a>1. 修改项目文件_config.yml</h3><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200410204732.png"><br>图中type是采用git类型;<br>repo就是个人之前创建的repository地址<br>branch是指推送到哪个分支,这里选择master</p>
+<h3 id="2-部署到github"><a href="#2-部署到github" class="headerlink" title="2. 部署到github"></a>2. 部署到github</h3><p>在git中输入以下命令</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">hexo clean</span></span><br><span class="line"><span class="attribute">hexo g</span></span><br><span class="line"><span class="attribute">hexo d</span></span><br></pre></td></tr></table></figure>
+<p>这样我们的项目就成功部署到github上面了!<br>如果你的github用户名为username, 浏览器访问username.github.io,就可以看到部署的项目</p>
 ]]></content>
       <categories>
         <category>博客</category>
       </categories>
       <tags>
-        <tag>halo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Halo博客修改密码</title>
-    <url>/posts/f2aea09c/</url>
-    <content><![CDATA[<blockquote>
-<p>记录halo博客控制台登录密码的修改和halo博客h2数据库的密码修改</p>
-</blockquote>
-<a id="more"></a>
-<p>:gem: 环境说明：</p>
-<pre><code>halo版本v1.2
-docker部署</code></pre>
-<h1 id="1-配置h2-console"><a href="#1-配置h2-console" class="headerlink" title="1. 配置h2-console"></a>1. 配置h2-console</h1><pre><code> 修改博客配置文件，如下图方框内所示，将false改为true</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162347.png"></p>
-<pre><code>修改完毕之后，重启docker服务</code></pre>
-<h1 id="2-登录h2-console"><a href="#2-登录h2-console" class="headerlink" title="2. 登录h2-console"></a>2. 登录h2-console</h1><pre><code>访问网址：博客域名/h2-console</code></pre>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162403.png"></p>
-<pre><code>需要注意图中·JDBC URL·路径。
-用户名密码就是配置文件中的用户名和密码，这里分别为admin和123456</code></pre>
-<h1 id="3-修改密码"><a href="#3-修改密码" class="headerlink" title="3. 修改密码"></a>3. 修改密码</h1><blockquote>
-<p>这里主要记录两个密码的修改，一个是控制台密码，另一个是数据库密码</p>
-</blockquote>
-<h2 id="3-1-控制台密码"><a href="#3-1-控制台密码" class="headerlink" title="3.1 控制台密码"></a>3.1 控制台密码</h2><blockquote>
-<p>这里是通过修改数据库的方式修改密码，比较麻烦。其实可以直接登录控制台修改密码就行了。</p>
-</blockquote>
-<ul>
-<li><p>查看用户名</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">USERS</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162519.png"></p>
-</li>
-<li><p>根据用户名修改密码</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">USERS</span> <span class="keyword">set</span> <span class="keyword">PASSWORD</span>=<span class="string">&#x27;newpsd&#x27;</span> <span class="keyword">where</span> USERNAME=<span class="string">&#x27;xxxxx&#x27;</span> // xxxx就是你的用户名, newpsd是新密码</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<hr>
-<p>:warning: <code>注意这里密码应采用Bcrypt密文方式设置</code> :warning:<br>例：将密码abcdef使用Bcrypt加密</p>
-<ul>
-<li>网址：<a href="https://www.jisuan.mobi/p163u3BN66Hm6JWx.html">https://www.jisuan.mobi/p163u3BN66Hm6JWx.html</a></li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162547.png"></p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">update</span> USERS set PASSWORD=&#x27;$<span class="number">2</span>a$<span class="number">10</span>$<span class="number">8</span>lFd<span class="number">0</span>fpD<span class="number">61</span>VsfknGZUDyo.RV<span class="number">0</span>zpkSSXSyTqgM<span class="number">1</span>P<span class="number">3</span>qzN<span class="number">8</span>Mmb<span class="number">3</span>yPRQm&#x27; where USERNAME=&#x27;xxxxx&#x27;</span><br></pre></td></tr></table></figure>
-<hr>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162605.png"></p>
-<pre><code>到此密码就修改完成，这里不需要再重启服务了。</code></pre>
-<h2 id="3-2-数据库密码"><a href="#3-2-数据库密码" class="headerlink" title="3.2 数据库密码"></a>3.2 数据库密码</h2><p>这里的密码不用加密</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">user</span> <span class="keyword">admin</span> <span class="keyword">set</span> <span class="keyword">password</span> <span class="string">&#x27;abcdef&#x27;</span> //修改<span class="keyword">admin</span>用户密码为abcdef</span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162624.png"></p>
-<p>:point_right: 执行上述执行后，按照下列步骤操作：</p>
-<ul>
-<li>停止docker的halo容器服务<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker ps -a //查看当前halo容器对应的ID</span><br><span class="line">docker stop HALO_ID //停止halo服务</span><br></pre></td></tr></table></figure></li>
-<li>修改配置文件中H2数据库密码, 并关闭h2-console功能（修改true为false）</li>
-<li>启动docker的halo容器服务<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">stop</span> HALO_ID <span class="comment">//启动halo服务</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>博客</category>
-      </categories>
-      <tags>
-        <tag>halo</tag>
+        <tag>博客</tag>
+        <tag>hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -542,6 +432,56 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>命令总结</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Halo博客H2数据库查询</title>
+    <url>/posts/2d3051dc/</url>
+    <content><![CDATA[<blockquote>
+<p>记录一下Halo博客中如何操作H2数据库。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="0-Halo博客数据库文件路径"><a href="#0-Halo博客数据库文件路径" class="headerlink" title="0. Halo博客数据库文件路径"></a>0. Halo博客数据库文件路径</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162738.png"></p>
+<h1 id="1-使用Halo提供的h2-console"><a href="#1-使用Halo提供的h2-console" class="headerlink" title="1. 使用Halo提供的h2-console"></a>1. 使用Halo提供的h2-console</h1><h2 id="1-1-打开h2-console功能"><a href="#1-1-打开h2-console功能" class="headerlink" title="1.1 打开h2-console功能"></a>1.1 打开h2-console功能</h2><pre><code> 修改Halo博客的配置文件(~/.halo/application.yaml)，具体如下图</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162751.png"></p>
+<pre>
+1. 将false改为true
+2. 设置完毕后重启容器
+</pre>
+<h2 id="1-2-访问网址"><a href="#1-2-访问网址" class="headerlink" title="1.2 访问网址"></a>1.2 访问网址</h2><pre><code> 网址：博客域名/h2-console</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162807.png"></p>
+<p>需要注意一下<code>JDBC URL</code>的填写，用户名和密码在配置文件中已有说明</p>
+<h2 id="1-3-测试"><a href="#1-3-测试" class="headerlink" title="1.3 测试"></a>1.3 测试</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> MENUS </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162838.png"></p>
+<h1 id="2-在本地主机上使用数据库可视化工具"><a href="#2-在本地主机上使用数据库可视化工具" class="headerlink" title="2. 在本地主机上使用数据库可视化工具"></a>2. 在本地主机上使用数据库可视化工具</h1><blockquote>
+<p>在使用jdbc驱动版本选择时有坑，下面本人提供了一个版本，测试可用</p>
+</blockquote>
+<h2 id="2-1-工具介绍"><a href="#2-1-工具介绍" class="headerlink" title="2.1 工具介绍"></a>2.1 工具介绍</h2><pre><code>DBeaver 6.3.3(网址：https://dbeaver.io/)</code></pre>
+<h2 id="2-2-jdbc驱动jar包"><a href="#2-2-jdbc驱动jar包" class="headerlink" title="2.2 jdbc驱动jar包"></a>2.2 jdbc驱动jar包</h2><pre><code>下载下来，后面需要用到</code></pre>
+<p>/upload/2020/1/h2-2019-03-13-d5148978df7745808925f6f2ec3671b8.zip</p>
+<h2 id="2-3-创建数据库连接"><a href="#2-3-创建数据库连接" class="headerlink" title="2.3 创建数据库连接"></a>2.3 创建数据库连接</h2><ul>
+<li>新建数据库连接</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162902.png"></p>
+<ul>
+<li><p>选择H2 embedded<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162924.png"></p>
+</li>
+<li><p>选择db文件<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162943.png"></p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163001.png"></p>
+<p><strong>注意将后面的.mv.db删除掉</strong><br>用户名和密码就是配置文件中的H2用户名和密码</p>
+<h2 id="2-6-编辑驱动设置"><a href="#2-6-编辑驱动设置" class="headerlink" title="2.6 编辑驱动设置"></a>2.6 编辑驱动设置</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163038.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163114.png"></p>
+<h2 id="2-5-连接"><a href="#2-5-连接" class="headerlink" title="2.5 连接"></a>2.5 连接</h2><p>创建连接完毕后，连接数据库<br>可以看出Public中的存在的表<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163139.png"></p>
+<h2 id="2-6-测试"><a href="#2-6-测试" class="headerlink" title="2.6 测试"></a>2.6 测试</h2><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415163152.png"></p>
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>halo</tag>
       </tags>
   </entry>
   <entry>
@@ -604,6 +544,66 @@ docker部署</code></pre>
 <p>这里blog.kerviaxxx.top迁移之前的域名，迁移后的域名为kerviaxxx.top</p>
 </blockquote>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> ORIGINAL_CONTENT=<span class="keyword">REPLACE</span>(ORIGINAL_CONTENT, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> ORIGINAL_CONTENT <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> FORMAT_CONTENT=<span class="keyword">REPLACE</span>(FORMAT_CONTENT, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> FORMAT_CONTENT <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span>  POSTS <span class="keyword">SET</span> THUMBNAIL=<span class="keyword">REPLACE</span>(THUMBNAIL, <span class="string">&#x27;blog.kerviaxxx.top&#x27;</span>, <span class="string">&#x27;kerviaxxx.top&#x27;</span>) <span class="keyword">WHERE</span> THUMBNAIL <span class="keyword">like</span> <span class="string">&#x27;%blog.kerviaxxx.top%&#x27;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>halo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Halo博客修改密码</title>
+    <url>/posts/f2aea09c/</url>
+    <content><![CDATA[<blockquote>
+<p>记录halo博客控制台登录密码的修改和halo博客h2数据库的密码修改</p>
+</blockquote>
+<a id="more"></a>
+<p>:gem: 环境说明：</p>
+<pre><code>halo版本v1.2
+docker部署</code></pre>
+<h1 id="1-配置h2-console"><a href="#1-配置h2-console" class="headerlink" title="1. 配置h2-console"></a>1. 配置h2-console</h1><pre><code> 修改博客配置文件，如下图方框内所示，将false改为true</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162347.png"></p>
+<pre><code>修改完毕之后，重启docker服务</code></pre>
+<h1 id="2-登录h2-console"><a href="#2-登录h2-console" class="headerlink" title="2. 登录h2-console"></a>2. 登录h2-console</h1><pre><code>访问网址：博客域名/h2-console</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162403.png"></p>
+<pre><code>需要注意图中·JDBC URL·路径。
+用户名密码就是配置文件中的用户名和密码，这里分别为admin和123456</code></pre>
+<h1 id="3-修改密码"><a href="#3-修改密码" class="headerlink" title="3. 修改密码"></a>3. 修改密码</h1><blockquote>
+<p>这里主要记录两个密码的修改，一个是控制台密码，另一个是数据库密码</p>
+</blockquote>
+<h2 id="3-1-控制台密码"><a href="#3-1-控制台密码" class="headerlink" title="3.1 控制台密码"></a>3.1 控制台密码</h2><blockquote>
+<p>这里是通过修改数据库的方式修改密码，比较麻烦。其实可以直接登录控制台修改密码就行了。</p>
+</blockquote>
+<ul>
+<li><p>查看用户名</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">USERS</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162519.png"></p>
+</li>
+<li><p>根据用户名修改密码</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">USERS</span> <span class="keyword">set</span> <span class="keyword">PASSWORD</span>=<span class="string">&#x27;newpsd&#x27;</span> <span class="keyword">where</span> USERNAME=<span class="string">&#x27;xxxxx&#x27;</span> // xxxx就是你的用户名, newpsd是新密码</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<hr>
+<p>:warning: <code>注意这里密码应采用Bcrypt密文方式设置</code> :warning:<br>例：将密码abcdef使用Bcrypt加密</p>
+<ul>
+<li>网址：<a href="https://www.jisuan.mobi/p163u3BN66Hm6JWx.html">https://www.jisuan.mobi/p163u3BN66Hm6JWx.html</a></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162547.png"></p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">update</span> USERS set PASSWORD=&#x27;$<span class="number">2</span>a$<span class="number">10</span>$<span class="number">8</span>lFd<span class="number">0</span>fpD<span class="number">61</span>VsfknGZUDyo.RV<span class="number">0</span>zpkSSXSyTqgM<span class="number">1</span>P<span class="number">3</span>qzN<span class="number">8</span>Mmb<span class="number">3</span>yPRQm&#x27; where USERNAME=&#x27;xxxxx&#x27;</span><br></pre></td></tr></table></figure>
+<hr>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162605.png"></p>
+<pre><code>到此密码就修改完成，这里不需要再重启服务了。</code></pre>
+<h2 id="3-2-数据库密码"><a href="#3-2-数据库密码" class="headerlink" title="3.2 数据库密码"></a>3.2 数据库密码</h2><p>这里的密码不用加密</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">user</span> <span class="keyword">admin</span> <span class="keyword">set</span> <span class="keyword">password</span> <span class="string">&#x27;abcdef&#x27;</span> //修改<span class="keyword">admin</span>用户密码为abcdef</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415162624.png"></p>
+<p>:point_right: 执行上述执行后，按照下列步骤操作：</p>
+<ul>
+<li>停止docker的halo容器服务<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker ps -a //查看当前halo容器对应的ID</span><br><span class="line">docker stop HALO_ID //停止halo服务</span><br></pre></td></tr></table></figure></li>
+<li>修改配置文件中H2数据库密码, 并关闭h2-console功能（修改true为false）</li>
+<li>启动docker的halo容器服务<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">stop</span> HALO_ID <span class="comment">//启动halo服务</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
       <categories>
         <category>博客</category>
       </categories>
@@ -927,6 +927,76 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>Linux下将python脚本封装成服务</title>
+    <url>/posts/db70b640/</url>
+    <content><![CDATA[<blockquote>
+<p>参考博客 :point_right: <a href="https://www.cnblogs.com/fu-yong/p/9683129.html">文章地址1</a> <a href="">文章地址2</a></p>
+</blockquote>
+<a id="more"></a>
+<p>  在linux服务器执行python脚本时，即使脚本使用死循环，在退出账号时其对应进程也会被关闭，这里参考另外两篇博客各自的方法来解决这一问题。</p>
+<h1 id="1-方式一：使用nohup"><a href="#1-方式一：使用nohup" class="headerlink" title="1.方式一：使用nohup"></a>1.方式一：使用nohup</h1><h4 id="一-代码"><a href="#一-代码" class="headerlink" title="一. 代码"></a>一. 代码</h4><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">nohup python my.py &gt;&gt; <span class="regexp">/usr/</span>local<span class="regexp">/python/</span>xxf/my.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">nohup tomcat.sh &gt; <span class="regexp">/dev/</span><span class="keyword">null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure>
+
+<h4 id="二-nohup命令"><a href="#二-nohup命令" class="headerlink" title="二.nohup命令"></a>二.nohup命令</h4><ol>
+<li> nohup指不断地运行，是no hang up的缩写，指不间断，不挂断。运行一个进程的时候，不想让其在你退出账号时关闭，即可用nohup。</li>
+<li> nohup在不规定的情况下，所以输出内容会到nohup.out中</li>
+</ol>
+<h4 id="三-2-gt-amp-1"><a href="#三-2-gt-amp-1" class="headerlink" title="三.2&gt;&amp;1"></a>三.2&gt;&amp;1</h4><ol>
+<li><code>0</code> 表示stdin标准输入，用户键盘输入的内容<br> <code>1</code> 表示stdout标准输出，输出到显示屏的内容<br> <code>2</code> 表示stderr标准错误，报错内容</li>
+<li> <code>2&gt;&amp;1</code>是一个整体，<code>&gt;</code>左右不能有空格，即将错误内容重定向输入到标准输出中去。</li>
+</ol>
+<h4 id="四-整体意义及-amp"><a href="#四-整体意义及-amp" class="headerlink" title="四. 整体意义及&amp;"></a>四. 整体意义及&amp;</h4><ol>
+<li> <code>&amp;</code>为后台运行</li>
+<li>第一条代码，以python环境不间断的运行my.py这个脚本，并且将脚本输出的内容重定向输入<code>my.log</code>中（<code>&gt;&gt;</code>意为追加，如果用<code>&gt;</code>会让其中的内容清空）<br> <code>my.py &gt;&gt; my.log</code> 和<code>my.py 1&gt;&gt;my.log</code>相同，只是<code>1</code>(标准输入)被省略了，而后面的<code>my.log 2&gt;&amp;1</code> 又将<code>2</code>(错误内容)输入到标准输出，然后前面的标准输出又输入到<code>my.log</code>中，意思错误和标准内容都会输出到<code>my.log</code>中，其实代码可拆成两块。</li>
+</ol>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">nohup python <span class="keyword">my</span>.py <span class="number">1</span>&gt;&gt; /usr/<span class="keyword">local</span>/python/xxf/<span class="keyword">my</span>.<span class="built_in">log</span> &amp;</span><br><span class="line">nohup python <span class="keyword">my</span>.py <span class="number">2</span>&gt;&gt; /usr/<span class="keyword">local</span>/python/xxf/<span class="keyword">my</span>.<span class="built_in">log</span> &amp;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>上面代码就是将错误和标准都输出到my.log，最初的代码只是简化了。<br> 而加<code>2&gt;&amp;1</code>中的<code>&amp;</code>是为了区别文件1和<code>1</code>(标准输出)，假如为<code>2&gt;1</code>,那么不就成了将错误内容输出到文件1中。</li>
+<li> <code>nohup tomcat.sh &gt; /dev/null 2&gt;&amp;1 &amp;</code>也是一样的，将错误和标准全部丢入<code>/dev/null</code>中，全部销毁。</li>
+</ol>
+<h1 id="2-方式二"><a href="#2-方式二" class="headerlink" title="2.方式二"></a>2.方式二</h1><p>Python脚本开机自动运行；本帖适用于使用systemd的Linux系统，现在流行的Linux发行版都使用systemd。</p>
+<p>后台服务程序是随系统自启动的，我们只要把Python脚本配置为服务就行了。需要注意的一点是你Python脚本的启动时机，它依赖不依赖其他服务（网络连接、一些分区的挂载等等）。</p>
+<h4 id="1-Python脚本"><a href="#1-Python脚本" class="headerlink" title="#1 Python脚本"></a>#1 Python脚本</h4><p>一个你要自启动的Python脚本，我使用 /home/snail/autorun.py为例。</p>
+<h4 id="2-创建Unit配置文件"><a href="#2-创建Unit配置文件" class="headerlink" title="#2 创建Unit配置文件"></a>#2 创建Unit配置文件</h4><figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">sudo vim /<span class="class"><span class="keyword">lib</span>/<span class="title">systemd</span>/<span class="title">system</span>/<span class="title">autorun</span>.<span class="title">service</span></span></span><br></pre></td></tr></table></figure>
+<p>写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">Description</span>=Test Service</span><br><span class="line"></span><br><span class="line"><span class="attr">After</span>=multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">Type</span>=idle</span><br><span class="line"></span><br><span class="line"><span class="attr">ExecStart</span>=/usr/bin/python /home/snail/autorun.py</span><br><span class="line"></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p>上面定义了一个叫 Test Service 的服务，它在multi-user环境起来之后运行；ExecStart参数指定我们要运行的程序；idle确保脚本在其他东西加载完成之后运行，它的默认值是simple。</p>
+<p>注意使用绝对路径。</p>
+<p>为了获得脚本的输出信息，我们可以重定向到文件：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">ExecStart=<span class="regexp">/usr/</span>bin<span class="regexp">/python /</span>home<span class="regexp">/snail/</span>autorun.py &gt; <span class="regexp">/home/</span>snail/autorun.log <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>更改配置文件的权限：</p>
+<figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">sudo chmod <span class="number">644</span> /<span class="class"><span class="keyword">lib</span>/<span class="title">systemd</span>/<span class="title">system</span>/<span class="title">autorun</span>.<span class="title">service</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="3-使配置文件生效"><a href="#3-使配置文件生效" class="headerlink" title="#3 使配置文件生效"></a>#3 使配置文件生效</h4><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line"></span><br><span class="line">sudo systemctl <span class="builtin-name">enable</span> autorun.service</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-启动"><a href="#4-启动" class="headerlink" title="#4 启动"></a>#4 启动</h4><figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">sudo systemctl start <span class="built_in">auto</span>run.service</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-查看服务状态"><a href="#5-查看服务状态" class="headerlink" title="#5 查看服务状态"></a>#5 查看服务状态</h4><figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">sudo systemctl status <span class="built_in">auto</span>run.service</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux服务查看SSH登录失败日志</title>
+    <url>/posts/26caa900/</url>
+    <content><![CDATA[<blockquote>
+<p>查询主要依据 <code>/var/log/secure</code> 文件，有些系统是<code>/var/log/auth.log</code>文件，以下以<code>/var/log/secure</code> 文件为例查询。</p>
+</blockquote>
+<a id="more"></a>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line"># 查看哪些IP破解你SSH密码以及次数</span><br><span class="line"><span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | awk &#x27;/Failed/&#123;<span class="keyword">print</span> $(NF-3)&#125;&#x27; | <span class="keyword">sort</span> | uniq -c | awk &#x27;&#123;<span class="keyword">print</span> <span class="variable">$2</span><span class="string">&quot; = &quot;</span><span class="variable">$1</span>;&#125;&#x27;</span><br><span class="line"></span><br><span class="line"># 登录失败的记录</span><br><span class="line">grep -o <span class="string">&quot;Failed password&quot;</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure|uniq -c</span><br><span class="line"></span><br><span class="line"># 登录成功的记录</span><br><span class="line">1. grep <span class="string">&quot;Accepted &quot;</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | awk &#x27;&#123;<span class="keyword">print</span> <span class="variable">$1</span>,<span class="variable">$2</span>,<span class="variable">$3</span>,<span class="variable">$9</span>,<span class="variable">$11&#125;</span>&#x27;</span><br><span class="line">2. grep <span class="string">&quot;Accepted password for root&quot;</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | awk &#x27;&#123;<span class="keyword">print</span> <span class="variable">$11&#125;</span>&#x27; | <span class="keyword">sort</span> | uniq -c | <span class="keyword">sort</span> -nr | <span class="keyword">more</span></span><br><span class="line"></span><br><span class="line"># 排序查看哪些IP破解你SSH密码以及次数</span><br><span class="line">1. <span class="keyword">cat</span>  | awk &#x27;/Failed/&#123;<span class="keyword">print</span> $(NF-3)&#125;&#x27; /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | <span class="keyword">sort</span> | uniq -c | <span class="keyword">sort</span> -rn</span><br><span class="line">2. grep <span class="string">&quot;Failed password for root&quot;</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | awk &#x27;&#123;<span class="keyword">print</span> <span class="variable">$11&#125;</span>&#x27; | <span class="keyword">sort</span> | uniq -c | <span class="keyword">sort</span> -nr | <span class="keyword">more</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="恶意IP检测工具"><a href="#恶意IP检测工具" class="headerlink" title="恶意IP检测工具"></a>恶意IP检测工具</h2><p>网址：<a href="https://www.abuseipdb.com/">https://www.abuseipdb.com/</a><br>显示结果如下图所示:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415171504.png"></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux操作系统源</title>
     <url>/posts/2480d896/</url>
     <content><![CDATA[<p>记录常见linux操作系统的源以及换源方式。</p>
@@ -1026,76 +1096,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>换源</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux下将python脚本封装成服务</title>
-    <url>/posts/db70b640/</url>
-    <content><![CDATA[<blockquote>
-<p>参考博客 :point_right: <a href="https://www.cnblogs.com/fu-yong/p/9683129.html">文章地址1</a> <a href="">文章地址2</a></p>
-</blockquote>
-<a id="more"></a>
-<p>  在linux服务器执行python脚本时，即使脚本使用死循环，在退出账号时其对应进程也会被关闭，这里参考另外两篇博客各自的方法来解决这一问题。</p>
-<h1 id="1-方式一：使用nohup"><a href="#1-方式一：使用nohup" class="headerlink" title="1.方式一：使用nohup"></a>1.方式一：使用nohup</h1><h4 id="一-代码"><a href="#一-代码" class="headerlink" title="一. 代码"></a>一. 代码</h4><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">nohup python my.py &gt;&gt; <span class="regexp">/usr/</span>local<span class="regexp">/python/</span>xxf/my.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">nohup tomcat.sh &gt; <span class="regexp">/dev/</span><span class="keyword">null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure>
-
-<h4 id="二-nohup命令"><a href="#二-nohup命令" class="headerlink" title="二.nohup命令"></a>二.nohup命令</h4><ol>
-<li> nohup指不断地运行，是no hang up的缩写，指不间断，不挂断。运行一个进程的时候，不想让其在你退出账号时关闭，即可用nohup。</li>
-<li> nohup在不规定的情况下，所以输出内容会到nohup.out中</li>
-</ol>
-<h4 id="三-2-gt-amp-1"><a href="#三-2-gt-amp-1" class="headerlink" title="三.2&gt;&amp;1"></a>三.2&gt;&amp;1</h4><ol>
-<li><code>0</code> 表示stdin标准输入，用户键盘输入的内容<br> <code>1</code> 表示stdout标准输出，输出到显示屏的内容<br> <code>2</code> 表示stderr标准错误，报错内容</li>
-<li> <code>2&gt;&amp;1</code>是一个整体，<code>&gt;</code>左右不能有空格，即将错误内容重定向输入到标准输出中去。</li>
-</ol>
-<h4 id="四-整体意义及-amp"><a href="#四-整体意义及-amp" class="headerlink" title="四. 整体意义及&amp;"></a>四. 整体意义及&amp;</h4><ol>
-<li> <code>&amp;</code>为后台运行</li>
-<li>第一条代码，以python环境不间断的运行my.py这个脚本，并且将脚本输出的内容重定向输入<code>my.log</code>中（<code>&gt;&gt;</code>意为追加，如果用<code>&gt;</code>会让其中的内容清空）<br> <code>my.py &gt;&gt; my.log</code> 和<code>my.py 1&gt;&gt;my.log</code>相同，只是<code>1</code>(标准输入)被省略了，而后面的<code>my.log 2&gt;&amp;1</code> 又将<code>2</code>(错误内容)输入到标准输出，然后前面的标准输出又输入到<code>my.log</code>中，意思错误和标准内容都会输出到<code>my.log</code>中，其实代码可拆成两块。</li>
-</ol>
-<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">nohup python <span class="keyword">my</span>.py <span class="number">1</span>&gt;&gt; /usr/<span class="keyword">local</span>/python/xxf/<span class="keyword">my</span>.<span class="built_in">log</span> &amp;</span><br><span class="line">nohup python <span class="keyword">my</span>.py <span class="number">2</span>&gt;&gt; /usr/<span class="keyword">local</span>/python/xxf/<span class="keyword">my</span>.<span class="built_in">log</span> &amp;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>上面代码就是将错误和标准都输出到my.log，最初的代码只是简化了。<br> 而加<code>2&gt;&amp;1</code>中的<code>&amp;</code>是为了区别文件1和<code>1</code>(标准输出)，假如为<code>2&gt;1</code>,那么不就成了将错误内容输出到文件1中。</li>
-<li> <code>nohup tomcat.sh &gt; /dev/null 2&gt;&amp;1 &amp;</code>也是一样的，将错误和标准全部丢入<code>/dev/null</code>中，全部销毁。</li>
-</ol>
-<h1 id="2-方式二"><a href="#2-方式二" class="headerlink" title="2.方式二"></a>2.方式二</h1><p>Python脚本开机自动运行；本帖适用于使用systemd的Linux系统，现在流行的Linux发行版都使用systemd。</p>
-<p>后台服务程序是随系统自启动的，我们只要把Python脚本配置为服务就行了。需要注意的一点是你Python脚本的启动时机，它依赖不依赖其他服务（网络连接、一些分区的挂载等等）。</p>
-<h4 id="1-Python脚本"><a href="#1-Python脚本" class="headerlink" title="#1 Python脚本"></a>#1 Python脚本</h4><p>一个你要自启动的Python脚本，我使用 /home/snail/autorun.py为例。</p>
-<h4 id="2-创建Unit配置文件"><a href="#2-创建Unit配置文件" class="headerlink" title="#2 创建Unit配置文件"></a>#2 创建Unit配置文件</h4><figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">sudo vim /<span class="class"><span class="keyword">lib</span>/<span class="title">systemd</span>/<span class="title">system</span>/<span class="title">autorun</span>.<span class="title">service</span></span></span><br></pre></td></tr></table></figure>
-<p>写入如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">Description</span>=Test Service</span><br><span class="line"></span><br><span class="line"><span class="attr">After</span>=multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">Type</span>=idle</span><br><span class="line"></span><br><span class="line"><span class="attr">ExecStart</span>=/usr/bin/python /home/snail/autorun.py</span><br><span class="line"></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure>
-
-<p>上面定义了一个叫 Test Service 的服务，它在multi-user环境起来之后运行；ExecStart参数指定我们要运行的程序；idle确保脚本在其他东西加载完成之后运行，它的默认值是simple。</p>
-<p>注意使用绝对路径。</p>
-<p>为了获得脚本的输出信息，我们可以重定向到文件：</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">ExecStart=<span class="regexp">/usr/</span>bin<span class="regexp">/python /</span>home<span class="regexp">/snail/</span>autorun.py &gt; <span class="regexp">/home/</span>snail/autorun.log <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>更改配置文件的权限：</p>
-<figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">sudo chmod <span class="number">644</span> /<span class="class"><span class="keyword">lib</span>/<span class="title">systemd</span>/<span class="title">system</span>/<span class="title">autorun</span>.<span class="title">service</span></span></span><br></pre></td></tr></table></figure>
-<h4 id="3-使配置文件生效"><a href="#3-使配置文件生效" class="headerlink" title="#3 使配置文件生效"></a>#3 使配置文件生效</h4><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line"></span><br><span class="line">sudo systemctl <span class="builtin-name">enable</span> autorun.service</span><br></pre></td></tr></table></figure>
-
-<h4 id="4-启动"><a href="#4-启动" class="headerlink" title="#4 启动"></a>#4 启动</h4><figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">sudo systemctl start <span class="built_in">auto</span>run.service</span><br></pre></td></tr></table></figure>
-
-<h4 id="5-查看服务状态"><a href="#5-查看服务状态" class="headerlink" title="#5 查看服务状态"></a>#5 查看服务状态</h4><figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">sudo systemctl status <span class="built_in">auto</span>run.service</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Linux服务查看SSH登录失败日志</title>
-    <url>/posts/26caa900/</url>
-    <content><![CDATA[<blockquote>
-<p>查询主要依据 <code>/var/log/secure</code> 文件，有些系统是<code>/var/log/auth.log</code>文件，以下以<code>/var/log/secure</code> 文件为例查询。</p>
-</blockquote>
-<a id="more"></a>
-<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line"># 查看哪些IP破解你SSH密码以及次数</span><br><span class="line"><span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | awk &#x27;/Failed/&#123;<span class="keyword">print</span> $(NF-3)&#125;&#x27; | <span class="keyword">sort</span> | uniq -c | awk &#x27;&#123;<span class="keyword">print</span> <span class="variable">$2</span><span class="string">&quot; = &quot;</span><span class="variable">$1</span>;&#125;&#x27;</span><br><span class="line"></span><br><span class="line"># 登录失败的记录</span><br><span class="line">grep -o <span class="string">&quot;Failed password&quot;</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure|uniq -c</span><br><span class="line"></span><br><span class="line"># 登录成功的记录</span><br><span class="line">1. grep <span class="string">&quot;Accepted &quot;</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | awk &#x27;&#123;<span class="keyword">print</span> <span class="variable">$1</span>,<span class="variable">$2</span>,<span class="variable">$3</span>,<span class="variable">$9</span>,<span class="variable">$11&#125;</span>&#x27;</span><br><span class="line">2. grep <span class="string">&quot;Accepted password for root&quot;</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | awk &#x27;&#123;<span class="keyword">print</span> <span class="variable">$11&#125;</span>&#x27; | <span class="keyword">sort</span> | uniq -c | <span class="keyword">sort</span> -nr | <span class="keyword">more</span></span><br><span class="line"></span><br><span class="line"># 排序查看哪些IP破解你SSH密码以及次数</span><br><span class="line">1. <span class="keyword">cat</span>  | awk &#x27;/Failed/&#123;<span class="keyword">print</span> $(NF-3)&#125;&#x27; /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | <span class="keyword">sort</span> | uniq -c | <span class="keyword">sort</span> -rn</span><br><span class="line">2. grep <span class="string">&quot;Failed password for root&quot;</span> /<span class="keyword">var</span>/<span class="keyword">log</span>/secure | awk &#x27;&#123;<span class="keyword">print</span> <span class="variable">$11&#125;</span>&#x27; | <span class="keyword">sort</span> | uniq -c | <span class="keyword">sort</span> -nr | <span class="keyword">more</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="恶意IP检测工具"><a href="#恶意IP检测工具" class="headerlink" title="恶意IP检测工具"></a>恶意IP检测工具</h2><p>网址：<a href="https://www.abuseipdb.com/">https://www.abuseipdb.com/</a><br>显示结果如下图所示:</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415171504.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>安全</tag>
       </tags>
   </entry>
   <entry>
@@ -1560,6 +1560,53 @@ docker部署</code></pre>
 ]]></content>
   </entry>
   <entry>
+    <title>Python爬虫下载长江雨课堂课程音频文件</title>
+    <url>/posts/35873/</url>
+    <content><![CDATA[<blockquote>
+<p>近日疫情原因，各学校采用线上教学。软件工程这门课采用长江雨课堂，由于马上就期中测试，准备回放复习一下课程，但是长江雨课堂的回放功能不支持倍速播放，于是准备将音频文件下载到本地播放。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="爬取分析"><a href="#爬取分析" class="headerlink" title="爬取分析"></a>爬取分析</h2><ul>
+<li><code>m3u8</code>音频格式</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_15-58-54.png"></p>
+<p>可以看出其音频格式为<code>m3u8</code>。爬取步骤如下：</p>
+<ol>
+<li>获取课程信息</li>
+<li>根据课程信息获取m3u8文件地址</li>
+<li>根据m3u8文件中ts文件名下载ts文件</li>
+<li>合并ts文件</li>
+</ol>
+<ul>
+<li><code>mp3</code>音频格式</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-05-31.png"></p>
+<p>可以看出其音频格式为<code>mp3</code>, 并且包含多段。爬取步骤如下：</p>
+<ol>
+<li>获取课程信息</li>
+<li>根据课程信息获取mp3文件地址</li>
+<li>下载mp3文件</li>
+<li>合并mp3文件</li>
+</ol>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p><strong>环境说明</strong></p>
+<ul>
+<li>语言：Python</li>
+<li>库：requests</li>
+</ul>
+<p><strong>使用说明</strong></p>
+<ul>
+<li>输入lessonID，每次下载一个课程的音频文件</li>
+<li>lessonID获取方式，见图片</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-14-30.png"></p>
+<p><strong>Python代码</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> json,time</span><br><span class="line"></span><br><span class="line">lessonID = <span class="string">&quot;4003249&quot;</span></span><br><span class="line"></span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&#x27;cookie&#x27;</span>:<span class="string">&quot;_ga=GA1.2.1597694283.1582103010; _did=web_2408385821B4C392; _gid=GA1.2.237363874.1585559892; csrftoken=UFomwya8SZP3HFR5gv9GnTQ6ChyipTSI; sessionid=o3lwkaqztkxg629ahwfnf3037jvwl9kl; django_language=zh-cn&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">url_lesson = <span class="string">&quot;https://changjiang.yuketang.cn/v/lesson/get_lesson_replay_timeline/?lesson_id=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 0. 获取m3u8路径</span></span><br><span class="line">resp = requests.get(url_lesson, headers=header)</span><br><span class="line">dic_info = json.loads(resp.text)</span><br><span class="line"></span><br><span class="line">m3u8_list = dic_info[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;live_timeline&#x27;</span>]</span><br><span class="line"></span><br><span class="line">num = <span class="number">1</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> m3u8_list:  <span class="comment">#可能存在多个文件</span></span><br><span class="line">    url_m3u8 = i[<span class="string">&quot;replay_url&quot;</span>]</span><br><span class="line">    print(url_m3u8)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">&#x27;./&#123;&#125;/&#x27;</span>.<span class="built_in">format</span>(lessonID)):</span><br><span class="line">        os.mkdir(<span class="string">&#x27;./&#123;&#125;/&#x27;</span>.<span class="built_in">format</span>(lessonID))</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;.m3u8&#x27;</span> <span class="keyword">in</span> url_m3u8: <span class="comment">#TS格式</span></span><br><span class="line">        <span class="comment"># 1. 下载m3u8文件</span></span><br><span class="line">        filename_m3u8 = <span class="string">&quot;./&#123;&#125;/&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID,url_m3u8.split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>])</span><br><span class="line">        resp = requests.get(url_m3u8, headers=header)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filename_m3u8, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(resp.text)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. 获得TS文件名</span></span><br><span class="line">        dataTS = []</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filename_m3u8, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            data = f.readlines();</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> data:</span><br><span class="line">                <span class="keyword">if</span> i.endswith(<span class="string">&quot;.ts\n&quot;</span>):</span><br><span class="line">                    dataTS.append(i[<span class="number">0</span>:-<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">        url_ts_prefix = os.path.dirname(url_m3u8)+<span class="string">&quot;/&quot;</span></span><br><span class="line">        <span class="comment"># 2. 下载TS音频文件</span></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./&#123;&#125;/&#123;&#125;.ts&quot;</span>.<span class="built_in">format</span>(lessonID,url_m3u8.split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>].split(<span class="string">&#x27;.&#x27;</span>)[<span class="number">0</span>]), <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            <span class="keyword">for</span> ts <span class="keyword">in</span> dataTS:</span><br><span class="line">                nurl = url_ts_prefix + ts</span><br><span class="line">                print(nurl)</span><br><span class="line">                resp = requests.get(nurl)</span><br><span class="line">                f.write(resp.content)</span><br><span class="line">    <span class="keyword">elif</span> <span class="string">&#x27;.mp3&#x27;</span> <span class="keyword">in</span> url_m3u8:</span><br><span class="line">        resp = requests.get(url_m3u8) <span class="comment">#mp3文件</span></span><br><span class="line">        filename = <span class="string">&quot;together_&quot;</span>+url_m3u8.split(<span class="string">&#x27;?&#x27;</span>)[<span class="number">0</span>].split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./&#123;&#125;/&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID, filename), <span class="string">&#x27;ab+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(resp.content) </span><br><span class="line"></span><br><span class="line">        filename = <span class="built_in">str</span>(num)+<span class="string">&quot;_&quot;</span>+url_m3u8.split(<span class="string">&#x27;?&#x27;</span>)[<span class="number">0</span>].split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./&#123;&#125;/&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID, filename), <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(resp.content) </span><br><span class="line">        num += <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">    	print(<span class="string">&quot;未知URL &#123;&#125;&quot;</span>.<span class="built_in">format</span>(url_m3u8))</span><br><span class="line"></span><br><span class="line">url_lesson_info = <span class="string">&quot;https://changjiang.yuketang.cn/v/lesson/get_lesson_replay_content/?lesson_id=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID)</span><br><span class="line">resp = requests.get(url_lesson_info, headers=header)</span><br><span class="line">title = json.loads(resp.text)[<span class="string">&quot;data&quot;</span>][<span class="string">&#x27;lesson&#x27;</span>][<span class="string">&#x27;title&#x27;</span>]</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title)):</span><br><span class="line">    os.rename(<span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID), <span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title))</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    os.rename(<span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title),<span class="string">&#x27;./&#123;&#125;_&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title, <span class="built_in">int</span>(time.time())))</span><br><span class="line">    os.rename(<span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID), <span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title))</span><br></pre></td></tr></table></figure>
+<p><strong>下载结果</strong><br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-22-33.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-22-55.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-23-08.png"></p>
+]]></content>
+  </entry>
+  <entry>
     <title>Python爬虫解析库-XPath</title>
     <url>/posts/853cdf86/</url>
     <content><![CDATA[<blockquote>
@@ -1681,53 +1728,6 @@ docker部署</code></pre>
       <tags>
         <tag>xpath</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Python爬虫下载长江雨课堂课程音频文件</title>
-    <url>/posts/35873/</url>
-    <content><![CDATA[<blockquote>
-<p>近日疫情原因，各学校采用线上教学。软件工程这门课采用长江雨课堂，由于马上就期中测试，准备回放复习一下课程，但是长江雨课堂的回放功能不支持倍速播放，于是准备将音频文件下载到本地播放。</p>
-</blockquote>
-<a id="more"></a>
-<h2 id="爬取分析"><a href="#爬取分析" class="headerlink" title="爬取分析"></a>爬取分析</h2><ul>
-<li><code>m3u8</code>音频格式</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_15-58-54.png"></p>
-<p>可以看出其音频格式为<code>m3u8</code>。爬取步骤如下：</p>
-<ol>
-<li>获取课程信息</li>
-<li>根据课程信息获取m3u8文件地址</li>
-<li>根据m3u8文件中ts文件名下载ts文件</li>
-<li>合并ts文件</li>
-</ol>
-<ul>
-<li><code>mp3</code>音频格式</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-05-31.png"></p>
-<p>可以看出其音频格式为<code>mp3</code>, 并且包含多段。爬取步骤如下：</p>
-<ol>
-<li>获取课程信息</li>
-<li>根据课程信息获取mp3文件地址</li>
-<li>下载mp3文件</li>
-<li>合并mp3文件</li>
-</ol>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p><strong>环境说明</strong></p>
-<ul>
-<li>语言：Python</li>
-<li>库：requests</li>
-</ul>
-<p><strong>使用说明</strong></p>
-<ul>
-<li>输入lessonID，每次下载一个课程的音频文件</li>
-<li>lessonID获取方式，见图片</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-14-30.png"></p>
-<p><strong>Python代码</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> json,time</span><br><span class="line"></span><br><span class="line">lessonID = <span class="string">&quot;4003249&quot;</span></span><br><span class="line"></span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&#x27;cookie&#x27;</span>:<span class="string">&quot;_ga=GA1.2.1597694283.1582103010; _did=web_2408385821B4C392; _gid=GA1.2.237363874.1585559892; csrftoken=UFomwya8SZP3HFR5gv9GnTQ6ChyipTSI; sessionid=o3lwkaqztkxg629ahwfnf3037jvwl9kl; django_language=zh-cn&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">url_lesson = <span class="string">&quot;https://changjiang.yuketang.cn/v/lesson/get_lesson_replay_timeline/?lesson_id=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 0. 获取m3u8路径</span></span><br><span class="line">resp = requests.get(url_lesson, headers=header)</span><br><span class="line">dic_info = json.loads(resp.text)</span><br><span class="line"></span><br><span class="line">m3u8_list = dic_info[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;live_timeline&#x27;</span>]</span><br><span class="line"></span><br><span class="line">num = <span class="number">1</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> m3u8_list:  <span class="comment">#可能存在多个文件</span></span><br><span class="line">    url_m3u8 = i[<span class="string">&quot;replay_url&quot;</span>]</span><br><span class="line">    print(url_m3u8)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">&#x27;./&#123;&#125;/&#x27;</span>.<span class="built_in">format</span>(lessonID)):</span><br><span class="line">        os.mkdir(<span class="string">&#x27;./&#123;&#125;/&#x27;</span>.<span class="built_in">format</span>(lessonID))</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;.m3u8&#x27;</span> <span class="keyword">in</span> url_m3u8: <span class="comment">#TS格式</span></span><br><span class="line">        <span class="comment"># 1. 下载m3u8文件</span></span><br><span class="line">        filename_m3u8 = <span class="string">&quot;./&#123;&#125;/&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID,url_m3u8.split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>])</span><br><span class="line">        resp = requests.get(url_m3u8, headers=header)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filename_m3u8, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(resp.text)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. 获得TS文件名</span></span><br><span class="line">        dataTS = []</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filename_m3u8, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            data = f.readlines();</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> data:</span><br><span class="line">                <span class="keyword">if</span> i.endswith(<span class="string">&quot;.ts\n&quot;</span>):</span><br><span class="line">                    dataTS.append(i[<span class="number">0</span>:-<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">        url_ts_prefix = os.path.dirname(url_m3u8)+<span class="string">&quot;/&quot;</span></span><br><span class="line">        <span class="comment"># 2. 下载TS音频文件</span></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./&#123;&#125;/&#123;&#125;.ts&quot;</span>.<span class="built_in">format</span>(lessonID,url_m3u8.split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>].split(<span class="string">&#x27;.&#x27;</span>)[<span class="number">0</span>]), <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            <span class="keyword">for</span> ts <span class="keyword">in</span> dataTS:</span><br><span class="line">                nurl = url_ts_prefix + ts</span><br><span class="line">                print(nurl)</span><br><span class="line">                resp = requests.get(nurl)</span><br><span class="line">                f.write(resp.content)</span><br><span class="line">    <span class="keyword">elif</span> <span class="string">&#x27;.mp3&#x27;</span> <span class="keyword">in</span> url_m3u8:</span><br><span class="line">        resp = requests.get(url_m3u8) <span class="comment">#mp3文件</span></span><br><span class="line">        filename = <span class="string">&quot;together_&quot;</span>+url_m3u8.split(<span class="string">&#x27;?&#x27;</span>)[<span class="number">0</span>].split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./&#123;&#125;/&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID, filename), <span class="string">&#x27;ab+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(resp.content) </span><br><span class="line"></span><br><span class="line">        filename = <span class="built_in">str</span>(num)+<span class="string">&quot;_&quot;</span>+url_m3u8.split(<span class="string">&#x27;?&#x27;</span>)[<span class="number">0</span>].split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./&#123;&#125;/&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID, filename), <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(resp.content) </span><br><span class="line">        num += <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">    	print(<span class="string">&quot;未知URL &#123;&#125;&quot;</span>.<span class="built_in">format</span>(url_m3u8))</span><br><span class="line"></span><br><span class="line">url_lesson_info = <span class="string">&quot;https://changjiang.yuketang.cn/v/lesson/get_lesson_replay_content/?lesson_id=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(lessonID)</span><br><span class="line">resp = requests.get(url_lesson_info, headers=header)</span><br><span class="line">title = json.loads(resp.text)[<span class="string">&quot;data&quot;</span>][<span class="string">&#x27;lesson&#x27;</span>][<span class="string">&#x27;title&#x27;</span>]</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title)):</span><br><span class="line">    os.rename(<span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID), <span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title))</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    os.rename(<span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title),<span class="string">&#x27;./&#123;&#125;_&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title, <span class="built_in">int</span>(time.time())))</span><br><span class="line">    os.rename(<span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID), <span class="string">&#x27;./&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(lessonID+<span class="string">&quot;_&quot;</span>+title))</span><br></pre></td></tr></table></figure>
-<p><strong>下载结果</strong><br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-22-33.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-22-55.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-03/Snipaste_2020-03-27_16-23-08.png"></p>
-]]></content>
   </entry>
   <entry>
     <title>SQL Server数据库(1) - 基本知识</title>
@@ -2249,54 +2249,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>WebDriver下载地址</title>
-    <url>/posts/6b450c9b/</url>
-    <content><![CDATA[<blockquote>
-<p>在使用python的selenium库实现python爬虫时, 需要安装一些浏览器的driver, 每次安装时都需要寻找下载地址, 这里将各浏览器driver的下载地址记录下来, 方便以后查询.</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="各driver下载地址"><a href="#各driver下载地址" class="headerlink" title="各driver下载地址"></a>各driver下载地址</h3><h4 id="1-chrome浏览器"><a href="#1-chrome浏览器" class="headerlink" title="1. chrome浏览器"></a>1. chrome浏览器</h4><ul>
-<li><a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a></li>
-</ul>
-<h4 id="2-Firefox浏览器"><a href="#2-Firefox浏览器" class="headerlink" title="2. Firefox浏览器"></a>2. Firefox浏览器</h4><ul>
-<li><a href="https://github.com/mozilla/geckodriver/releases/">下载地址</a></li>
-</ul>
-<h4 id="3-IE浏览器"><a href="#3-IE浏览器" class="headerlink" title="3. IE浏览器"></a>3. IE浏览器</h4><ul>
-<li><a href="https://selenium-release.storage.googleapis.com/index.html">下载地址</a></li>
-</ul>
-<h4 id="4-PhantomJS"><a href="#4-PhantomJS" class="headerlink" title="4. PhantomJS"></a>4. PhantomJS</h4><ul>
-<li><a href="https://phantomjs.org/download.html">下载地址</a></li>
-</ul>
-<blockquote>
-<p>这个webdriver已经被selenium弃用了, 使用时会显示相关的警告信息.</p>
-<p>可以替代的有chrome和Firefox的无头浏览器.</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以chromedriver为例, 展示其使用方法</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">browser = webdriver.Chrome() // FireFox(), Ie(), PhantomJS()</span><br><span class="line">broswer.get(<span class="string">&#x27;https://baidu.com&#x27;</span>) //网址</span><br><span class="line">print(broswer.page_source)</span><br><span class="line">browser.close()</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<h3 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h3><blockquote>
-<p>按照对应浏览器版本下载driver, 下载后放在具有环境变量的路径内, 如果不知道如何操作, 直接将driver.exe放在python安装路径下</p>
-</blockquote>
-<h3 id="无头浏览器"><a href="#无头浏览器" class="headerlink" title="无头浏览器"></a>无头浏览器</h3><blockquote>
-<p>chrome和 Firfox都具有类似PhantomJS的功能</p>
-</blockquote>
-<ul>
-<li><p>使用方法如下:</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">chrome_options = Options()</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(chrome_options=chrome_options)</span><br><span class="line">driver.get(<span class="string">&quot;https://baidu.com/&quot;</span>)</span><br><span class="line">print(driver.page_source)</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>webdriver</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>TopK问题多解法</title>
     <url>/posts/41d979e5/</url>
     <content><![CDATA[<blockquote>
@@ -2454,6 +2406,54 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>topk</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WebDriver下载地址</title>
+    <url>/posts/6b450c9b/</url>
+    <content><![CDATA[<blockquote>
+<p>在使用python的selenium库实现python爬虫时, 需要安装一些浏览器的driver, 每次安装时都需要寻找下载地址, 这里将各浏览器driver的下载地址记录下来, 方便以后查询.</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="各driver下载地址"><a href="#各driver下载地址" class="headerlink" title="各driver下载地址"></a>各driver下载地址</h3><h4 id="1-chrome浏览器"><a href="#1-chrome浏览器" class="headerlink" title="1. chrome浏览器"></a>1. chrome浏览器</h4><ul>
+<li><a href="https://chromedriver.storage.googleapis.com/index.html">下载地址</a></li>
+</ul>
+<h4 id="2-Firefox浏览器"><a href="#2-Firefox浏览器" class="headerlink" title="2. Firefox浏览器"></a>2. Firefox浏览器</h4><ul>
+<li><a href="https://github.com/mozilla/geckodriver/releases/">下载地址</a></li>
+</ul>
+<h4 id="3-IE浏览器"><a href="#3-IE浏览器" class="headerlink" title="3. IE浏览器"></a>3. IE浏览器</h4><ul>
+<li><a href="https://selenium-release.storage.googleapis.com/index.html">下载地址</a></li>
+</ul>
+<h4 id="4-PhantomJS"><a href="#4-PhantomJS" class="headerlink" title="4. PhantomJS"></a>4. PhantomJS</h4><ul>
+<li><a href="https://phantomjs.org/download.html">下载地址</a></li>
+</ul>
+<blockquote>
+<p>这个webdriver已经被selenium弃用了, 使用时会显示相关的警告信息.</p>
+<p>可以替代的有chrome和Firefox的无头浏览器.</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以chromedriver为例, 展示其使用方法</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">browser = webdriver.Chrome() // FireFox(), Ie(), PhantomJS()</span><br><span class="line">broswer.get(<span class="string">&#x27;https://baidu.com&#x27;</span>) //网址</span><br><span class="line">print(broswer.page_source)</span><br><span class="line">browser.close()</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<h3 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h3><blockquote>
+<p>按照对应浏览器版本下载driver, 下载后放在具有环境变量的路径内, 如果不知道如何操作, 直接将driver.exe放在python安装路径下</p>
+</blockquote>
+<h3 id="无头浏览器"><a href="#无头浏览器" class="headerlink" title="无头浏览器"></a>无头浏览器</h3><blockquote>
+<p>chrome和 Firfox都具有类似PhantomJS的功能</p>
+</blockquote>
+<ul>
+<li><p>使用方法如下:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.chrome.options <span class="keyword">import</span> Options</span><br><span class="line">chrome_options = Options()</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--headless&#x27;</span>)</span><br><span class="line">chrome_options.add_argument(<span class="string">&#x27;--disable-gpu&#x27;</span>)</span><br><span class="line">driver = webdriver.Chrome(chrome_options=chrome_options)</span><br><span class="line">driver.get(<span class="string">&quot;https://baidu.com/&quot;</span>)</span><br><span class="line">print(driver.page_source)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>爬虫</category>
+      </categories>
+      <tags>
+        <tag>webdriver</tag>
       </tags>
   </entry>
   <entry>
@@ -2615,6 +2615,44 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
+    <title>docker搭建gitea</title>
+    <url>/posts/dewho6/</url>
+    <content><![CDATA[<blockquote>
+<p>参考博客 :point_right: <a href="http://www.siya89.com/blog/docker-gitea-go">文章</a></p>
+</blockquote>
+<a id="more"></a>
+<h2 id="1-gitea-简介"><a href="#1-gitea-简介" class="headerlink" title="1.gitea 简介"></a>1.<code>gitea</code> 简介</h2><p><code>gitea</code> 是在 <code>gitHub</code> 上 <code>fork</code> 于 <code>gogs</code> 的项目，同样具有 <code>gogs</code> 易安装，跨平台，轻量级的特点。gitea 采用 <a href="https://github.com/go-macaron/macaron">Macaron</a> 框架开发。</p>
+<h2 id="2-docker-获取gitea镜像"><a href="#2-docker-获取gitea镜像" class="headerlink" title="2.docker 获取gitea镜像"></a>2.<code>docker</code> 获取<code>gitea</code>镜像</h2><figure class="highlight haskell"><table><tr><td class="code"><pre><span class="line"><span class="meta"># pull gitea镜像</span></span><br><span class="line"> docker pull gitea/gitea</span><br><span class="line"></span><br><span class="line"><span class="meta"># 创建一个本地可以挂载到容器的目录 </span></span><br><span class="line"> mkdir -p /<span class="class"><span class="keyword">data</span>/gitea</span></span><br><span class="line"></span><br><span class="line"><span class="meta"># 给 gitea 加上权限保证其可读可写</span></span><br><span class="line"> cd /<span class="class"><span class="keyword">data</span> &amp;&amp; chmod -<span class="type">R</span> 777 gitea</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-docker-获取mysql镜像"><a href="#3-docker-获取mysql镜像" class="headerlink" title="3.docker 获取mysql镜像"></a>3.<code>docker</code> 获取<code>mysql</code>镜像</h2><p>gitea支持 <code>mysql</code>，<code>PgSql</code>，<code>MSSql</code>，<code>SqlLite3</code>数据库。<br>这里我使用<code>mysql</code>数据库存储，使用<code>mysql容器</code>与<code>gitea容器</code>链接。</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="comment"># pull mysql 5.7镜像</span></span><br><span class="line"> <span class="attribute">docker</span> pull mysql:<span class="number">5</span>.<span class="number">7</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-docker创建mysql容器"><a href="#4-docker创建mysql容器" class="headerlink" title="4.docker创建mysql容器"></a>4.<code>docker</code>创建<code>mysql</code>容器</h2><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">docker <span class="builtin-name">run</span> <span class="attribute">--name</span>=mysql_git -d -p 10812:3306 -e <span class="attribute">MYSQL_PASSWORD</span>=password mysql:5.7</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>参数说明</p>
+</blockquote>
+<pre><code>--name=mysql_git：指定创建的容器名为mysql_git
+-p 10812:3306: 将容器的3306端口映射到主机10812端口
+-e MYSQL_ROOT_PASSWORD=password: 指定mysql的root密码为password</code></pre>
+<h2 id="5-进入mysql容器，创建数据库"><a href="#5-进入mysql容器，创建数据库" class="headerlink" title="5.进入mysql容器，创建数据库"></a>5.进入<code>mysql</code>容器，创建数据库</h2><figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">docker exec -<span class="keyword">it</span> mysql_git bash <span class="comment">#执行命令进入容器</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">mysql</span> -u root -p <span class="comment">#执行该命令后输入root密码</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172034.png"></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span> gitea_db; <span class="comment">#创建gitea_db数据库</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172044.png"></p>
+<p>最后执行<code>exit</code>退出容器</p>
+<h2 id="6-docker-创建容器并运行"><a href="#6-docker-创建容器并运行" class="headerlink" title="6.docker 创建容器并运行"></a>6.<code>docker</code> 创建容器并运行</h2><figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 初次执行 run gitea，注意这里 gitea 是前台启动，启动后 command + C 退出就好了</span></span><br><span class="line"><span class="comment"># 宿主机 10023 映射到 gitea 容器的 22 ssh 端口</span></span><br><span class="line"><span class="comment"># 宿主机 10081 映射到 gitea 容器的 3000 http 端口</span></span><br><span class="line"><span class="comment"># /data/gitea 目录挂在到容器中的 /data 目录</span></span><br><span class="line"><span class="attribute">docker</span> run --name=gitea -p <span class="number">10023</span>:<span class="number">22</span> -p <span class="number">10081</span>:<span class="number">3000</span> --link mysql_git:db -v /data/gitea:/data gitea/gitea</span><br></pre></td></tr></table></figure>
+<p>:key: <code>--link mysql_git:db</code><br>&emsp;&emsp;:point_right:<code>db</code> 就是在gitea容器中mysql_git数据库的地址</p>
+<h2 id="7-最后"><a href="#7-最后" class="headerlink" title="7.最后"></a>7.最后</h2><p>访问地址 <code>http://ip:10081/</code> 即是 gitea 地址，首先要配置好你的数据库。</p>
+<p>仓库风格如下<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172100.png"></p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>docker部署typecho+mysql</title>
     <url>/posts/63d1dc7a/</url>
     <content><![CDATA[<p>本篇文章记录docker部署typecho的过程，并将typecho容器和mysql容器进行链接。</p>
@@ -2704,44 +2742,6 @@ docker部署</code></pre>
         <tag>docker</tag>
         <tag>typecho</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>docker搭建gitea</title>
-    <url>/posts/dewho6/</url>
-    <content><![CDATA[<blockquote>
-<p>参考博客 :point_right: <a href="http://www.siya89.com/blog/docker-gitea-go">文章</a></p>
-</blockquote>
-<a id="more"></a>
-<h2 id="1-gitea-简介"><a href="#1-gitea-简介" class="headerlink" title="1.gitea 简介"></a>1.<code>gitea</code> 简介</h2><p><code>gitea</code> 是在 <code>gitHub</code> 上 <code>fork</code> 于 <code>gogs</code> 的项目，同样具有 <code>gogs</code> 易安装，跨平台，轻量级的特点。gitea 采用 <a href="https://github.com/go-macaron/macaron">Macaron</a> 框架开发。</p>
-<h2 id="2-docker-获取gitea镜像"><a href="#2-docker-获取gitea镜像" class="headerlink" title="2.docker 获取gitea镜像"></a>2.<code>docker</code> 获取<code>gitea</code>镜像</h2><figure class="highlight haskell"><table><tr><td class="code"><pre><span class="line"><span class="meta"># pull gitea镜像</span></span><br><span class="line"> docker pull gitea/gitea</span><br><span class="line"></span><br><span class="line"><span class="meta"># 创建一个本地可以挂载到容器的目录 </span></span><br><span class="line"> mkdir -p /<span class="class"><span class="keyword">data</span>/gitea</span></span><br><span class="line"></span><br><span class="line"><span class="meta"># 给 gitea 加上权限保证其可读可写</span></span><br><span class="line"> cd /<span class="class"><span class="keyword">data</span> &amp;&amp; chmod -<span class="type">R</span> 777 gitea</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="3-docker-获取mysql镜像"><a href="#3-docker-获取mysql镜像" class="headerlink" title="3.docker 获取mysql镜像"></a>3.<code>docker</code> 获取<code>mysql</code>镜像</h2><p>gitea支持 <code>mysql</code>，<code>PgSql</code>，<code>MSSql</code>，<code>SqlLite3</code>数据库。<br>这里我使用<code>mysql</code>数据库存储，使用<code>mysql容器</code>与<code>gitea容器</code>链接。</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="comment"># pull mysql 5.7镜像</span></span><br><span class="line"> <span class="attribute">docker</span> pull mysql:<span class="number">5</span>.<span class="number">7</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-docker创建mysql容器"><a href="#4-docker创建mysql容器" class="headerlink" title="4.docker创建mysql容器"></a>4.<code>docker</code>创建<code>mysql</code>容器</h2><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">docker <span class="builtin-name">run</span> <span class="attribute">--name</span>=mysql_git -d -p 10812:3306 -e <span class="attribute">MYSQL_PASSWORD</span>=password mysql:5.7</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>参数说明</p>
-</blockquote>
-<pre><code>--name=mysql_git：指定创建的容器名为mysql_git
--p 10812:3306: 将容器的3306端口映射到主机10812端口
--e MYSQL_ROOT_PASSWORD=password: 指定mysql的root密码为password</code></pre>
-<h2 id="5-进入mysql容器，创建数据库"><a href="#5-进入mysql容器，创建数据库" class="headerlink" title="5.进入mysql容器，创建数据库"></a>5.进入<code>mysql</code>容器，创建数据库</h2><figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">docker exec -<span class="keyword">it</span> mysql_git bash <span class="comment">#执行命令进入容器</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">mysql</span> -u root -p <span class="comment">#执行该命令后输入root密码</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172034.png"></p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span> gitea_db; <span class="comment">#创建gitea_db数据库</span></span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172044.png"></p>
-<p>最后执行<code>exit</code>退出容器</p>
-<h2 id="6-docker-创建容器并运行"><a href="#6-docker-创建容器并运行" class="headerlink" title="6.docker 创建容器并运行"></a>6.<code>docker</code> 创建容器并运行</h2><figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 初次执行 run gitea，注意这里 gitea 是前台启动，启动后 command + C 退出就好了</span></span><br><span class="line"><span class="comment"># 宿主机 10023 映射到 gitea 容器的 22 ssh 端口</span></span><br><span class="line"><span class="comment"># 宿主机 10081 映射到 gitea 容器的 3000 http 端口</span></span><br><span class="line"><span class="comment"># /data/gitea 目录挂在到容器中的 /data 目录</span></span><br><span class="line"><span class="attribute">docker</span> run --name=gitea -p <span class="number">10023</span>:<span class="number">22</span> -p <span class="number">10081</span>:<span class="number">3000</span> --link mysql_git:db -v /data/gitea:/data gitea/gitea</span><br></pre></td></tr></table></figure>
-<p>:key: <code>--link mysql_git:db</code><br>&emsp;&emsp;:point_right:<code>db</code> 就是在gitea容器中mysql_git数据库的地址</p>
-<h2 id="7-最后"><a href="#7-最后" class="headerlink" title="7.最后"></a>7.最后</h2><p>访问地址 <code>http://ip:10081/</code> 即是 gitea 地址，首先要配置好你的数据库。</p>
-<p>仓库风格如下<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172100.png"></p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
   </entry>
   <entry>
     <title>ffmpeg常用命令总结</title>
@@ -2964,206 +2964,6 @@ docker部署</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>linux学习03 - 用户及权限管理</title>
-    <url>/posts/68370406/</url>
-    <content><![CDATA[<blockquote>
-<p>linux学习03：用户及权限管理<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
-</blockquote>
-<a id="more"></a>
-
-<h3 id="查看用户"><a href="#查看用户" class="headerlink" title="查看用户"></a>查看用户</h3><p>请打开终端，输入命令：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>who am i</span><br><span class="line"></span><br><span class="line">或者</span><br><span class="line"></span><br><span class="line"><span class="variable">$ </span>who mom likes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-1.png"></p>
-<p> 输出的第一列表示打开当前伪终端的用户的用户名（要查看当前登录用户的用户名，去掉空格直接使用 <code>whoami</code> 即可），第二列的 <code>pts/0</code> 中 <code>pts</code> 表示伪终端，所谓伪是相对于 <code>/dev/tty</code> 设备而言的，还记得上一节讲终端时的那七个使用 <code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F7]</code> 进行切换的 <code>/dev/tty</code> 设备么,这是“真终端”，伪终端就是当你在图形用户界面使用 <code>/dev/tty7</code> 时每打开一个终端就会产生一个伪终端， <code>pts/0</code> 后面那个数字就表示打开的伪终端序号，你可以尝试再打开一个终端，然后在里面输入 <code>who am i</code> ，看第二列是不是就变成 <code>pts/1</code> 了，第三列则表示当前伪终端的启动时间。</p>
-<p><code>who</code> 命令其它常用参数</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>-a</code></td>
-<td>打印能打印的全部</td>
-</tr>
-<tr>
-<td><code>-d</code></td>
-<td>打印死掉的进程</td>
-</tr>
-<tr>
-<td><code>-m</code></td>
-<td>同<code>am i</code>,<code>mom likes</code></td>
-</tr>
-<tr>
-<td><code>-q</code></td>
-<td>打印当前登录用户数及用户名</td>
-</tr>
-<tr>
-<td><code>-u</code></td>
-<td>打印当前登录用户登录信息</td>
-</tr>
-<tr>
-<td><code>-r</code></td>
-<td>打印运行等级</td>
-</tr>
-</tbody></table>
-<h3 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h3><p>在 Linux 系统里， <code>root</code> 账户拥有整个系统至高无上的权利，比如 新建/添加 用户。</p>
-<blockquote>
-<p>root 权限，系统权限的一种，与 SYSTEM 权限可以理解成一个概念，但高于 Administrator 权限，root 是 Linux 和 UNIX 系统中的超级管理员用户帐户，该帐户拥有整个系统至高无上的权力，所有对象他都可以操作，所以很多黑客在入侵系统的时候，都要把权限提升到 root 权限，用 Windows 的方法理解也就是将自己的非法帐户添加到 Administrators 用户组。更比如安卓操作系统中（基于 Linux 内核）获得 root 权限之后就意味着已经获得了手机的最高权限，这时候你可以对手机中的任何文件（包括系统文件）执行所有增、删、改、查的操作。</p>
-</blockquote>
-<p>我们一般登录系统时都是以普通账户的身份登录的，要创建用户需要 root 权限，这里就要用到 <code>sudo</code> 这个命令了。不过使用这个命令有两个大前提，一是你要知道当前登录用户的密码，二是当前用户必须在 <code>sudo</code> 用户组。shiyanlou 用户也属于 sudo 用户组（稍后会介绍如何查看和添加用户组）。</p>
-<h4 id="su，su-与-sudo"><a href="#su，su-与-sudo" class="headerlink" title="su，su- 与 sudo"></a>su，su- 与 sudo</h4><p><strong>需要注意 Linux 环境下输入密码是不会显示的。</strong></p>
-<p><code>su &lt;user&gt;</code> 可以切换到用户 user，执行时需要输入目标用户的密码，<code>sudo &lt;cmd&gt;</code> 可以以特权级别运行 cmd 命令，需要当前用户属于 sudo 组，且需要输入当前用户的密码。<code>su - &lt;user&gt;</code> 命令也是切换用户，<font color="red">同时环境变量也会跟着改变成目标用户的环境变量。</font></p>
-<p>现在我们新建一个叫 lilei 的用户：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>sudo adduser lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>实验楼的环境目前设置为 shiyanlou 用户执行 sudo 不需要输入密码，通常此处需要按照提示输入 shiyanlou 密码（<strong>Linux 下密码输入是不显示任何内容的</strong>），shiyanlou 用户密码可以通过 <code>sudo passwd shiyanlou</code> 命令进行设置。然后是给 lilei 用户设置密码，后面的选项的一些内容你可以选择直接回车使用默认值：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-2.png"></p>
-<p>这个命令不但可以添加用户到系统，同时也会默认为新用户创建 home 目录：</p>
-<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">ls</span> <span class="string">/home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>现在你已经创建好一个用户，并且你可以使用你创建的用户登录了，使用如下命令切换登录用户：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su -l lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>输入刚刚设置的 lilei 的密码，然后输入如下命令并查看输出：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> who am i</span><br><span class="line"><span class="variable">$</span> whoami</span><br><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>退出当前用户跟退出终端一样可以使用 <code>exit</code> 命令或者使用快捷键 <code>Ctrl+d</code>。</p>
-<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>在 Linux 里面每个用户都有一个归属（用户组），用户组简单地理解就是一组用户的集合，它们共享一些资源和权限，同时拥有私有资源，就跟家的形式差不多，你的兄弟姐妹（不同的用户）属于同一个家（用户组），你们可以共同拥有这个家（共享资源），爸妈对待你们都一样（共享权限），你偶尔写写日记，其他人未经允许不能查看（私有资源和权限）。当然一个用户是可以属于多个用户组的，正如你既属于家庭，又属于学校或公司。</p>
-<p>在 Linux 里面如何知道自己属于哪些用户组呢？</p>
-<h4 id="方法一：使用-groups-命令"><a href="#方法一：使用-groups-命令" class="headerlink" title="方法一：使用 groups 命令"></a>方法一：使用 groups 命令</h4><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>groups shiyanlou</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-3.png"></p>
-<p>其中冒号之前表示用户，后面表示该用户所属的用户组。这里可以看到 shiyanlou 用户属于 shiyanlou 用户组，<strong>每次新建用户如果不指定用户组的话，默认会自动创建一个与用户名相同的用户组</strong>（差不多就相当于家长的意思，或者说是老总）。默认情况下在 sudo 用户组里的可以使用 sudo 命令获得 root 权限。shiyanlou 用户也可以使用 sudo 命令，为什么这里没有显示在 sudo 用户组里呢？可以查看下 <code>/etc/sudoers.d/shiyanlou</code> 文件，我们在 <code>/etc/sudoers.d</code> 目录下创建了这个文件，从而给 shiyanlou 用户赋予了 sudo 权限：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-4.png"></p>
-<h4 id="方法二：查看-etc-group-文件"><a href="#方法二：查看-etc-group-文件" class="headerlink" title="方法二：查看 /etc/group 文件"></a>方法二：查看 <code>/etc/group</code> 文件</h4><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> /etc/<span class="built_in">group</span> | <span class="built_in">sort</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>这里 <code>cat</code> 命令用于读取指定文件的内容并打印到终端输出，后面会详细讲它的使用。 <code>| sort</code> 表示将读取的文本进行一个字典排序再输出，然后你将看到如下一堆输出，你可以在最下面看到 shiyanlou 的用户组信息：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-5.png"></p>
-<p>没找到，没关系，你可以使用命令过滤掉一些你不想看到的结果：</p>
-<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">$ cat /etc/<span class="keyword">group</span> <span class="title">| grep</span> -E <span class="string">&quot;shiyanlou&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-6.png"></p>
-<h5 id="etc-group-文件格式说明"><a href="#etc-group-文件格式说明" class="headerlink" title="/etc/group 文件格式说明"></a><code>/etc/group</code> 文件格式说明</h5><p>/etc/group 的内容包括用户组（Group）、用户组口令、GID 及该用户组所包含的用户（User），每个用户组一条记录。格式如下：</p>
-<blockquote>
-<p>group_name:password:GID:user_list</p>
-</blockquote>
-<p>你看到上面的 password 字段为一个 <code>x</code> 并不是说密码就是它，只是表示密码不可见而已。</p>
-<p>这里需要注意，如果用户的 GID 等于用户组的 GID，那么最后一个字段 <code>user_list</code> 就是空的，比如 shiyanlou 用户，在 <code>/etc/group</code> 中的 shiyanlou 用户组后面是不会显示的。lilei 用户，在 <code>/etc/group</code> 中的 lilei 用户组后面是不会显示的。</p>
-<h5 id="将其它用户加入-sudo-用户组"><a href="#将其它用户加入-sudo-用户组" class="headerlink" title="将其它用户加入 sudo 用户组"></a>将其它用户加入 sudo 用户组</h5><p>默认情况下新创建的用户是不具有 root 权限的，也不在 sudo 用户组，可以让其加入 sudo 用户组从而获取 root 权限：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> su <span class="literal">-l</span> lilei</span><br><span class="line"><span class="variable">$</span> sudo <span class="built_in">ls</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>会提示 lilei 不在 sudoers 文件中，意思就是 lilei 不在 sudo 用户组中，至于 sudoers 文件（/etc/sudoers）你现在最好不要动它，操作不慎会导致比较麻烦的后果。</p>
-<p>使用 <code>usermod</code> 命令可以为用户添加用户组，同样使用该命令你必需有 root 权限，你可以直接使用 root 用户为其它用户添加用户组，或者用其它已经在 sudo 用户组的用户使用 sudo 命令获取权限来执行该命令。</p>
-<p>这里我用 shiyanlou 用户执行 sudo 命令将 lilei 添加到 sudo 用户组，让它也可以使用 sudo 命令获得 root 权限：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su shiyanlou  <span class="comment"># 注意 Linux 上输入密码是不会显示的</span></span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"><span class="variable">$ </span>sudo usermod -G sudo lilei</span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>然后你再切换回 lilei 用户，现在就可以使用 sudo 获取 root 权限了。</p>
-<h3 id="删除用户"><a href="#删除用户" class="headerlink" title="删除用户"></a>删除用户</h3><p>删除用户是很简单的事：</p>
-<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">$ sudo deluser lilei --<span class="built_in">remove</span>-<span class="built_in">home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-7.png"></p>
-<h3 id="linux文件权限"><a href="#linux文件权限" class="headerlink" title="linux文件权限"></a>linux文件权限</h3><p>文件权限就是文件的访问控制权限，即哪些用户和组群可以访问文件以及可以执行什么样的操作。</p>
-<p>Unix/Linux系统是一个典型的多用户系统，不同的用户处于不同的地位，对文件和目录有不同的访问权限。为了保护系统的安全性，Unix/Linux系统除了对用户权限作了严格的界定外，还在用户身份认证、访问控制、传输安全、文件读写权限等方面作了周密的控制。</p>
-<p>在 Unix/Linux中的每一个文件或目录都包含有访问权限，这些访问权限决定了谁能访问和如何访问这些文件和目录。</p>
-<hr>
-
-<p>我们之前已经很多次用到<code>ls</code>命令了，如你所见，我们用它来列出并显示当前目录下的文件，当然这是在不带任何参数的情况下，它能做的当然不止这么多，现在我们就要用它来查看文件权限。</p>
-<p>使用较长格式列出文件：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-l</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-8.png"></p>
-<p>你可能除了知道最后面那一项是文件名之外，其它项就不太清楚了，那么到底是什么意思呢：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-9.png"></p>
-<p>可能你还是不太明白，比如第一项文件类型和权限那一堆东西具体指什么，链接又是什么，何为最后修改时间，下面一一道来：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-10.png"></p>
-<ul>
-<li>  文件类型</li>
-</ul>
-<blockquote>
-<p>关于文件类型，这里有一点你必需时刻牢记 <strong>Linux 里面一切皆文件</strong>，正因为这一点才有了设备文件（ <code>/dev</code> 目录下有各种设备文件，大都跟具体的硬件设备相关）这一说。 <code>socket</code>：网络套接字，具体是什么，感兴趣的用户可以自己去了解或期待实验楼的后续相关课程。<code>pipe</code> 管道，这个东西很重要，我们以后将会讨论到，这里你先知道有它的存在即可。<code>软链接文件</code>：链接文件是分为两种的，另一种当然是“硬链接”（硬链接不常用，具体内容不作为本课程讨论重点，而软链接等同于 Windows 上的快捷方式,你记住这一点就够了）。</p>
-</blockquote>
-<ul>
-<li>  文件权限</li>
-</ul>
-<blockquote>
-<p>读权限，表示你可以使用 <code>cat &lt;file name&gt;</code> 之类的命令来读取某个文件的内容；写权限，表示你可以编辑和修改某个文件； 执行权限，通常指可以运行的二进制程序文件或者脚本文件，如同 Windows 上的 <code>exe</code> 后缀的文件，不过 Linux 上不是通过文件后缀名来区分文件的类型。你需要注意的一点是，<strong>一个目录同时具有读权限和执行权限才可以打开并查看内部文件，而一个目录要有写权限才允许在其中创建其它文件</strong>，这是因为目录文件实际保存着该目录里面的文件的列表等信息。</p>
-</blockquote>
-<p>所有者权限，这一点相信你应该明白了，至于所属用户组权限，是指你所在的用户组中的所有其它用户对于该文件的权限，比如，你有一个 iPad，那么这个用户组权限就决定了你的兄弟姐妹有没有权限使用它破坏它和占有它。</p>
-<ul>
-<li>  链接数</li>
-</ul>
-<blockquote>
-<p>链接到该文件所在的 inode 结点的文件名数目（关于这个概念涉及到 Linux 文件系统的相关概念知识，不在本课程的讨论范围，感兴趣的用户可以自己去了解）。</p>
-</blockquote>
-<ul>
-<li>  文件大小</li>
-</ul>
-<blockquote>
-<p>以 inode 结点大小为单位来表示的文件大小，你可以给 ls 加上 <code>-lh</code> 参数来更直观的查看文件的大小。</p>
-</blockquote>
-<p>明白了文件权限的一些概念，我们顺带补充一下关于 <code>ls</code> 命令的一些其它常用的用法：</p>
-<ul>
-<li>  显示除了 <code>.</code>（当前目录）和 <code>..</code>（上一级目录）之外的所有文件，包括隐藏文件（Linux 下以 <code>.</code> 开头的文件为隐藏文件）。</li>
-</ul>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-A</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-11.png"></p>
-<p>当然，你可以同时使用 <code>-A</code> 和 <code>-l</code> 参数：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-Al</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>查看某一个目录的完整属性，而不是显示目录里面的文件属性：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-dl</span> &lt;目录名&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>  显示所有文件大小，并以普通人类能看懂的方式呈现：</li>
-</ul>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-AsSh</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>其中小 s 为显示文件大小，大 S 为按文件大小排序，若需要知道如何按其它方式排序，请使用“man”命令查询。</p>
-<h3 id="变更文件所有者"><a href="#变更文件所有者" class="headerlink" title="变更文件所有者"></a>变更文件所有者</h3><blockquote>
-<p>若前面已经执行删除lilei用户的命令，这里重新创建一下。</p>
-</blockquote>
-<p>假设目前是 lilei 用户登录，新建一个文件，命名为 “ iphone6 ”：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 注意当前的用户必须是 lilei</span></span><br><span class="line"><span class="comment"># 如果是 shiyanlou 用户需要切换到 lilei（如果之前已经删除需要重新创建下）</span></span><br><span class="line"><span class="variable">$</span> su lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> touch iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>可见文件所有者是 lilei ：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-12.png"></p>
-<p>现在，换回到 shiyanlou 用户身份，使用以下命令变更文件所有者为 shiyanlou ：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要切换到 shiyanlou 用户执行以下操作</span></span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> iphone6</span><br><span class="line"><span class="variable">$</span> sudo chown shiyanlou iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>现在查看，发现 文件所有者成功修改为 shiyanlou ：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-13.png"></p>
-<h3 id="修改文件权限"><a href="#修改文件权限" class="headerlink" title="修改文件权限"></a>修改文件权限</h3><p>如果你有一个自己的文件不想被其他用户读、写、执行，那么就需要对文件的权限做修改，这里有两种方式：</p>
-<ul>
-<li>  方式一：二进制数字表示</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-14.png"></p>
-<p>每个文件的三组权限（拥有者，所属用户组，其他用户，<strong>记住这个顺序是一定的</strong>）对应一个 “ rwx “，也就是一个 “ 7 ” ，所以如果我要将文件“ iphone6 ”的权限改为只有我自己可以用那么就这样：</p>
-<p>为了演示，我先在文件里加点内容：</p>
-<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$ echo <span class="string">&quot;echo <span class="subst">\&quot;</span>hello shiyanlou<span class="subst">\&quot;</span>&quot;</span> &gt; iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>然后修改权限：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod <span class="number">600</span> iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>现在，其他用户已经不能读这个“ iphone6 ”文件了：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-15.png"></p>
-<ul>
-<li>  方式二：加减赋值操作</li>
-</ul>
-<p>完成上述相同的效果，你可以：</p>
-<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod go-rw iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-16.png"></p>
-<p><code>g</code>、<code>o</code> 还有 <code>u</code> 分别表示 group、others 和 user，<code>+</code> 和 <code>-</code> 分别表示增加和去掉相应的权限。</p>
-<h3 id="adduser-和-useradd-的区别是什么？"><a href="#adduser-和-useradd-的区别是什么？" class="headerlink" title="adduser 和 useradd 的区别是什么？"></a><code>adduser</code> 和 <code>useradd</code> 的区别是什么？</h3><p>答：useradd 只创建用户，创建完了用 passwd lilei 去设置新用户的密码。adduser 会创建用户，创建目录，创建密码（提示你设置），做这一系列的操作。其实 useradd、userdel 这类操作更像是一种命令，执行完了就返回。而 adduser 更像是一种程序，需要你输入、确定等一系列操作。</p>
-<p>Linux 还有一些关于隐藏权限和特殊权限的内容，想全面了解 Linux 权限管理这部分内容的用户可以通过其它方式学习。</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>linux学习02 - 基本概念和操作</title>
     <url>/posts/fcb10b52/</url>
     <content><![CDATA[<blockquote>
@@ -3377,6 +3177,206 @@ docker部署</code></pre>
 <p>通常 man 手册中的内容很多，你可能不太容易找到你想要的结果，不过幸运的是你可以在 man 中使用搜索<code>/&lt;你要搜索的关键字&gt;</code>，查找完毕后你可以使用<code>n</code>键切换到下一个关键字所在处，<code>shift+n</code>为上一个关键字所在处。使用<code>Space</code>（空格键）翻页，<code>Enter</code>（回车键）向下滚动一行，或者使用<code>k</code>,<code>j</code>（vim 编辑器的移动键）进行向前向后滚动一行。按下<code>h</code>键为显示使用帮助（因为 man 使用 less 作为阅读器，实为<code>less</code>工具的帮助），按下<code>q</code>退出。</p>
 <p>想要获得更详细的帮助，你还可以使用<code>info</code>命令，不过通常使用<code>man</code>就足够了。如果你知道某个命令的作用，只是想快速查看一些它的某个具体参数的作用，那么你可以使用<code>--help</code>参数，大部分命令都会带有这个参数，如：</p>
 <figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">ls</span> <span class="params">--help</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>linux学习03 - 用户及权限管理</title>
+    <url>/posts/68370406/</url>
+    <content><![CDATA[<blockquote>
+<p>linux学习03：用户及权限管理<br>内容转载自实验楼：<a href="https://www.shiyanlou.com/courses/1/">https://www.shiyanlou.com/courses/1/</a></p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="查看用户"><a href="#查看用户" class="headerlink" title="查看用户"></a>查看用户</h3><p>请打开终端，输入命令：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>who am i</span><br><span class="line"></span><br><span class="line">或者</span><br><span class="line"></span><br><span class="line"><span class="variable">$ </span>who mom likes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-1.png"></p>
+<p> 输出的第一列表示打开当前伪终端的用户的用户名（要查看当前登录用户的用户名，去掉空格直接使用 <code>whoami</code> 即可），第二列的 <code>pts/0</code> 中 <code>pts</code> 表示伪终端，所谓伪是相对于 <code>/dev/tty</code> 设备而言的，还记得上一节讲终端时的那七个使用 <code>[Ctrl]</code>+<code>[Alt]</code>+<code>[F1]～[F7]</code> 进行切换的 <code>/dev/tty</code> 设备么,这是“真终端”，伪终端就是当你在图形用户界面使用 <code>/dev/tty7</code> 时每打开一个终端就会产生一个伪终端， <code>pts/0</code> 后面那个数字就表示打开的伪终端序号，你可以尝试再打开一个终端，然后在里面输入 <code>who am i</code> ，看第二列是不是就变成 <code>pts/1</code> 了，第三列则表示当前伪终端的启动时间。</p>
+<p><code>who</code> 命令其它常用参数</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-a</code></td>
+<td>打印能打印的全部</td>
+</tr>
+<tr>
+<td><code>-d</code></td>
+<td>打印死掉的进程</td>
+</tr>
+<tr>
+<td><code>-m</code></td>
+<td>同<code>am i</code>,<code>mom likes</code></td>
+</tr>
+<tr>
+<td><code>-q</code></td>
+<td>打印当前登录用户数及用户名</td>
+</tr>
+<tr>
+<td><code>-u</code></td>
+<td>打印当前登录用户登录信息</td>
+</tr>
+<tr>
+<td><code>-r</code></td>
+<td>打印运行等级</td>
+</tr>
+</tbody></table>
+<h3 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h3><p>在 Linux 系统里， <code>root</code> 账户拥有整个系统至高无上的权利，比如 新建/添加 用户。</p>
+<blockquote>
+<p>root 权限，系统权限的一种，与 SYSTEM 权限可以理解成一个概念，但高于 Administrator 权限，root 是 Linux 和 UNIX 系统中的超级管理员用户帐户，该帐户拥有整个系统至高无上的权力，所有对象他都可以操作，所以很多黑客在入侵系统的时候，都要把权限提升到 root 权限，用 Windows 的方法理解也就是将自己的非法帐户添加到 Administrators 用户组。更比如安卓操作系统中（基于 Linux 内核）获得 root 权限之后就意味着已经获得了手机的最高权限，这时候你可以对手机中的任何文件（包括系统文件）执行所有增、删、改、查的操作。</p>
+</blockquote>
+<p>我们一般登录系统时都是以普通账户的身份登录的，要创建用户需要 root 权限，这里就要用到 <code>sudo</code> 这个命令了。不过使用这个命令有两个大前提，一是你要知道当前登录用户的密码，二是当前用户必须在 <code>sudo</code> 用户组。shiyanlou 用户也属于 sudo 用户组（稍后会介绍如何查看和添加用户组）。</p>
+<h4 id="su，su-与-sudo"><a href="#su，su-与-sudo" class="headerlink" title="su，su- 与 sudo"></a>su，su- 与 sudo</h4><p><strong>需要注意 Linux 环境下输入密码是不会显示的。</strong></p>
+<p><code>su &lt;user&gt;</code> 可以切换到用户 user，执行时需要输入目标用户的密码，<code>sudo &lt;cmd&gt;</code> 可以以特权级别运行 cmd 命令，需要当前用户属于 sudo 组，且需要输入当前用户的密码。<code>su - &lt;user&gt;</code> 命令也是切换用户，<font color="red">同时环境变量也会跟着改变成目标用户的环境变量。</font></p>
+<p>现在我们新建一个叫 lilei 的用户：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>sudo adduser lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>实验楼的环境目前设置为 shiyanlou 用户执行 sudo 不需要输入密码，通常此处需要按照提示输入 shiyanlou 密码（<strong>Linux 下密码输入是不显示任何内容的</strong>），shiyanlou 用户密码可以通过 <code>sudo passwd shiyanlou</code> 命令进行设置。然后是给 lilei 用户设置密码，后面的选项的一些内容你可以选择直接回车使用默认值：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-2.png"></p>
+<p>这个命令不但可以添加用户到系统，同时也会默认为新用户创建 home 目录：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">ls</span> <span class="string">/home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在你已经创建好一个用户，并且你可以使用你创建的用户登录了，使用如下命令切换登录用户：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su -l lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>输入刚刚设置的 lilei 的密码，然后输入如下命令并查看输出：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> who am i</span><br><span class="line"><span class="variable">$</span> whoami</span><br><span class="line"><span class="variable">$</span> <span class="built_in">pwd</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>退出当前用户跟退出终端一样可以使用 <code>exit</code> 命令或者使用快捷键 <code>Ctrl+d</code>。</p>
+<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>在 Linux 里面每个用户都有一个归属（用户组），用户组简单地理解就是一组用户的集合，它们共享一些资源和权限，同时拥有私有资源，就跟家的形式差不多，你的兄弟姐妹（不同的用户）属于同一个家（用户组），你们可以共同拥有这个家（共享资源），爸妈对待你们都一样（共享权限），你偶尔写写日记，其他人未经允许不能查看（私有资源和权限）。当然一个用户是可以属于多个用户组的，正如你既属于家庭，又属于学校或公司。</p>
+<p>在 Linux 里面如何知道自己属于哪些用户组呢？</p>
+<h4 id="方法一：使用-groups-命令"><a href="#方法一：使用-groups-命令" class="headerlink" title="方法一：使用 groups 命令"></a>方法一：使用 groups 命令</h4><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>groups shiyanlou</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-3.png"></p>
+<p>其中冒号之前表示用户，后面表示该用户所属的用户组。这里可以看到 shiyanlou 用户属于 shiyanlou 用户组，<strong>每次新建用户如果不指定用户组的话，默认会自动创建一个与用户名相同的用户组</strong>（差不多就相当于家长的意思，或者说是老总）。默认情况下在 sudo 用户组里的可以使用 sudo 命令获得 root 权限。shiyanlou 用户也可以使用 sudo 命令，为什么这里没有显示在 sudo 用户组里呢？可以查看下 <code>/etc/sudoers.d/shiyanlou</code> 文件，我们在 <code>/etc/sudoers.d</code> 目录下创建了这个文件，从而给 shiyanlou 用户赋予了 sudo 权限：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-4.png"></p>
+<h4 id="方法二：查看-etc-group-文件"><a href="#方法二：查看-etc-group-文件" class="headerlink" title="方法二：查看 /etc/group 文件"></a>方法二：查看 <code>/etc/group</code> 文件</h4><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> /etc/<span class="built_in">group</span> | <span class="built_in">sort</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>cat</code> 命令用于读取指定文件的内容并打印到终端输出，后面会详细讲它的使用。 <code>| sort</code> 表示将读取的文本进行一个字典排序再输出，然后你将看到如下一堆输出，你可以在最下面看到 shiyanlou 的用户组信息：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-5.png"></p>
+<p>没找到，没关系，你可以使用命令过滤掉一些你不想看到的结果：</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">$ cat /etc/<span class="keyword">group</span> <span class="title">| grep</span> -E <span class="string">&quot;shiyanlou&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-6.png"></p>
+<h5 id="etc-group-文件格式说明"><a href="#etc-group-文件格式说明" class="headerlink" title="/etc/group 文件格式说明"></a><code>/etc/group</code> 文件格式说明</h5><p>/etc/group 的内容包括用户组（Group）、用户组口令、GID 及该用户组所包含的用户（User），每个用户组一条记录。格式如下：</p>
+<blockquote>
+<p>group_name:password:GID:user_list</p>
+</blockquote>
+<p>你看到上面的 password 字段为一个 <code>x</code> 并不是说密码就是它，只是表示密码不可见而已。</p>
+<p>这里需要注意，如果用户的 GID 等于用户组的 GID，那么最后一个字段 <code>user_list</code> 就是空的，比如 shiyanlou 用户，在 <code>/etc/group</code> 中的 shiyanlou 用户组后面是不会显示的。lilei 用户，在 <code>/etc/group</code> 中的 lilei 用户组后面是不会显示的。</p>
+<h5 id="将其它用户加入-sudo-用户组"><a href="#将其它用户加入-sudo-用户组" class="headerlink" title="将其它用户加入 sudo 用户组"></a>将其它用户加入 sudo 用户组</h5><p>默认情况下新创建的用户是不具有 root 权限的，也不在 sudo 用户组，可以让其加入 sudo 用户组从而获取 root 权限：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> su <span class="literal">-l</span> lilei</span><br><span class="line"><span class="variable">$</span> sudo <span class="built_in">ls</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>会提示 lilei 不在 sudoers 文件中，意思就是 lilei 不在 sudo 用户组中，至于 sudoers 文件（/etc/sudoers）你现在最好不要动它，操作不慎会导致比较麻烦的后果。</p>
+<p>使用 <code>usermod</code> 命令可以为用户添加用户组，同样使用该命令你必需有 root 权限，你可以直接使用 root 用户为其它用户添加用户组，或者用其它已经在 sudo 用户组的用户使用 sudo 命令获取权限来执行该命令。</p>
+<p>这里我用 shiyanlou 用户执行 sudo 命令将 lilei 添加到 sudo 用户组，让它也可以使用 sudo 命令获得 root 权限：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>su shiyanlou  <span class="comment"># 注意 Linux 上输入密码是不会显示的</span></span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"><span class="variable">$ </span>sudo usermod -G sudo lilei</span><br><span class="line"><span class="variable">$ </span>groups lilei</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后你再切换回 lilei 用户，现在就可以使用 sudo 获取 root 权限了。</p>
+<h3 id="删除用户"><a href="#删除用户" class="headerlink" title="删除用户"></a>删除用户</h3><p>删除用户是很简单的事：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">$ sudo deluser lilei --<span class="built_in">remove</span>-<span class="built_in">home</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-7.png"></p>
+<h3 id="linux文件权限"><a href="#linux文件权限" class="headerlink" title="linux文件权限"></a>linux文件权限</h3><p>文件权限就是文件的访问控制权限，即哪些用户和组群可以访问文件以及可以执行什么样的操作。</p>
+<p>Unix/Linux系统是一个典型的多用户系统，不同的用户处于不同的地位，对文件和目录有不同的访问权限。为了保护系统的安全性，Unix/Linux系统除了对用户权限作了严格的界定外，还在用户身份认证、访问控制、传输安全、文件读写权限等方面作了周密的控制。</p>
+<p>在 Unix/Linux中的每一个文件或目录都包含有访问权限，这些访问权限决定了谁能访问和如何访问这些文件和目录。</p>
+<hr>
+
+<p>我们之前已经很多次用到<code>ls</code>命令了，如你所见，我们用它来列出并显示当前目录下的文件，当然这是在不带任何参数的情况下，它能做的当然不止这么多，现在我们就要用它来查看文件权限。</p>
+<p>使用较长格式列出文件：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-l</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-8.png"></p>
+<p>你可能除了知道最后面那一项是文件名之外，其它项就不太清楚了，那么到底是什么意思呢：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-9.png"></p>
+<p>可能你还是不太明白，比如第一项文件类型和权限那一堆东西具体指什么，链接又是什么，何为最后修改时间，下面一一道来：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-10.png"></p>
+<ul>
+<li>  文件类型</li>
+</ul>
+<blockquote>
+<p>关于文件类型，这里有一点你必需时刻牢记 <strong>Linux 里面一切皆文件</strong>，正因为这一点才有了设备文件（ <code>/dev</code> 目录下有各种设备文件，大都跟具体的硬件设备相关）这一说。 <code>socket</code>：网络套接字，具体是什么，感兴趣的用户可以自己去了解或期待实验楼的后续相关课程。<code>pipe</code> 管道，这个东西很重要，我们以后将会讨论到，这里你先知道有它的存在即可。<code>软链接文件</code>：链接文件是分为两种的，另一种当然是“硬链接”（硬链接不常用，具体内容不作为本课程讨论重点，而软链接等同于 Windows 上的快捷方式,你记住这一点就够了）。</p>
+</blockquote>
+<ul>
+<li>  文件权限</li>
+</ul>
+<blockquote>
+<p>读权限，表示你可以使用 <code>cat &lt;file name&gt;</code> 之类的命令来读取某个文件的内容；写权限，表示你可以编辑和修改某个文件； 执行权限，通常指可以运行的二进制程序文件或者脚本文件，如同 Windows 上的 <code>exe</code> 后缀的文件，不过 Linux 上不是通过文件后缀名来区分文件的类型。你需要注意的一点是，<strong>一个目录同时具有读权限和执行权限才可以打开并查看内部文件，而一个目录要有写权限才允许在其中创建其它文件</strong>，这是因为目录文件实际保存着该目录里面的文件的列表等信息。</p>
+</blockquote>
+<p>所有者权限，这一点相信你应该明白了，至于所属用户组权限，是指你所在的用户组中的所有其它用户对于该文件的权限，比如，你有一个 iPad，那么这个用户组权限就决定了你的兄弟姐妹有没有权限使用它破坏它和占有它。</p>
+<ul>
+<li>  链接数</li>
+</ul>
+<blockquote>
+<p>链接到该文件所在的 inode 结点的文件名数目（关于这个概念涉及到 Linux 文件系统的相关概念知识，不在本课程的讨论范围，感兴趣的用户可以自己去了解）。</p>
+</blockquote>
+<ul>
+<li>  文件大小</li>
+</ul>
+<blockquote>
+<p>以 inode 结点大小为单位来表示的文件大小，你可以给 ls 加上 <code>-lh</code> 参数来更直观的查看文件的大小。</p>
+</blockquote>
+<p>明白了文件权限的一些概念，我们顺带补充一下关于 <code>ls</code> 命令的一些其它常用的用法：</p>
+<ul>
+<li>  显示除了 <code>.</code>（当前目录）和 <code>..</code>（上一级目录）之外的所有文件，包括隐藏文件（Linux 下以 <code>.</code> 开头的文件为隐藏文件）。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-A</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-11.png"></p>
+<p>当然，你可以同时使用 <code>-A</code> 和 <code>-l</code> 参数：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-Al</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看某一个目录的完整属性，而不是显示目录里面的文件属性：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-dl</span> &lt;目录名&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>  显示所有文件大小，并以普通人类能看懂的方式呈现：</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-AsSh</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中小 s 为显示文件大小，大 S 为按文件大小排序，若需要知道如何按其它方式排序，请使用“man”命令查询。</p>
+<h3 id="变更文件所有者"><a href="#变更文件所有者" class="headerlink" title="变更文件所有者"></a>变更文件所有者</h3><blockquote>
+<p>若前面已经执行删除lilei用户的命令，这里重新创建一下。</p>
+</blockquote>
+<p>假设目前是 lilei 用户登录，新建一个文件，命名为 “ iphone6 ”：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 注意当前的用户必须是 lilei</span></span><br><span class="line"><span class="comment"># 如果是 shiyanlou 用户需要切换到 lilei（如果之前已经删除需要重新创建下）</span></span><br><span class="line"><span class="variable">$</span> su lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> touch iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可见文件所有者是 lilei ：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-12.png"></p>
+<p>现在，换回到 shiyanlou 用户身份，使用以下命令变更文件所有者为 shiyanlou ：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要切换到 shiyanlou 用户执行以下操作</span></span><br><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> /home/lilei</span><br><span class="line"><span class="variable">$</span> <span class="built_in">ls</span> iphone6</span><br><span class="line"><span class="variable">$</span> sudo chown shiyanlou iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在查看，发现 文件所有者成功修改为 shiyanlou ：<br><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-13.png"></p>
+<h3 id="修改文件权限"><a href="#修改文件权限" class="headerlink" title="修改文件权限"></a>修改文件权限</h3><p>如果你有一个自己的文件不想被其他用户读、写、执行，那么就需要对文件的权限做修改，这里有两种方式：</p>
+<ul>
+<li>  方式一：二进制数字表示</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-14.png"></p>
+<p>每个文件的三组权限（拥有者，所属用户组，其他用户，<strong>记住这个顺序是一定的</strong>）对应一个 “ rwx “，也就是一个 “ 7 ” ，所以如果我要将文件“ iphone6 ”的权限改为只有我自己可以用那么就这样：</p>
+<p>为了演示，我先在文件里加点内容：</p>
+<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$ echo <span class="string">&quot;echo <span class="subst">\&quot;</span>hello shiyanlou<span class="subst">\&quot;</span>&quot;</span> &gt; iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后修改权限：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod <span class="number">600</span> iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在，其他用户已经不能读这个“ iphone6 ”文件了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-15.png"></p>
+<ul>
+<li>  方式二：加减赋值操作</li>
+</ul>
+<p>完成上述相同的效果，你可以：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>chmod go-rw iphone6</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/34-16.png"></p>
+<p><code>g</code>、<code>o</code> 还有 <code>u</code> 分别表示 group、others 和 user，<code>+</code> 和 <code>-</code> 分别表示增加和去掉相应的权限。</p>
+<h3 id="adduser-和-useradd-的区别是什么？"><a href="#adduser-和-useradd-的区别是什么？" class="headerlink" title="adduser 和 useradd 的区别是什么？"></a><code>adduser</code> 和 <code>useradd</code> 的区别是什么？</h3><p>答：useradd 只创建用户，创建完了用 passwd lilei 去设置新用户的密码。adduser 会创建用户，创建目录，创建密码（提示你设置），做这一系列的操作。其实 useradd、userdel 这类操作更像是一种命令，执行完了就返回。而 adduser 更像是一种程序，需要你输入、确定等一系列操作。</p>
+<p>Linux 还有一些关于隐藏权限和特殊权限的内容，想全面了解 Linux 权限管理这部分内容的用户可以通过其它方式学习。</p>
+]]></content>
       <categories>
         <category>linux</category>
       </categories>
@@ -3606,51 +3606,6 @@ docker部署</code></pre>
       </categories>
   </entry>
   <entry>
-    <title>npm命令总结</title>
-    <url>/posts/dj8392A/</url>
-    <content><![CDATA[<blockquote>
-<p>总结npm命令</p>
-</blockquote>
-<a id="more"></a>
-<h3 id="npm安装模块"><a href="#npm安装模块" class="headerlink" title="npm安装模块"></a>npm安装模块</h3><ul>
-<li>【npm install xxx】利用 npm 安装xxx模块到当前命令行所在目录；</li>
-<li>【npm install -g xxx】利用npm安装全局模块xxx；</li>
-<li>【npm install xxx】安装但不写入package.json；</li>
-<li>【npm install xxx –save】 安装并写入package.json的”dependencies”中；</li>
-<li>【npm install xxx –save-dev】安装并写入package.json的”devDependencies”中。</li>
-</ul>
-<h3 id="npm-删除模块"><a href="#npm-删除模块" class="headerlink" title="npm 删除模块"></a>npm 删除模块</h3><ul>
-<li>【npm uninstall xxx】删除xxx模块；</li>
-<li>【npm uninstall -g xxx】删除全局模块xxx</li>
-</ul>
-<h3 id="查看npm全局安装过哪些模块"><a href="#查看npm全局安装过哪些模块" class="headerlink" title="查看npm全局安装过哪些模块"></a>查看npm全局安装过哪些模块</h3><ul>
-<li>【npm list -g –depth 0】</li>
-</ul>
-<h3 id="查看npm全局配置"><a href="#查看npm全局配置" class="headerlink" title="查看npm全局配置"></a>查看npm全局配置</h3><ul>
-<li>【npm config ls】</li>
-</ul>
-<h3 id="修改npm全局安装路径"><a href="#修改npm全局安装路径" class="headerlink" title="修改npm全局安装路径"></a>修改npm全局安装路径</h3><ul>
-<li>【npm config set prefix *】 如：npm config set prefix “D:\Test”</li>
-</ul>
-<h3 id="npm设置代理"><a href="#npm设置代理" class="headerlink" title="npm设置代理"></a>npm设置代理</h3><ul>
-<li>【npm config set proxy=<a href="http://127.0.0.1:8087】">http://127.0.0.1:8087】</a></li>
-<li>【npm config set registry=<a href="http://registry.npmjs.org】/">http://registry.npmjs.org】</a></li>
-<li>【npm config delete proxy】</li>
-<li>【npm config delete https-proxy】</li>
-</ul>
-<h3 id="win10关闭node进程"><a href="#win10关闭node进程" class="headerlink" title="win10关闭node进程"></a>win10关闭node进程</h3><ul>
-<li>【taskkill /F  /IM node.exe】 win10中git终端ctrl+c无法关闭node进程的解决方案</li>
-</ul>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>命令总结</tag>
-        <tag>npm</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux添加虚拟内存swap</title>
     <url>/posts/218b6e0a/</url>
     <content><![CDATA[<blockquote>
@@ -3695,6 +3650,51 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>npm命令总结</title>
+    <url>/posts/dj8392A/</url>
+    <content><![CDATA[<blockquote>
+<p>总结npm命令</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="npm安装模块"><a href="#npm安装模块" class="headerlink" title="npm安装模块"></a>npm安装模块</h3><ul>
+<li>【npm install xxx】利用 npm 安装xxx模块到当前命令行所在目录；</li>
+<li>【npm install -g xxx】利用npm安装全局模块xxx；</li>
+<li>【npm install xxx】安装但不写入package.json；</li>
+<li>【npm install xxx –save】 安装并写入package.json的”dependencies”中；</li>
+<li>【npm install xxx –save-dev】安装并写入package.json的”devDependencies”中。</li>
+</ul>
+<h3 id="npm-删除模块"><a href="#npm-删除模块" class="headerlink" title="npm 删除模块"></a>npm 删除模块</h3><ul>
+<li>【npm uninstall xxx】删除xxx模块；</li>
+<li>【npm uninstall -g xxx】删除全局模块xxx</li>
+</ul>
+<h3 id="查看npm全局安装过哪些模块"><a href="#查看npm全局安装过哪些模块" class="headerlink" title="查看npm全局安装过哪些模块"></a>查看npm全局安装过哪些模块</h3><ul>
+<li>【npm list -g –depth 0】</li>
+</ul>
+<h3 id="查看npm全局配置"><a href="#查看npm全局配置" class="headerlink" title="查看npm全局配置"></a>查看npm全局配置</h3><ul>
+<li>【npm config ls】</li>
+</ul>
+<h3 id="修改npm全局安装路径"><a href="#修改npm全局安装路径" class="headerlink" title="修改npm全局安装路径"></a>修改npm全局安装路径</h3><ul>
+<li>【npm config set prefix *】 如：npm config set prefix “D:\Test”</li>
+</ul>
+<h3 id="npm设置代理"><a href="#npm设置代理" class="headerlink" title="npm设置代理"></a>npm设置代理</h3><ul>
+<li>【npm config set proxy=<a href="http://127.0.0.1:8087】">http://127.0.0.1:8087】</a></li>
+<li>【npm config set registry=<a href="http://registry.npmjs.org】/">http://registry.npmjs.org】</a></li>
+<li>【npm config delete proxy】</li>
+<li>【npm config delete https-proxy】</li>
+</ul>
+<h3 id="win10关闭node进程"><a href="#win10关闭node进程" class="headerlink" title="win10关闭node进程"></a>win10关闭node进程</h3><ul>
+<li>【taskkill /F  /IM node.exe】 win10中git终端ctrl+c无法关闭node进程的解决方案</li>
+</ul>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>命令总结</tag>
+        <tag>npm</tag>
       </tags>
   </entry>
   <entry>
@@ -3750,37 +3750,6 @@ docker部署</code></pre>
       </categories>
       <tags>
         <tag>python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>unix网络编程2-IPC-0-前言</title>
-    <url>/posts/3b3b119c/</url>
-    <content><![CDATA[<p>由于本学期操作系统课设选择了linux的进程通信，准备学习《unix网络编程卷2: 进程间通信》。这门书英文版为《UNIX NETWORK Programming, volume 2, Second Edition: Interprocss Communications》，该版出版于2015年。</p>
-<a id="more"></a>
-
-<p>目前不太了解linux和unix在IPC这一部分的区别，希望大致相同吧，准备写博客记录这些知识。</p>
-<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>大部分程序都涉及到进程间通信（Interprocess Communication, IPC），这是受这个设计原则影响的结果：<strong>把应用程序设计为一组相互通信的小片段比将其设计为单个庞大的程序更好</strong>。</p>
-<p>从历史角度看，应用程序有以下几种构建方法：</p>
-<p>(1) 用一个庞大的的程序完成全部工作。程序的各部分实现为<strong>函数</strong>，函数之间通过<strong>参数</strong>、<strong>返回值</strong>和<strong>全局变量</strong>来交换 信息。<br>(2) 使用多个程序(个人理解为进程)，程序之间用某种形式的IPC通信。许多标准的unix工具都是按照这种风格设计的，它们使用shell管道（IPC的一种形式）在程序之间的传递信息。</p>
-<p>(3) 使用一个包含多个线程的程序，线程之间通过某种IPC（假定认为是在进程之间进行的）</p>
-<div class="note default"><p>还可以把后两种设计形式结合起来：用多个进程实现，每个进程包含几个线程，进程内部线程之间可以通信，不同进程之间也可以通信。</p>
-</div>
-
-<h1 id="本书主要描述的IPC形式"><a href="#本书主要描述的IPC形式" class="headerlink" title="本书主要描述的IPC形式"></a>本书主要描述的IPC形式</h1><p>IPC可以分为非网络IPC（本书第2卷）和网络IPC（本书第1卷）。本书主要讲述非网络IPC，详细描述了以下4种不同的IPC形式：</p>
-<ul>
-<li>消息传递（管道、FIFO和消息队列）</li>
-<li>同步（互斥量、条件变量、读写锁、文件与记录锁、信号量）</li>
-<li>共享内存（匿名的和有名的）</li>
-<li>远程过程调用（Solaris门和Sun RPC）</li>
-</ul>
-<h1 id="代码下载"><a href="#代码下载" class="headerlink" title="代码下载"></a>代码下载</h1><p><a href="https://www.ituring.com.cn/book/156">https://www.ituring.com.cn/book/156</a></p>
-<h1 id="Linux的进程通信"><a href="#Linux的进程通信" class="headerlink" title="Linux的进程通信"></a>Linux的进程通信</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-07/20200731220232.png"></p>
-]]></content>
-      <categories>
-        <category>unix网络编程2</category>
-      </categories>
-      <tags>
-        <tag>unix - IPC</tag>
       </tags>
   </entry>
   <entry>
@@ -3886,6 +3855,37 @@ docker部署</code></pre>
       <tags>
         <tag>unix</tag>
         <tag>IPC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>unix网络编程2-IPC-0-前言</title>
+    <url>/posts/3b3b119c/</url>
+    <content><![CDATA[<p>由于本学期操作系统课设选择了linux的进程通信，准备学习《unix网络编程卷2: 进程间通信》。这门书英文版为《UNIX NETWORK Programming, volume 2, Second Edition: Interprocss Communications》，该版出版于2015年。</p>
+<a id="more"></a>
+
+<p>目前不太了解linux和unix在IPC这一部分的区别，希望大致相同吧，准备写博客记录这些知识。</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>大部分程序都涉及到进程间通信（Interprocess Communication, IPC），这是受这个设计原则影响的结果：<strong>把应用程序设计为一组相互通信的小片段比将其设计为单个庞大的程序更好</strong>。</p>
+<p>从历史角度看，应用程序有以下几种构建方法：</p>
+<p>(1) 用一个庞大的的程序完成全部工作。程序的各部分实现为<strong>函数</strong>，函数之间通过<strong>参数</strong>、<strong>返回值</strong>和<strong>全局变量</strong>来交换 信息。<br>(2) 使用多个程序(个人理解为进程)，程序之间用某种形式的IPC通信。许多标准的unix工具都是按照这种风格设计的，它们使用shell管道（IPC的一种形式）在程序之间的传递信息。</p>
+<p>(3) 使用一个包含多个线程的程序，线程之间通过某种IPC（假定认为是在进程之间进行的）</p>
+<div class="note default"><p>还可以把后两种设计形式结合起来：用多个进程实现，每个进程包含几个线程，进程内部线程之间可以通信，不同进程之间也可以通信。</p>
+</div>
+
+<h1 id="本书主要描述的IPC形式"><a href="#本书主要描述的IPC形式" class="headerlink" title="本书主要描述的IPC形式"></a>本书主要描述的IPC形式</h1><p>IPC可以分为非网络IPC（本书第2卷）和网络IPC（本书第1卷）。本书主要讲述非网络IPC，详细描述了以下4种不同的IPC形式：</p>
+<ul>
+<li>消息传递（管道、FIFO和消息队列）</li>
+<li>同步（互斥量、条件变量、读写锁、文件与记录锁、信号量）</li>
+<li>共享内存（匿名的和有名的）</li>
+<li>远程过程调用（Solaris门和Sun RPC）</li>
+</ul>
+<h1 id="代码下载"><a href="#代码下载" class="headerlink" title="代码下载"></a>代码下载</h1><p><a href="https://www.ituring.com.cn/book/156">https://www.ituring.com.cn/book/156</a></p>
+<h1 id="Linux的进程通信"><a href="#Linux的进程通信" class="headerlink" title="Linux的进程通信"></a>Linux的进程通信</h1><p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-07/20200731220232.png"></p>
+]]></content>
+      <categories>
+        <category>unix网络编程2</category>
+      </categories>
+      <tags>
+        <tag>unix - IPC</tag>
       </tags>
   </entry>
   <entry>
@@ -4507,7 +4507,7 @@ docker部署</code></pre>
 
 <p>博客园由于主题太多，无法使用统一方法打印。</p>
 <p>脚本内容：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ==UserScript==</span></span><br><span class="line"><span class="comment">// @name         打印CSDN、知乎、简书、SF文章</span></span><br><span class="line"><span class="comment">// @namespace    http://tampermonkey.net/</span></span><br><span class="line"><span class="comment">// @version      0.1</span></span><br><span class="line"><span class="comment">// @description  CSDN、知乎、简书、SegmentFault</span></span><br><span class="line"><span class="comment">// @author       kervias</span></span><br><span class="line"><span class="comment">// @match        https://zhuanlan.zhihu.com/p/*</span></span><br><span class="line"><span class="comment">// @match        https://blog.csdn.net/*/article/details/*</span></span><br><span class="line"><span class="comment">// @match        https://www.jianshu.com/p/*</span></span><br><span class="line"><span class="comment">// @match        https://segmentfault.com/a/*</span></span><br><span class="line"><span class="comment">// @require      https://cdn.bootcss.com/jquery/3.5.1/jquery.min.js</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @grant        unsafeWindow</span></span><br><span class="line"><span class="comment">// @grant        GM_openInTab</span></span><br><span class="line"><span class="comment">// @grant        GM.openInTab</span></span><br><span class="line"><span class="comment">// @grant        GM_getValue</span></span><br><span class="line"><span class="comment">// @grant        GM.getValue</span></span><br><span class="line"><span class="comment">// @grant        GM_setValue</span></span><br><span class="line"><span class="comment">// @grant        GM.setValue</span></span><br><span class="line"><span class="comment">// @grant        GM_xmlhttpRequest</span></span><br><span class="line"><span class="comment">// @grant        GM.xmlHttpRequest</span></span><br><span class="line"><span class="comment">// @grant        GM_registerMenuCommand</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ==/UserScript==</span></span><br><span class="line"></span><br><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"><span class="meta">    &#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> $ = $ || <span class="built_in">window</span>.$;</span><br><span class="line">    <span class="keyword">var</span> CSDN_PRINT = <span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;</span><br><span class="line">        $(<span class="string">&quot;#side&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;#comment_title, #comment_list, #comment_bar, #comment_form, .announce, #ad_cen, #ad_bot&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.nav_top_2011, #header, #navigator&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.csdn-side-toolbar,.template-box,.reward-user-box&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.p4course_target, .comment-box, .recommend-box, #csdn-toolbar, #tool-box,#dmp_ad_58&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;aside&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.tool-box&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;main&quot;</span>).css(<span class="string">&#x27;display&#x27;</span>,<span class="string">&#x27;content&#x27;</span>);</span><br><span class="line">        $(<span class="string">&quot;.left-toolbox&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;#mainBox&quot;</span>).removeClass();</span><br><span class="line">        $(<span class="string">&quot;#mainBox&quot;</span>).parent().removeClass();</span><br><span class="line">        $(<span class="string">&#x27;body&#x27;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;position: absolute;left: 0px;right: 0px;background-color: white&quot;</span>)</span><br><span class="line">        $(<span class="string">&#x27;main&#x27;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;position: absolute;left: 0px;right: 0px;margin-bottom: 0px&quot;</span>);</span><br><span class="line">        $(<span class="string">&#x27;main div.blog-content-box&#x27;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;padding-bottom: 0px&quot;</span>);</span><br><span class="line">        $(<span class="string">&quot;.blog-footer-bottom&quot;</span>).remove();</span><br><span class="line">        <span class="comment">//$(&#x27;.htmledit_views p&#x27;).remove();</span></span><br><span class="line">        <span class="built_in">window</span>.print();</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> ZHIHU_PRINT = <span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;</span><br><span class="line">        $(<span class="string">&quot;.ColumnPageHeader&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.PostIndex-Contributions&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.Recommendations-Main&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.Comments-container&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.ContentItem-actions&quot;</span>).parent().remove();</span><br><span class="line">        $(<span class="string">&quot;.Zi--BackToTop&quot;</span>).remove();</span><br><span class="line">        <span class="built_in">window</span>.print();</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> JIANSHU_PRINT = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        $(<span class="string">&quot;header&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;aside&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;footer, footer+div&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;#note-page-comment, section:gt(0), [role=&#x27;button&#x27;], .ant-back-top, .anticon-caret-up&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;svg&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;section&quot;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;position: absolute;left: 0px;right: 0px;margin-bottom: 0px&quot;</span>);</span><br><span class="line">        $(<span class="string">&quot;article&quot;</span>).nextAll().remove();</span><br><span class="line">        <span class="built_in">window</span>.print();</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> SF_PRINT = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        $(<span class="string">&quot;#sf-header, #comment-area, footer, .text-center, #fixedTools&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;article&quot;</span>).nextAll().remove();</span><br><span class="line">        $(<span class="string">&quot;div.row&quot;</span>).children().eq(<span class="number">1</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;div.row &gt; div &gt; div&quot;</span>).eq(<span class="number">0</span>).nextAll().remove();</span><br><span class="line">        $(<span class="string">&quot;#sf-article_title h5&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;div.row&quot;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;position: absolute;left: 0px;right: 0px;margin-bottom: 0px&quot;</span>);</span><br><span class="line">        <span class="built_in">window</span>.print();</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> domain = <span class="built_in">document</span>.domain;</span><br><span class="line">    <span class="keyword">if</span>(domain.endsWith(<span class="string">&#x27;zhihu.com&#x27;</span>))&#123; <span class="comment">// 双击标题打印文章</span></span><br><span class="line">        $(<span class="string">&quot;.Post-Title&quot;</span>).on(<span class="string">&#x27;dblclick&#x27;</span>,<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">            ZHIHU_PRINT();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(domain.endsWith(<span class="string">&#x27;csdn.net&#x27;</span>))&#123; <span class="comment">// 双击标题打印文章</span></span><br><span class="line">        $(<span class="string">&quot;#articleContentId&quot;</span>).on(<span class="string">&#x27;dblclick&#x27;</span>,<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">            CSDN_PRINT();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(domain.endsWith(<span class="string">&#x27;jianshu.com&#x27;</span>))&#123; <span class="comment">// 双击标题打印文章</span></span><br><span class="line">        $(<span class="string">&quot;section &gt; h1&quot;</span>).on(<span class="string">&#x27;dblclick&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">           JIANSHU_PRINT();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(domain.endsWith(<span class="string">&#x27;segmentfault.com&#x27;</span>))&#123; <span class="comment">// 点击标题后按钮打印文章</span></span><br><span class="line">        <span class="keyword">var</span> cont = $(<span class="string">&#x27;&lt;h5 style=&quot;display:inline&quot;&gt;&lt;button id=&quot;tm_print&quot;&gt;打印&lt;/button&gt;&lt;/h5&gt;&#x27;</span>);</span><br><span class="line">        $(<span class="string">&quot;#sf-article_title&quot;</span>).append(cont);</span><br><span class="line">        $(<span class="string">&quot;#sf-article_title h5&quot;</span>).on(<span class="string">&#x27;click&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">           SF_PRINT();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ==UserScript==</span></span><br><span class="line"><span class="comment">// @name         打印CSDN、知乎、简书、SF文章</span></span><br><span class="line"><span class="comment">// @namespace    http://tampermonkey.net/</span></span><br><span class="line"><span class="comment">// @version      0.1</span></span><br><span class="line"><span class="comment">// @description  CSDN、知乎、简书、SegmentFault</span></span><br><span class="line"><span class="comment">// @author       kervias</span></span><br><span class="line"><span class="comment">// @match        https://zhuanlan.zhihu.com/p/*</span></span><br><span class="line"><span class="comment">// @match        https://blog.csdn.net/*/article/details/*</span></span><br><span class="line"><span class="comment">// @match        https://csdnnews.blog.csdn.net/article/details/*</span></span><br><span class="line"><span class="comment">// @match        https://www.jianshu.com/p/*</span></span><br><span class="line"><span class="comment">// @match        https://segmentfault.com/a/*</span></span><br><span class="line"><span class="comment">// @require      https://cdn.bootcss.com/jquery/3.5.1/jquery.min.js</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @grant        unsafeWindow</span></span><br><span class="line"><span class="comment">// @grant        GM_openInTab</span></span><br><span class="line"><span class="comment">// @grant        GM.openInTab</span></span><br><span class="line"><span class="comment">// @grant        GM_getValue</span></span><br><span class="line"><span class="comment">// @grant        GM.getValue</span></span><br><span class="line"><span class="comment">// @grant        GM_setValue</span></span><br><span class="line"><span class="comment">// @grant        GM.setValue</span></span><br><span class="line"><span class="comment">// @grant        GM_xmlhttpRequest</span></span><br><span class="line"><span class="comment">// @grant        GM.xmlHttpRequest</span></span><br><span class="line"><span class="comment">// @grant        GM_registerMenuCommand</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ==/UserScript==</span></span><br><span class="line"></span><br><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"><span class="meta">    &#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> $ = $ || <span class="built_in">window</span>.$;</span><br><span class="line">    <span class="keyword">var</span> CSDN_PRINT = <span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;</span><br><span class="line">        $(<span class="string">&quot;#side&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;#comment_title, #comment_list, #comment_bar, #comment_form, .announce, #ad_cen, #ad_bot&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.nav_top_2011, #header, #navigator&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.csdn-side-toolbar,.template-box,.reward-user-box&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.p4course_target, .comment-box, .recommend-box, #csdn-toolbar, #tool-box,#dmp_ad_58&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;aside&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.tool-box&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;main&quot;</span>).css(<span class="string">&#x27;display&#x27;</span>,<span class="string">&#x27;content&#x27;</span>);</span><br><span class="line">        $(<span class="string">&quot;.left-toolbox&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;#mainBox&quot;</span>).removeClass();</span><br><span class="line">        $(<span class="string">&quot;#mainBox&quot;</span>).parent().removeClass();</span><br><span class="line">        $(<span class="string">&#x27;body&#x27;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;position: absolute;left: 0px;right: 0px;background-color: white&quot;</span>)</span><br><span class="line">        $(<span class="string">&#x27;main&#x27;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;position: absolute;left: 0px;right: 0px;margin-bottom: 0px&quot;</span>);</span><br><span class="line">        $(<span class="string">&#x27;main div.blog-content-box&#x27;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;padding-bottom: 0px&quot;</span>);</span><br><span class="line">        $(<span class="string">&quot;.blog-footer-bottom&quot;</span>).remove();</span><br><span class="line">        <span class="comment">//$(&#x27;.htmledit_views p&#x27;).remove();</span></span><br><span class="line">        <span class="built_in">window</span>.print();</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> ZHIHU_PRINT = <span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;</span><br><span class="line">        $(<span class="string">&quot;.ColumnPageHeader&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.PostIndex-Contributions&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.Recommendations-Main&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.Comments-container&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;.ContentItem-actions&quot;</span>).parent().remove();</span><br><span class="line">        $(<span class="string">&quot;.Zi--BackToTop&quot;</span>).remove();</span><br><span class="line">        <span class="built_in">window</span>.print();</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> JIANSHU_PRINT = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        $(<span class="string">&quot;header&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;aside&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;footer, footer+div&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;#note-page-comment, section:gt(0), [role=&#x27;button&#x27;], .ant-back-top, .anticon-caret-up&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;svg&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;section&quot;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;position: absolute;left: 0px;right: 0px;margin-bottom: 0px&quot;</span>);</span><br><span class="line">        $(<span class="string">&quot;article&quot;</span>).nextAll().remove();</span><br><span class="line">        <span class="built_in">window</span>.print();</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> SF_PRINT = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        $(<span class="string">&quot;#sf-header, #comment-area, footer, .text-center, #fixedTools&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;article&quot;</span>).nextAll().remove();</span><br><span class="line">        $(<span class="string">&quot;div.row&quot;</span>).children().eq(<span class="number">1</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;div.row &gt; div &gt; div&quot;</span>).eq(<span class="number">0</span>).nextAll().remove();</span><br><span class="line">        $(<span class="string">&quot;#sf-article_title h5&quot;</span>).remove();</span><br><span class="line">        $(<span class="string">&quot;div.row&quot;</span>).attr(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;position: absolute;left: 0px;right: 0px;margin-bottom: 0px&quot;</span>);</span><br><span class="line">        <span class="built_in">window</span>.print();</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> domain = <span class="built_in">document</span>.domain;</span><br><span class="line">    <span class="keyword">if</span>(domain.endsWith(<span class="string">&#x27;zhihu.com&#x27;</span>))&#123; <span class="comment">// 双击标题打印文章</span></span><br><span class="line">        $(<span class="string">&quot;.Post-Title&quot;</span>).on(<span class="string">&#x27;dblclick&#x27;</span>,<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">            ZHIHU_PRINT();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(domain.endsWith(<span class="string">&#x27;csdn.net&#x27;</span>))&#123; <span class="comment">// 双击标题打印文章</span></span><br><span class="line">        $(<span class="string">&quot;#articleContentId&quot;</span>).on(<span class="string">&#x27;dblclick&#x27;</span>,<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">            CSDN_PRINT();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(domain.endsWith(<span class="string">&#x27;jianshu.com&#x27;</span>))&#123; <span class="comment">// 双击标题打印文章</span></span><br><span class="line">        $(<span class="string">&quot;section &gt; h1&quot;</span>).on(<span class="string">&#x27;dblclick&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">           JIANSHU_PRINT();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(domain.endsWith(<span class="string">&#x27;segmentfault.com&#x27;</span>))&#123; <span class="comment">// 点击标题后按钮打印文章</span></span><br><span class="line">        <span class="keyword">var</span> cont = $(<span class="string">&#x27;&lt;h5 style=&quot;display:inline&quot;&gt;&lt;button id=&quot;tm_print&quot;&gt;打印&lt;/button&gt;&lt;/h5&gt;&#x27;</span>);</span><br><span class="line">        $(<span class="string">&quot;#sf-article_title&quot;</span>).append(cont);</span><br><span class="line">        $(<span class="string">&quot;#sf-article_title h5&quot;</span>).on(<span class="string">&#x27;click&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">           SF_PRINT();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
@@ -4516,44 +4516,6 @@ docker部署</code></pre>
       <tags>
         <tag>Tampermonkey</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>解决Unix-like、Windows系统之间文本换行符不同的问题</title>
-    <url>/posts/8af9e030/</url>
-    <content><![CDATA[<blockquote>
-<p>参考博客 :point_right: <a href="https://sphenginx.github.io/2014/12/24/CRLF-in-Unix-like_Windows-os/">网址</a></p>
-</blockquote>
-<a id="more"></a>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>\r是回车符,\n是换行符，各个系统的换行标志：</p>
-<blockquote>
-<p>win 用 \r\n<br>linux/unix 用 \n<br>Mac OS 用 \r</p>
-</blockquote>
-<p>CR用符号’\r’表示, 十进制ASCII代码是13, 十六进制代码为OxOD<br>LF使用’\n’符号表示, ASCII代码是10, 十六制为0x0A<br>所以：<br>Windows下用的是OAOD，即CR&amp;LF，<br>linux/unix用的是OA，即LF<br>MacOS用的是OD，即CR</p>
-<h2 id="CRLF来历"><a href="#CRLF来历" class="headerlink" title="CRLF来历"></a>CRLF来历</h2><p>计算机还没有出现之前，有一种叫做电传打字机（Teletype Model 33）的玩意，每秒钟可以打10个字符。但是它有一个问题，就是打完一行换行的时候，要用去0.2秒，正好可以打两个字符。要是在这0.2秒里面，又有新的字符传过来，那么这个字符将丢失。</p>
-<p>于是，研制人员想了个办法解决这个问题，就是在每行后面加两个表示结束的字符。一个叫做“回车”，告诉打字机把打印头定位在左边界；另一个叫做“换行”，告诉打字机把纸向下移一行。这就是“换行”和“回车”的来历，从它们的英语名字上也可以看出一二。</p>
-<p>后来，计算机发明了，这两个概念也就被般到了计算机上。那时，存储器很贵，一些科学家认为在每行结尾加两个字符太浪费了，加一个就可以。于是，就出现了分歧。Unix 系统里，每行结尾只有“&lt;换行&gt;”，即“\n”；Windows系统里面，每行结尾是“&lt;回车&gt;&lt;换行&gt;”，即“ \r\n”；Mac系统里，每行结尾是“&lt;回车&gt;”。一个直接后果是，Unix/Mac系统下的文件在Windows里打开的话，所有文字会变成一行；而Windows里的文件在Unix/Mac下打开的话，在每行的结尾可能会多出一个^M符号。</p>
-<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="问题一：文本类型文件互转"><a href="#问题一：文本类型文件互转" class="headerlink" title="问题一：文本类型文件互转"></a>问题一：文本类型文件互转</h3><blockquote>
-<p>包括 <code>txt</code> <code>sh</code>等文件</p>
-</blockquote>
-<p><strong>方法一</strong><br>使用<code>notepad++</code>中的格式转换功能，见图</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172001.png"></p>
-<p><strong>方法二</strong><br>针对<code>sh</code>文件，可以使用vim工具<br>在vim模式下，输入<code>set ff</code>发现文件类型为<code>format=dos</code><br>在vim模式下，可以使用<code>set ff=unix</code>改变format为<code>unix</code></p>
-<h3 id="问题二：doc文档乱码"><a href="#问题二：doc文档乱码" class="headerlink" title="问题二：doc文档乱码"></a>问题二：doc文档乱码</h3><blockquote>
-<p>Windows下编写的doc文档，在Linux下查看（用Open Office）一般都会乱码</p>
-</blockquote>
-<ul>
-<li>  解决方法：先用Open Office打开，然后再全选，把字体设置为SYSong18030，OK中文简体和繁体都显示正常了。</li>
-</ul>
-<h3 id="问题三：FTP传文件时乱码"><a href="#问题三：FTP传文件时乱码" class="headerlink" title="问题三：FTP传文件时乱码"></a>问题三：FTP传文件时乱码</h3><blockquote>
-<p>在不同平台间使用FTP软件传送文件时, 在ascii文本模式传输模式下, 一些FTP客户端程序会自动对换行格式进行转换，经过这种传输的文件字节数可能会发生变化”)问题四：在不同平台间使用FTP软件传送文件时, 在ascii文本模式传输模式下, 一些FTP客户端程序会自动对换行格式进行转换，经过这种传输的文件字节数可能会发生变化</p>
-</blockquote>
-<ul>
-<li>  解决方法：如果你不想ftp修改原文件, 可以使用bin模式(二进制模式)传输文本。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
   </entry>
   <entry>
     <title>环形链表</title>
@@ -4606,6 +4568,44 @@ docker部署</code></pre>
       <tags>
         <tag>链表</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>解决Unix-like、Windows系统之间文本换行符不同的问题</title>
+    <url>/posts/8af9e030/</url>
+    <content><![CDATA[<blockquote>
+<p>参考博客 :point_right: <a href="https://sphenginx.github.io/2014/12/24/CRLF-in-Unix-like_Windows-os/">网址</a></p>
+</blockquote>
+<a id="more"></a>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>\r是回车符,\n是换行符，各个系统的换行标志：</p>
+<blockquote>
+<p>win 用 \r\n<br>linux/unix 用 \n<br>Mac OS 用 \r</p>
+</blockquote>
+<p>CR用符号’\r’表示, 十进制ASCII代码是13, 十六进制代码为OxOD<br>LF使用’\n’符号表示, ASCII代码是10, 十六制为0x0A<br>所以：<br>Windows下用的是OAOD，即CR&amp;LF，<br>linux/unix用的是OA，即LF<br>MacOS用的是OD，即CR</p>
+<h2 id="CRLF来历"><a href="#CRLF来历" class="headerlink" title="CRLF来历"></a>CRLF来历</h2><p>计算机还没有出现之前，有一种叫做电传打字机（Teletype Model 33）的玩意，每秒钟可以打10个字符。但是它有一个问题，就是打完一行换行的时候，要用去0.2秒，正好可以打两个字符。要是在这0.2秒里面，又有新的字符传过来，那么这个字符将丢失。</p>
+<p>于是，研制人员想了个办法解决这个问题，就是在每行后面加两个表示结束的字符。一个叫做“回车”，告诉打字机把打印头定位在左边界；另一个叫做“换行”，告诉打字机把纸向下移一行。这就是“换行”和“回车”的来历，从它们的英语名字上也可以看出一二。</p>
+<p>后来，计算机发明了，这两个概念也就被般到了计算机上。那时，存储器很贵，一些科学家认为在每行结尾加两个字符太浪费了，加一个就可以。于是，就出现了分歧。Unix 系统里，每行结尾只有“&lt;换行&gt;”，即“\n”；Windows系统里面，每行结尾是“&lt;回车&gt;&lt;换行&gt;”，即“ \r\n”；Mac系统里，每行结尾是“&lt;回车&gt;”。一个直接后果是，Unix/Mac系统下的文件在Windows里打开的话，所有文字会变成一行；而Windows里的文件在Unix/Mac下打开的话，在每行的结尾可能会多出一个^M符号。</p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="问题一：文本类型文件互转"><a href="#问题一：文本类型文件互转" class="headerlink" title="问题一：文本类型文件互转"></a>问题一：文本类型文件互转</h3><blockquote>
+<p>包括 <code>txt</code> <code>sh</code>等文件</p>
+</blockquote>
+<p><strong>方法一</strong><br>使用<code>notepad++</code>中的格式转换功能，见图</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/20200415172001.png"></p>
+<p><strong>方法二</strong><br>针对<code>sh</code>文件，可以使用vim工具<br>在vim模式下，输入<code>set ff</code>发现文件类型为<code>format=dos</code><br>在vim模式下，可以使用<code>set ff=unix</code>改变format为<code>unix</code></p>
+<h3 id="问题二：doc文档乱码"><a href="#问题二：doc文档乱码" class="headerlink" title="问题二：doc文档乱码"></a>问题二：doc文档乱码</h3><blockquote>
+<p>Windows下编写的doc文档，在Linux下查看（用Open Office）一般都会乱码</p>
+</blockquote>
+<ul>
+<li>  解决方法：先用Open Office打开，然后再全选，把字体设置为SYSong18030，OK中文简体和繁体都显示正常了。</li>
+</ul>
+<h3 id="问题三：FTP传文件时乱码"><a href="#问题三：FTP传文件时乱码" class="headerlink" title="问题三：FTP传文件时乱码"></a>问题三：FTP传文件时乱码</h3><blockquote>
+<p>在不同平台间使用FTP软件传送文件时, 在ascii文本模式传输模式下, 一些FTP客户端程序会自动对换行格式进行转换，经过这种传输的文件字节数可能会发生变化”)问题四：在不同平台间使用FTP软件传送文件时, 在ascii文本模式传输模式下, 一些FTP客户端程序会自动对换行格式进行转换，经过这种传输的文件字节数可能会发生变化</p>
+</blockquote>
+<ul>
+<li>  解决方法：如果你不想ftp修改原文件, 可以使用bin模式(二进制模式)传输文本。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
   </entry>
   <entry>
     <title>linux学习05 - linux环境变量与文件查找</title>
