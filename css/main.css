@@ -220,8 +220,7 @@ h6 {
 p {
   margin: 0 0 20px;
 }
-a,
-span.exturl {
+a {
   border-bottom: 1px solid #999;
   color: var(--link-color);
   cursor: pointer;
@@ -229,8 +228,7 @@ span.exturl {
   text-decoration: none;
   overflow-wrap: break-word;
 }
-a:hover,
-span.exturl:hover {
+a:hover {
   border-bottom-color: var(--link-hover-color);
   color: var(--link-hover-color);
 }
@@ -659,6 +657,7 @@ pre code {
 }
 .post-body .link-grid {
   display: grid;
+  grid-gap: 1.5rem 1.5rem;
   gap: 1.5rem 1.5rem;
   grid-template-columns: 1fr 1fr;
   margin-bottom: 20px;
@@ -1007,13 +1006,11 @@ pre code {
   border-color: #e1e1e1;
   color: #666;
 }
-.post-body .note.default a:not(.btn),
-.post-body .note.default span.exturl:not(.btn) {
+.post-body .note.default a:not(.btn) {
   border-bottom-color: #666;
   color: #666;
 }
-.post-body .note.default a:not(.btn):hover,
-.post-body .note.default span.exturl:not(.btn):hover {
+.post-body .note.default a:not(.btn):hover {
   border-bottom-color: #454545;
   color: #454545;
 }
@@ -1022,13 +1019,11 @@ pre code {
   border-color: #e1c2ff;
   color: #6f42c1;
 }
-.post-body .note.primary a:not(.btn),
-.post-body .note.primary span.exturl:not(.btn) {
+.post-body .note.primary a:not(.btn) {
   border-bottom-color: #6f42c1;
   color: #6f42c1;
 }
-.post-body .note.primary a:not(.btn):hover,
-.post-body .note.primary span.exturl:not(.btn):hover {
+.post-body .note.primary a:not(.btn):hover {
   border-bottom-color: #453298;
   color: #453298;
 }
@@ -1037,13 +1032,11 @@ pre code {
   border-color: #b3e5ef;
   color: #31708f;
 }
-.post-body .note.info a:not(.btn),
-.post-body .note.info span.exturl:not(.btn) {
+.post-body .note.info a:not(.btn) {
   border-bottom-color: #31708f;
   color: #31708f;
 }
-.post-body .note.info a:not(.btn):hover,
-.post-body .note.info span.exturl:not(.btn):hover {
+.post-body .note.info a:not(.btn):hover {
   border-bottom-color: #215761;
   color: #215761;
 }
@@ -1052,13 +1045,11 @@ pre code {
   border-color: #d0e6be;
   color: #3c763d;
 }
-.post-body .note.success a:not(.btn),
-.post-body .note.success span.exturl:not(.btn) {
+.post-body .note.success a:not(.btn) {
   border-bottom-color: #3c763d;
   color: #3c763d;
 }
-.post-body .note.success a:not(.btn):hover,
-.post-body .note.success span.exturl:not(.btn):hover {
+.post-body .note.success a:not(.btn):hover {
   border-bottom-color: #32562c;
   color: #32562c;
 }
@@ -1067,13 +1058,11 @@ pre code {
   border-color: #fae4cd;
   color: #8a6d3b;
 }
-.post-body .note.warning a:not(.btn),
-.post-body .note.warning span.exturl:not(.btn) {
+.post-body .note.warning a:not(.btn) {
   border-bottom-color: #8a6d3b;
   color: #8a6d3b;
 }
-.post-body .note.warning a:not(.btn):hover,
-.post-body .note.warning span.exturl:not(.btn):hover {
+.post-body .note.warning a:not(.btn):hover {
   border-bottom-color: #714f30;
   color: #714f30;
 }
@@ -1082,13 +1071,11 @@ pre code {
   border-color: #ebcdd2;
   color: #a94442;
 }
-.post-body .note.danger a:not(.btn),
-.post-body .note.danger span.exturl:not(.btn) {
+.post-body .note.danger a:not(.btn) {
   border-bottom-color: #a94442;
   color: #a94442;
 }
-.post-body .note.danger a:not(.btn):hover,
-.post-body .note.danger span.exturl:not(.btn):hover {
+.post-body .note.danger a:not(.btn):hover {
   border-bottom-color: #84333f;
   color: #84333f;
 }
@@ -1313,17 +1300,14 @@ pre code {
     display: none;
   }
 }
-.menu-item a,
-.menu-item span.exturl {
+.menu-item a {
   border-bottom: 0;
   display: block;
   font-size: 0.8125em;
   transition: border-color 0.2s ease-in-out;
 }
 .menu-item a:hover,
-.menu-item span.exturl:hover,
-.menu-item a.menu-item-active,
-.menu-item span.exturl.menu-item-active {
+.menu-item a.menu-item-active {
   background: var(--menu-item-bg-color);
 }
 .menu-item .fa,
@@ -1454,8 +1438,7 @@ pre code {
   font-size: 0.8125em;
   margin-top: 0;
 }
-.links-of-author a,
-.links-of-author span.exturl {
+.links-of-author a {
   font-size: 0.8125em;
 }
 .links-of-author .fa,
@@ -1969,8 +1952,7 @@ pre code {
 .posts-collapse .post-content .post-title {
   display: inline;
 }
-.posts-collapse .post-content .post-title a,
-.posts-collapse .post-content .post-title span.exturl {
+.posts-collapse .post-content .post-title a {
   border-bottom: 0;
   color: var(--link-color);
 }
@@ -2814,8 +2796,7 @@ mark.search-keyword {
   display: block;
   margin: 0;
 }
-.menu .menu-item a,
-.menu .menu-item span.exturl {
+.menu .menu-item a {
   padding: 5px 20px;
   position: relative;
   text-align: left;
@@ -2852,14 +2833,12 @@ mark.search-keyword {
 .sub-menu .menu-item {
   display: inline-block;
 }
-.sub-menu .menu-item a,
-.sub-menu .menu-item span.exturl {
+.sub-menu .menu-item a {
   background: transparent;
   margin: 5px 10px;
   padding: initial;
 }
-.sub-menu .menu-item a:hover,
-.sub-menu .menu-item span.exturl:hover {
+.sub-menu .menu-item a:hover {
   background: transparent;
   color: #fc6423;
 }
@@ -2924,8 +2903,7 @@ mark.search-keyword {
   margin: 5px 0 0;
   width: 50%;
 }
-.links-of-author-item a,
-.links-of-author-item span.exturl {
+.links-of-author-item a {
   box-sizing: border-box;
   display: inline-block;
   max-width: 100%;
@@ -2934,14 +2912,12 @@ mark.search-keyword {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.links-of-author-item a,
-.links-of-author-item span.exturl {
+.links-of-author-item a {
   border-bottom: 0;
   border-radius: 4px;
   display: block;
 }
-.links-of-author-item a:hover,
-.links-of-author-item span.exturl:hover {
+.links-of-author-item a:hover {
   background: var(--body-bg-color);
 }
 .main-inner > .sub-menu,
