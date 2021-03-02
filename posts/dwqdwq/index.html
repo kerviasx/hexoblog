@@ -23,18 +23,20 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.2.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="把GIT的一些常用命令记录下来, 方便查看.">
+<meta name="description" content="参考网上诸多教程，把GIT的一些常用命令记录下来, 方便查看.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Git常用命令总结">
 <meta property="og:url" content="https://blog.kervias.com/posts/dwqdwq/index.html">
 <meta property="og:site_name" content="kervias">
-<meta property="og:description" content="把GIT的一些常用命令记录下来, 方便查看.">
+<meta property="og:description" content="参考网上诸多教程，把GIT的一些常用命令记录下来, 方便查看.">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2021-03/20210302135525.png">
 <meta property="article:published_time" content="2020-01-19T15:38:25.000Z">
-<meta property="article:modified_time" content="2020-12-04T04:13:07.957Z">
+<meta property="article:modified_time" content="2021-03-02T06:37:05.147Z">
 <meta property="article:author" content="kervias">
 <meta property="article:tag" content="命令总结">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2021-03/20210302135525.png">
 
 
 <link rel="canonical" href="https://blog.kervias.com/posts/dwqdwq/">
@@ -190,7 +192,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E9%85%8D%E7%BD%AE%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">GIT配置命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E6%8E%A8%E9%80%81%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">GIT推送命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-remote"><span class="nav-number">3.</span> <span class="nav-text">Git remote</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-Proxy"><span class="nav-number">4.</span> <span class="nav-text">Git Proxy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git%E5%88%A0%E9%99%A4%E6%89%80%E6%9C%89commit%E8%AE%B0%E5%BD%95"><span class="nav-number">5.</span> <span class="nav-text">Git删除所有commit记录</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E9%85%8D%E7%BD%AE%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">GIT配置命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GIT%E6%8E%A8%E9%80%81%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">GIT推送命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git%E5%88%A0%E9%99%A4%E6%89%80%E6%9C%89commit%E8%AE%B0%E5%BD%95"><span class="nav-number">3.</span> <span class="nav-text">Git删除所有commit记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-remote"><span class="nav-number">4.</span> <span class="nav-text">Git remote</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-Proxy"><span class="nav-number">5.</span> <span class="nav-text">Git Proxy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Http%E5%92%8CHttps%E4%BB%A3%E7%90%86"><span class="nav-number">5.1.</span> <span class="nav-text">Http和Https代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSH%E4%BB%A3%E7%90%86"><span class="nav-number">5.2.</span> <span class="nav-text">SSH代理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux%E4%B8%8B%E9%85%8D%E7%BD%AE-%E6%9C%AA%E9%AA%8C%E8%AF%81"><span class="nav-number">5.2.1.</span> <span class="nav-text">Linux下配置(未验证)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#windows%E4%B8%8B%E9%85%8D%E7%BD%AE"><span class="nav-number">5.2.2.</span> <span class="nav-text">windows下配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%9F%9F%E5%90%8D%E4%BB%A3%E7%90%86"><span class="nav-number">5.2.3.</span> <span class="nav-text">分域名代理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git%E9%85%8D%E7%BD%AE%E5%A4%9A%E8%B4%A6%E6%88%B7"><span class="nav-number">6.</span> <span class="nav-text">Git配置多账户</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90ssh-key"><span class="nav-number">6.1.</span> <span class="nav-text">生成ssh key</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E5%BB%BAconfig%E6%96%87%E4%BB%B6"><span class="nav-number">6.2.</span> <span class="nav-text">新建config文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E4%BB%93%E5%BA%93"><span class="nav-number">6.3.</span> <span class="nav-text">连接仓库</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -309,7 +311,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-12-04 12:13:07" itemprop="dateModified" datetime="2020-12-04T12:13:07+08:00">2020-12-04</time>
+        <time title="修改时间：2021-03-02 14:37:05" itemprop="dateModified" datetime="2021-03-02T14:37:05+08:00">2021-03-02</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -339,32 +341,27 @@
     
     <div class="post-body" itemprop="articleBody">
         <blockquote>
-<p>把GIT的一些常用命令记录下来, 方便查看.</p>
+<p> 参考网上诸多教程，把GIT的一些常用命令记录下来, 方便查看.</p>
 </blockquote>
 <a id="more"></a>
 <h2 id="GIT配置命令"><a href="#GIT配置命令" class="headerlink" title="GIT配置命令"></a>GIT配置命令</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name &quot;bryan sun&quot;</span><br><span class="line">git config --global user.email &quot;hitsjt@gmail.com&quot;</span><br><span class="line">git config --list  # 查看配置信息(包括用户名和邮箱)</span><br><span class="line">git branch  # 查看本地分支</span><br></pre></td></tr></table></figure>
 
 <h2 id="GIT推送命令"><a href="#GIT推送命令" class="headerlink" title="GIT推送命令"></a>GIT推送命令</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;commit&quot;</span></span><br><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
 
+<h2 id="Git删除所有commit记录"><a href="#Git删除所有commit记录" class="headerlink" title="Git删除所有commit记录"></a>Git删除所有commit记录</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git checkout --orphan latest_branch</span><br><span class="line">git add -A</span><br><span class="line">git commit -am &quot;first commit&quot;</span><br><span class="line">git branch -D master</span><br><span class="line">git branch -m master</span><br><span class="line">git push -f origin master</span><br></pre></td></tr></table></figure>
+
 <h2 id="Git-remote"><a href="#Git-remote" class="headerlink" title="Git remote"></a>Git remote</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git remote -v # 查看所有远程仓库</span><br><span class="line">git remote show [远程仓库名] # 详细查看某个远程仓库</span><br><span class="line">git remote add [远程仓库名] [远程仓库地址] # 添加远程仓库</span><br><span class="line">git remote remove [远程仓库名] # 移除某个远程仓库</span><br><span class="line">git remote rename [现在的仓库名] [新的仓库名] # 重命名某个远程仓库</span><br><span class="line">git remote rm [远程仓库名]</span><br></pre></td></tr></table></figure>
 
-<h2 id="Git-Proxy"><a href="#Git-Proxy" class="headerlink" title="Git Proxy"></a>Git Proxy</h2><ul>
+<h2 id="Git-Proxy"><a href="#Git-Proxy" class="headerlink" title="Git Proxy"></a>Git Proxy</h2><h3 id="Http和Https代理"><a href="#Http和Https代理" class="headerlink" title="Http和Https代理"></a>Http和Https代理</h3><ul>
 <li><p>http类型代理</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy <span class="string">&#x27;http://127.0.0.1:1080&#x27;</span></span><br><span class="line">git config --global https.proxy <span class="string">&#x27;http://127.0.0.1:1080&#x27;</span></span><br></pre></td></tr></table></figure>
-
-
-
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy <span class="string">&#x27;http://127.0.0.1:1081&#x27;</span></span><br><span class="line">git config --global https.proxy <span class="string">&#x27;http://127.0.0.1:1081&#x27;</span></span><br></pre></td></tr></table></figure>
 </li>
-</ul>
-<ul>
 <li><p>socks5类型代理  </p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">git config --global https.proxy <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br></pre></td></tr></table></figure>
-
-
-
 </li>
-</ul>
-<ul>
+<li><p>分域名代理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.https://github.com.proxy http://127.0.0.1:1081</span><br><span class="line">git config --global https.https://github.com.proxy https://127.0.0.1:1081</span><br></pre></td></tr></table></figure>
+</li>
 <li><p>查当前的代理配置</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global --get http.proxy  </span><br><span class="line">git config --global --get https.proxy</span><br></pre></td></tr></table></figure>
 </li>
@@ -376,11 +373,44 @@
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">fatal</span>: NotSupportedException encountered.</span><br><span class="line">   <span class="attribute">ServicePointManager</span> 不支持具有 socks<span class="number">5</span> 方案的代理。</span><br></pre></td></tr></table></figure>
 
 <p>下面设置需要密码的代理</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy http://username:passwd@127.0.0.1:1080</span><br><span class="line">git config --global http.proxy socks5://username:passwd@127.0.0.1:1080</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy http://username:passwd@127.0.0.1:1081</span><br><span class="line">git config --global http.proxy socks5://username:passwd@127.0.0.1:1080</span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
-<h2 id="Git删除所有commit记录"><a href="#Git删除所有commit记录" class="headerlink" title="Git删除所有commit记录"></a>Git删除所有commit记录</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git checkout --orphan latest_branch # 基于当前分支建立新分支latest_branch</span><br><span class="line">git add -A</span><br><span class="line">git commit -am &quot;first commit&quot;</span><br><span class="line">git branch -D master # 删除master分支</span><br><span class="line">git branch -m master # 重命名latest_branch分支为master</span><br><span class="line">git push -f origin master # 强制推送</span><br></pre></td></tr></table></figure>
+<h3 id="SSH代理"><a href="#SSH代理" class="headerlink" title="SSH代理"></a>SSH代理</h3><p>编辑<code>~/.ssh/config</code>文件（没有则自己创建）</p>
+<h4 id="Linux下配置-未验证"><a href="#Linux下配置-未验证" class="headerlink" title="Linux下配置(未验证)"></a>Linux下配置(未验证)</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 需要 netcat</span></span><br><span class="line">ProxyCommand nc -v -x 127.0.0.1:1080 %h %pxxxxxxxxxx ProxyCommand nc -v -x 1</span><br></pre></td></tr></table></figure>
+
+<h4 id="windows下配置"><a href="#windows下配置" class="headerlink" title="windows下配置"></a>windows下配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -S 为 socks, -H 为 HTTP</span></span><br><span class="line">ProxyCommand connect -S 127.0.0.1:1080 %h %p</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果找不到 <code>connect</code> 命令那么指定其绝对路径，一般在 git 安装目录下 <code>\mingw64\bin\connect.exe</code>.</p>
+<p>赠送一个 <code>connect</code> 的<a target="_blank" rel="noopener" href="https://bitbucket.org/gotoh/connect/wiki/Home#!more-detail">官方文档</a>。</p>
+</blockquote>
+<h4 id="分域名代理"><a href="#分域名代理" class="headerlink" title="分域名代理"></a>分域名代理</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Host github.com</span><br><span class="line">    ProxyCommand connect -S 127.0.0.1:1080 %h %p</span><br></pre></td></tr></table></figure>
+
+<h2 id="Git配置多账户"><a href="#Git配置多账户" class="headerlink" title="Git配置多账户"></a>Git配置多账户</h2><p>github限制了不同github账户不能使用同一个SSH key，个人在网上找了一些教程，总结一下。</p>
+<p>假设我们github账号的邮箱名为<code>abc@gmail.com</code></p>
+<h3 id="生成ssh-key"><a href="#生成ssh-key" class="headerlink" title="生成ssh key"></a>生成ssh key</h3><p>目前我们的git有一个global配置，默认使用<code>~/.ssh/id_rsa.pub</code>公钥连接，该公钥只能用在一个github账户的SSH key中，因此我们需要生成一个新的ssh key，git中执行如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/.ssh</span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;abc@gmail.com&quot;</span> -f <span class="string">&quot;id_rsa_abc&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时我们可以看到<code>~/.ssh</code>文件夹下生成了<code>id_rsa_abc</code>和<code>id_rsa_abc.pub</code>文件。</p>
+<p>执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat ~/.ssh/id_rsa_abc.pub</span><br></pre></td></tr></table></figure>
+
+<p>复制该文件的内容，在github setting中新建SSH key，将内容粘贴进去, title随意写。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2021-03/20210302135525.png"></p>
+<h3 id="新建config文件"><a href="#新建config文件" class="headerlink" title="新建config文件"></a>新建config文件</h3><p>在<code>~/.ssh</code>文件夹下新建config文件，注意没有后缀。</p>
+<p>文件内容填写如下：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Default GitHub</span></span><br><span class="line">Host github.com</span><br><span class="line">    HostName github.com</span><br><span class="line">    <span class="keyword">User</span> <span class="title">git</span></span><br><span class="line">    IdentityFile ~/.ssh/id_rsa</span><br><span class="line"></span><br><span class="line"><span class="comment">#newaccount</span></span><br><span class="line">Host newaccount</span><br><span class="line">    HostName github.com</span><br><span class="line">    <span class="keyword">User</span> <span class="title">git</span></span><br><span class="line">    IdentityFile ~/.ssh/id_rsa_abc</span><br></pre></td></tr></table></figure>
+
+<p>配置文件的含义显而易见。</p>
+<p>配置完毕后，在git中执行命令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@newaccount</span><br></pre></td></tr></table></figure>
+
+<p>如果返回没有报错，说明配置成功。</p>
+<h3 id="连接仓库"><a href="#连接仓库" class="headerlink" title="连接仓库"></a>连接仓库</h3><p><strong>注</strong>: 这里我们只能通过ssh协议来连接仓库。</p>
+<p>假设我们新建了一个仓库为 <code>abc/abc-repo.git</code>，abc为用户名,  abc-repo为仓库名，添加origin的方式如下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote add origin git@newaccount:abc/abc-repo.git</span><br></pre></td></tr></table></figure>
 
 
     </div>
