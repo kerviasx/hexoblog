@@ -30,19 +30,19 @@
 <meta property="og:site_name" content="kervias">
 <meta property="og:description" content="linux学习05：linux环境变量与文件查找内容转载自实验楼：https:&#x2F;&#x2F;www.shiyanlou.com&#x2F;courses&#x2F;1&#x2F;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-1.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-2.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-3.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-4.gif">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-5.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-6.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-7.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-8.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-1.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-2.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-3.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-4.gif">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-5.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-6.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-7.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-8.png">
 <meta property="article:published_time" content="2019-10-22T09:10:00.000Z">
-<meta property="article:modified_time" content="2020-12-02T02:06:06.670Z">
+<meta property="article:modified_time" content="2021-03-02T05:26:32.384Z">
 <meta property="article:author" content="kervias">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-1.png">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-1.png">
 
 
 <link rel="canonical" href="https://blog.kervias.com/posts/9c5438d1/">
@@ -317,7 +317,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-12-02 10:06:06" itemprop="dateModified" datetime="2020-12-02T10:06:06+08:00">2020-12-02</time>
+        <time title="修改时间：2021-03-02 13:26:32" itemprop="dateModified" datetime="2021-03-02T13:26:32+08:00">2021-03-02</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -373,10 +373,10 @@
 <p>读取变量的值，使用 <code>echo</code> 命令和 <code>$</code> 符号（**$ 符号用于表示引用一个变量的值，初学者经常忘记输入**）：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">echo</span> <span class="variable">$tmp</span></span></span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-1.png"></p>
 <p><strong>注意：并不是任何形式的变量名都是可用的，变量名只能是英文字母、数字或者下划线，且不能以数字作为开头。</strong></p>
 <h4 id="1-环境变量"><a href="#1-环境变量" class="headerlink" title="1. 环境变量"></a>1. 环境变量</h4><p>简单理解了变量的概念，就很容易理解环境变量了。环境变量的作用域比自定义变量的要大，如 Shell 的环境变量作用于自身和它的子进程。在所有的 UNIX 和类 UNIX 系统中，每个进程都有其各自的环境变量设置，且默认情况下，当一个进程被创建时，除了创建过程中明确指定的话，它将继承其父进程的绝大部分环境设置。Shell 程序也作为一个进程运行在操作系统之上，而我们在 Shell 中运行的大部分命令都将以 Shell 的子进程的方式运行。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-2.png"></p>
 <p>通常我们会涉及到的变量类型有三种：</p>
 <ul>
 <li>  当前 Shell 进程私有用户自定义变量，如上面我们创建的 tmp 变量，只在当前 Shell 中有效。</li>
@@ -404,7 +404,7 @@
 <td>显示从 Shell 中导出成环境变量的变量，也能通过它将自定义变量导出为环境变量。</td>
 </tr>
 </tbody></table>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-3.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-3.png"></p>
 <p>你可以更直观的使用 <code>vimdiff</code> 工具比较一下它们之间的差别：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="attribute">temp</span>=shiyanlou</span><br><span class="line">$ <span class="builtin-name">export</span> <span class="attribute">temp_env</span>=shiyanlou</span><br><span class="line">$ env|sort&gt;env.txt</span><br><span class="line">$ <span class="builtin-name">export</span>|sort&gt;export.txt</span><br><span class="line">$ <span class="builtin-name">set</span>|sort&gt;set.txt</span><br></pre></td></tr></table></figure>
 
@@ -412,9 +412,9 @@
 <figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vimdiff env.txt <span class="keyword">export</span>.txt <span class="built_in">set</span>.txt</span><br></pre></td></tr></table></figure>
 
 <p>使用 <code>vimdiff</code> 工具比较导出的几个文件的内容：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-4.gif"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-4.gif"></p>
 <p>关于哪些变量是环境变量，可以简单地理解成在当前进程的子进程有效则为环境变量，否则不是（有些人也将所有变量统称为环境变量，只是以全局环境变量和局部环境变量进行区分，我们只要理解它们的实质区别即可）。我们这里用 <code>export</code> 命令来体会一下，先在 Shell 中设置一个变量 <code>temp=shiyanlou</code>，然后再新创建一个子 Shell 查看 <code>temp</code> 变量的值：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-5.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-5.png"></p>
 <p><strong>注意：为了与普通变量区分，通常我们习惯将环境变量名设为大写。</strong></p>
 <h5 id="永久生效"><a href="#永久生效" class="headerlink" title="永久生效"></a>永久生效</h5><p>但是问题来了，当你关机后，或者关闭当前的 shell 之后，环境变量就没了啊。怎么才能让环境变量永久生效呢？</p>
 <p>按变量的生存周期来划分，Linux 变量可分为两类：</p>
@@ -468,7 +468,7 @@
 <p>现在你可以在 <code>mybin</code> 目录中分别运行你刚刚创建的两个程序：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cd</span> mybin</span><br><span class="line"><span class="variable">$</span> ./hello_shell.sh</span><br><span class="line"><span class="variable">$</span> ./hello_world</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-6.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-6.png"></p>
 <p>回到上一级目录，也就是 <code>shiyanlou</code> 家目录，当再想运行那两个程序时，会发现提示命令找不到，除非加上命令的完整路径，但那样很不方便，如何做到像使用系统命令一样执行自己创建的脚本文件或者程序呢？那就要将命令所在路径添加到 <code>PATH</code> 环境变量了。</p>
 <h4 id="3-添加自定义路径到“-PATH-”环境变量"><a href="#3-添加自定义路径到“-PATH-”环境变量" class="headerlink" title="3. 添加自定义路径到“ PATH ”环境变量"></a>3. 添加自定义路径到“ PATH ”环境变量</h4><p>在前面我们应该注意到 <code>PATH</code> 里面的路径是以 <code>:</code> 作为分割符的，所以我们可以这样添加自定义路径：</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>PATH=<span class="variable">$PATH</span><span class="symbol">:/home/shiyanlou/mybin</span></span><br></pre></td></tr></table></figure>
@@ -533,7 +533,7 @@
 </ul>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>whereis who</span><br><span class="line"><span class="variable">$ </span>whereis find</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-7.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-7.png"></p>
 <p>你会看到 <code>whereis find</code> 找到了三个路径，两个可执行文件路径和一个 man 在线帮助文件所在路径，这个搜索很快，因为它并没有从硬盘中依次查找，而是直接从数据库中查询。<code>whereis</code> 只能搜索二进制文件(-b)，man 帮助文件(-m)和源代码文件(-s)。如果想要获得更全面的搜索结果可以使用 <code>locate</code> 命令。</p>
 <ul>
 <li>  <strong><code>locate</code> 快而全</strong></li>
@@ -595,7 +595,7 @@
 <li>  <code>-mtime -n</code>：列出在 n 天之内（包含 n 天本身）被修改过的文件</li>
 <li>  <code>-newer file</code>：file 为一个已存在的文件，列出比 file 还要新的文件名</li>
 </ul>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-04/36-8.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-04/36-8.png"></p>
 <p>列出 home 目录中，当天（24 小时之内）有改动的文件：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="builtin-name">find</span> ~ -mtime 0</span><br></pre></td></tr></table></figure>
 

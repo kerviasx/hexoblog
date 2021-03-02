@@ -30,17 +30,17 @@
 <meta property="og:site_name" content="kervias">
 <meta property="og:description" content="转载自腾讯云">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/U4MdoACLrsPlbEK.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/69OG1hfvgUXNuI8.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/VBXkQlmLEa15s7U.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/23ExRXnYfwijz8g.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/wyuNMzCJmIpt1ES.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/U4MdoACLrsPlbEK.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/69OG1hfvgUXNuI8.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/VBXkQlmLEa15s7U.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/23ExRXnYfwijz8g.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/wyuNMzCJmIpt1ES.png">
 <meta property="article:published_time" content="2020-01-22T08:36:05.000Z">
-<meta property="article:modified_time" content="2020-12-05T01:54:39.512Z">
+<meta property="article:modified_time" content="2021-03-02T05:26:32.430Z">
 <meta property="article:author" content="kervias">
 <meta property="article:tag" content="安全">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/U4MdoACLrsPlbEK.png">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/U4MdoACLrsPlbEK.png">
 
 
 <link rel="canonical" href="https://blog.kervias.com/posts/344ac519/">
@@ -315,7 +315,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-12-05 09:54:39" itemprop="dateModified" datetime="2020-12-05T09:54:39+08:00">2020-12-05</time>
+        <time title="修改时间：2021-03-02 13:26:32" itemprop="dateModified" datetime="2021-03-02T13:26:32+08:00">2021-03-02</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -352,11 +352,11 @@
 <p>我们使用 Linux 服务器不管做网站、项目、服务都需要一个安全性的概念，而默认是使用密码来登录的，普通的项目也就够用了。不过现在网络上鱼龙混杂，各路黑客无时无刻不在撸服务器，用各种软件扫描网络上的弱口令、端口等，为了提高 Linux 服务器的安全我们有必要在 SSH 登录界面设置密钥，提高破解难度，也就相对提高了服务器安全性。</p>
 <p>一般我们用 SSH 软件登录服务器的时候都是用 root 账号和密码进行连接，其实这样是不安全的，使用 SSH key 和密码同时登录，这样才不会被轻易破解，也就提高了服务器 SSH 登录安全性。本文我们介绍 SSH key 密钥登录 Linux 服务器的配置过程，平时多使用 Xshell SSH 登录，相对来说它的操作界面更友好一些。</p>
 <h1 id="一、生成密钥"><a href="#一、生成密钥" class="headerlink" title="一、生成密钥"></a>一、生成密钥</h1><p>1、点击 Xshell 的工具-新建用户密钥生成向导，开始生成密钥。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/U4MdoACLrsPlbEK.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/U4MdoACLrsPlbEK.png"></p>
 <p>2、弹出页面的密钥类型和密钥长度默认不要修改，点击下一步，看到程序生成 2048 位 RSA 密钥，点击下一步，输入密钥名称和登录密码。密钥名称随便起一个，密码是用来和密钥一起双重加密的，哪怕密钥被盗了，没有密码还是无法 SSH 登陆到服务器上。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/69OG1hfvgUXNuI8.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/69OG1hfvgUXNuI8.png"></p>
 <p>3、点击下一步，把密钥另存为文件保存到本地电脑。这个是公钥。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/VBXkQlmLEa15s7U.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/VBXkQlmLEa15s7U.png"></p>
 <p>另外在 Xshell 的工具&gt;&gt;用户密钥管理者里面能够看到对应的私钥，私钥最好另存到本地电脑和邮箱中，这点很重要。</p>
 <h1 id="二、上传公钥到-VPS-服务器"><a href="#二、上传公钥到-VPS-服务器" class="headerlink" title="二、上传公钥到 VPS 服务器"></a>二、上传公钥到 VPS 服务器</h1><p>1、建立文件夹和文件。创建一个.ssh 目录，这个目录具有隐藏属性。命令如下：</p>
 <figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span></span><br><span class="line"><span class="built_in">mkdir</span> .ssh</span><br></pre></td></tr></table></figure>
@@ -370,12 +370,12 @@
 <p>去掉#RSAAuthentication yes    #PubkeyAuthentication yes    #AuthorizedKeysFile .ssh/authorized_keys 前面的#，含义分别是开启 RSA 密钥验证，公钥验证功能，设置公钥验证文件的路径。</p>
 <p>把 PasswordAuthentication yes 替换为 PasswordAuthentication no，禁止使用密码登录。</p>
 <p>改完后如下图所示就对了。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/23ExRXnYfwijz8g.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/23ExRXnYfwijz8g.png"></p>
 <p>4、重启 sshd 服务。命令如下：</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">service sshd restart</span></span><br></pre></td></tr></table></figure>
 <p>5、用密钥连接 VPS 服务器</p>
 <p>打开 Xshell 进入连接&gt;&gt;用户身份验证，选择 Public Key，用户密钥选择已经建立好的私钥，输入上面你自己设置的私钥密码。点击连接就可以实现密钥登陆 VPS 服务器了。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/kerviasx/blogimg@master/2020-12/wyuNMzCJmIpt1ES.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2020-12/wyuNMzCJmIpt1ES.png"></p>
 <p>为了验证密钥是否生效，接下来我把登陆方法改成 Password 再试，就无法登陆并跳转到密钥登陆界面，说明这时候原来的密码登陆已经失效了，再输入密钥的密码登陆成功。</p>
 <p>老魏在配置密钥过程中遇到了“所选的用户密钥未在远程主机上注册”的情况导致密钥登陆失败，是因为一开始用命令创建 authorized_keys 并保存密钥，网络上很多文章都是用这个方法，但在我这里就不好使。后来改用本地 SFTP 上传密钥的方式解决了这个问题。别人的东西不一定适合你的具体情况，老魏写的教程是亲自测试一下才知道是怎么回事，才能发表出来给大家参考。</p>
 <p>最后总结：</p>
