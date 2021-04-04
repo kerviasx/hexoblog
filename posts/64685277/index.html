@@ -23,17 +23,17 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"blog.kervias.com","root":"/","images":"/images","scheme":"Gemini","version":"8.2.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":{"disqus":{"order":-1},"utterances":{"order":-2}},"activeClass":"utterances"},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="实验室深度学习服务器集群采用浪潮公司提供的AIStation，记录下一些避坑要点">
+<meta name="description" content="实验室深度学习服务器集群采用浪潮公司提供的AIStation，记录一些避坑要点">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浪潮AIStation-jupyterlab配置">
 <meta property="og:url" content="https://blog.kervias.com/posts/64685277/index.html">
 <meta property="og:site_name" content="kervias">
-<meta property="og:description" content="实验室深度学习服务器集群采用浪潮公司提供的AIStation，记录下一些避坑要点">
+<meta property="og:description" content="实验室深度学习服务器集群采用浪潮公司提供的AIStation，记录一些避坑要点">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2021-03/20210404222528.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/welloderx/blog-img@master/2021-03/20210404223110.png">
 <meta property="article:published_time" content="2021-04-04T14:10:18.000Z">
-<meta property="article:modified_time" content="2021-04-04T14:45:13.279Z">
+<meta property="article:modified_time" content="2021-04-04T15:01:44.714Z">
 <meta property="article:author" content="kervias">
 <meta property="article:tag" content="jupyterlab - 浪潮inspur">
 <meta name="twitter:card" content="summary">
@@ -306,7 +306,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2021-04-04 22:10:18 / 修改时间：22:45:13" itemprop="dateCreated datePublished" datetime="2021-04-04T22:10:18+08:00">2021-04-04</time>
+      <time title="创建时间：2021-04-04 22:10:18 / 修改时间：23:01:44" itemprop="dateCreated datePublished" datetime="2021-04-04T22:10:18+08:00">2021-04-04</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -336,11 +336,14 @@
     
     <div class="post-body" itemprop="articleBody">
         <blockquote>
-<p>实验室深度学习服务器集群采用浪潮公司提供的AIStation，记录下一些避坑要点</p>
+<p>实验室深度学习服务器集群采用浪潮公司提供的AIStation，记录一些避坑要点</p>
 </blockquote>
 <a id="more"></a>
 
-<h1 id="自定义镜像"><a href="#自定义镜像" class="headerlink" title="自定义镜像"></a>自定义镜像</h1><p>为了能够正常显示jupyterlab，需要其提供的<code>inspur-jupyter-custom.tar.gz</code>文件。压缩包内包括两个文件</p>
+<h1 id="自定义镜像"><a href="#自定义镜像" class="headerlink" title="自定义镜像"></a>自定义镜像</h1><p>为了能够正常显示jupyterlab，需要其提供的<code>inspur-jupyter-custom.tar.gz</code>文件。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">jupyter</span></span><br><span class="line">├── <span class="selector-tag">custom</span><span class="selector-class">.js</span></span><br><span class="line">└── <span class="selector-tag">jupyter_notebook_config</span><span class="selector-class">.py</span></span><br></pre></td></tr></table></figure>
+
+<p>压缩包内包含两个文件.</p>
 <p>第一个是<code>custom.js</code></p>
 <figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">define([<span class="string">&#x27;base/js/namespace&#x27;</span>], <span class="function"><span class="keyword">function</span><span class="params">(Jupyter)</span></span>&#123;</span><br><span class="line">    Jupyter._target = <span class="string">&#x27;_self&#x27;</span>;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
