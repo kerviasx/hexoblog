@@ -296,7 +296,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2021-07-03 16:52:05 / 修改时间：17:42:12" itemprop="dateCreated datePublished" datetime="2021-07-03T16:52:05+08:00">2021-07-03</time>
+      <time title="创建时间：2021-07-03 16:52:05 / 修改时间：17:45:40" itemprop="dateCreated datePublished" datetime="2021-07-03T16:52:05+08:00">2021-07-03</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -321,121 +321,14 @@
           <blockquote>
 <p>使用linux时，时间这一块不是很清楚，本篇博客记录网上搜集的教程并整理</p>
 </blockquote>
-<h1 id="时间概述"><a href="#时间概述" class="headerlink" title="时间概述"></a>时间概述</h1><p>首先需要清楚两个时间概念：<code>硬件时间</code>和<code>系统时间</code></p>
-<h2 id="windows中的时间"><a href="#windows中的时间" class="headerlink" title="windows中的时间"></a>windows中的时间</h2><p>Windows中的系统时间会自动保存在BIOS时钟里面，启动计算机的时候，系统会自动在BIOS里面取硬件时间，以保证时间的不间断。</p>
-<h2 id="linux系统中的时间"><a href="#linux系统中的时间" class="headerlink" title="linux系统中的时间"></a>linux系统中的时间</h2><p>linux系统在默认情况下，系统时间和硬件时间并不会自动同步。在Linux运行过程中，系统时间和硬件时间以异步的方式运行，互不干扰。硬件时间的运行，是靠BIOS电池来维持，而系统时间，是用CPU Tick来维持的。在系统开机的时候，会自动从BIOS中取得硬件时间，设置为系统时间。</p>
-<h1 id="date命令"><a href="#date命令" class="headerlink" title="date命令"></a>date命令</h1><blockquote>
-<p>date命令方便查看当前系统时间和设置系统时间</p>
-</blockquote>
-<ul>
-<li>查看系统时间</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@linux:~# date       # 打印当前时区时间</span><br><span class="line">Sat Jul  3 17:10:02 CST 2021</span><br><span class="line">root@linux:~# date &quot;+%s&quot;  # 显示当前时间戳 </span><br><span class="line">1625303413</span><br><span class="line">root@linux:~# date &quot;+Time Now: %Y-%m-%d %H:%M:%S&quot; # 按指定格式打印时间</span><br><span class="line">Time Now: 2021-07-03 17:11:22</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>设置系统时间</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">date -s &quot;20210703 17:11:22&quot;</span><br></pre></td></tr></table></figure>
-
-<h1 id="hwclock命令"><a href="#hwclock命令" class="headerlink" title="hwclock命令"></a>hwclock命令</h1><blockquote>
-<p>硬件时间的设置，可以用hwclock或者clock命令。两者基本相同，只用一个就行，只不过clock命令除了支持x86硬件体系外，还支持Alpha硬件体系。</p>
-</blockquote>
-<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">root@linux:~<span class="comment"># hwclock -h</span></span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line"> hwclock [<span class="function"><span class="keyword">function</span>] [<span class="title">option</span>...]</span></span><br><span class="line"></span><br><span class="line">Time clocks utility.</span><br><span class="line"></span><br><span class="line">Functions:</span><br><span class="line"> -r, <span class="comment">--show           display the RTC time</span></span><br><span class="line">     <span class="comment">--get            display drift corrected RTC time</span></span><br><span class="line">     <span class="comment">--set            set the RTC according to --date</span></span><br><span class="line"> -s, <span class="comment">--hctosys        set the system time from the RTC</span></span><br><span class="line"> -w, <span class="comment">--systohc        set the RTC from the system time</span></span><br><span class="line">     <span class="comment">--systz          send timescale configurations to the kernel</span></span><br><span class="line"> -<span class="keyword">a</span>, <span class="comment">--adjust         adjust the RTC to account for systematic drift</span></span><br><span class="line">     <span class="comment">--predict        predict the drifted RTC time according to --date</span></span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line"> -u, <span class="comment">--utc            the RTC timescale is UTC</span></span><br><span class="line"> -l, <span class="comment">--localtime      the RTC timescale is Local</span></span><br><span class="line"> -f, <span class="comment">--rtc &lt;file&gt;     use an alternate file to /dev/rtc0</span></span><br><span class="line">     <span class="comment">--directisa      use the ISA bus instead of /dev/rtc0 access</span></span><br><span class="line">     <span class="comment">--date &lt;time&gt;    date/time input for --set and --predict</span></span><br><span class="line">     <span class="comment">--update-drift   update the RTC drift factor</span></span><br><span class="line">     <span class="comment">--noadjfile      do not use /etc/adjtime</span></span><br><span class="line">     <span class="comment">--adjfile &lt;file&gt; use an alternate file to /etc/adjtime</span></span><br><span class="line">     <span class="comment">--test           dry run; implies --debug</span></span><br><span class="line"> -D, <span class="comment">--debug          display more details</span></span><br><span class="line"></span><br><span class="line"> -h, <span class="comment">--help           display this help</span></span><br><span class="line"> -V, <span class="comment">--version        display version</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>查看硬件时钟</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">root</span>@linux:~# hwclock --show</span><br><span class="line"><span class="attribute">2021</span>-<span class="number">07</span>-<span class="number">03</span> <span class="number">17</span>:<span class="number">17</span>:<span class="number">35</span>.<span class="number">708633</span>+<span class="number">080</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>同步系统时间到硬件时间</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-attr">[root@controller ~]</span># <span class="selector-tag">hwclock</span></span><br><span class="line"><span class="selector-tag">Thu</span> 06 <span class="selector-tag">Apr</span> 2017 11<span class="selector-pseudo">:46</span><span class="selector-pseudo">:35</span> <span class="selector-tag">AM</span> <span class="selector-tag">CST</span>  <span class="selector-tag">-0</span>.028650 <span class="selector-tag">seconds</span></span><br><span class="line"><span class="selector-attr">[root@controller ~]</span># <span class="selector-tag">hwclock</span> <span class="selector-tag">-w</span></span><br><span class="line"><span class="selector-attr">[root@controller ~]</span># <span class="selector-tag">hwclock</span></span><br><span class="line"><span class="selector-tag">Thu</span> 06 <span class="selector-tag">Apr</span> 2017 11<span class="selector-pseudo">:47</span><span class="selector-pseudo">:00</span> <span class="selector-tag">AM</span> <span class="selector-tag">CST</span>  <span class="selector-tag">-0</span>.223930 <span class="selector-tag">seconds</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>同步硬件时间到系统时间</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-attr">[root@controller ~]</span># <span class="selector-tag">date</span></span><br><span class="line"><span class="selector-tag">Thu</span> <span class="selector-tag">Apr</span>  6 11<span class="selector-pseudo">:48</span><span class="selector-pseudo">:31</span> <span class="selector-tag">CST</span> 2017</span><br><span class="line"><span class="selector-attr">[root@controller ~]</span># <span class="selector-tag">hwclock</span> <span class="selector-tag">-s</span></span><br><span class="line"><span class="selector-attr">[root@controller ~]</span># <span class="selector-tag">date</span></span><br><span class="line"><span class="selector-tag">Thu</span> <span class="selector-tag">Apr</span>  6 11<span class="selector-pseudo">:48</span><span class="selector-pseudo">:41</span> <span class="selector-tag">CST</span> 2017</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改硬件时间</p>
-<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@controller</span> ~]<span class="meta"># hwclock --set --date=<span class="string">&quot;12/12/16 10:19&quot;</span></span></span><br><span class="line">[root<span class="symbol">@controller</span> ~]<span class="meta"># hwclock </span></span><br><span class="line">Mon <span class="number">12</span> <span class="built_in">Dec</span> <span class="number">2016</span> <span class="number">10</span>:<span class="number">19</span>:<span class="number">05</span> AM CST  <span class="number">-0.107052</span> seconds</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="timedatectl"><a href="#timedatectl" class="headerlink" title="timedatectl"></a>timedatectl</h1><blockquote>
-<p>timedatectl命令对于RHEL / CentOS 7和基于Fedora 21+的分布式系统来说，是一个新工具，它作为systemd系统和服务管理器的一部分，代替旧的传统的用在基于Linux分布式系统的sysvinit守护进程的date命令。timedatectl命令可以查询和更改系统时钟和设置，你可以使用此命令来设置或更改当前的日期，时间和时区，或实现与远程NTP服务器的自动系统时钟同步。</p>
-</blockquote>
-<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">root@</span><span class="string">linux:</span>~<span class="comment"># timedatectl -h</span></span><br><span class="line"><span class="string">timedatectl </span>[<span class="string">OPTIONS.</span>..] <span class="string">COMMAND </span>...</span><br><span class="line"></span><br><span class="line"><span class="string">Query </span><span class="string">or </span><span class="string">change </span><span class="string">system </span><span class="string">time </span><span class="string">and </span><span class="string">date </span><span class="string">settings.</span></span><br><span class="line"></span><br><span class="line">  -h <span class="built_in">--help</span>                <span class="string">Show </span><span class="string">this </span><span class="string">help </span><span class="string">message</span></span><br><span class="line"><span class="string"> </span>    <span class="built_in">--version</span>             <span class="string">Show </span><span class="string">package </span><span class="string">version</span></span><br><span class="line"><span class="string"> </span>    <span class="built_in">--no-pager</span>            <span class="string">Do </span><span class="string">not </span><span class="string">pipe </span><span class="string">output </span><span class="string">into </span>a <span class="string">pager</span></span><br><span class="line"><span class="string"> </span>    <span class="built_in">--no-ask-password</span>     <span class="string">Do </span><span class="string">not </span><span class="string">prompt </span><span class="string">for </span><span class="string">password</span></span><br><span class="line"><span class="string"> </span> -H <span class="built_in">--host=[USER@]HOST</span>    <span class="string">Operate </span><span class="string">on </span><span class="string">remote </span><span class="string">host</span></span><br><span class="line"><span class="string"> </span> -M <span class="built_in">--machine=CONTAINER</span>   <span class="string">Operate </span><span class="string">on </span><span class="string">local </span><span class="string">container</span></span><br><span class="line"><span class="string"> </span>    <span class="built_in">--adjust-system-clock</span> <span class="string">Adjust </span><span class="string">system </span><span class="string">clock </span><span class="string">when </span><span class="string">changing </span><span class="string">local </span><span class="string">RTC </span><span class="string">mode</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Commands:</span></span><br><span class="line">  <span class="string">status </span>                  <span class="string">Show </span><span class="string">current </span><span class="string">time </span><span class="string">settings</span></span><br><span class="line"><span class="string"> </span> <span class="built_in">set-time</span> <span class="string">TIME </span>           <span class="string">Set </span><span class="string">system </span><span class="string">time</span></span><br><span class="line"><span class="string"> </span> <span class="built_in">set-timezone</span> <span class="string">ZONE </span>       <span class="string">Set </span><span class="string">system </span><span class="string">time </span><span class="string">zone</span></span><br><span class="line"><span class="string"> </span> <span class="built_in">list-timezones</span>           <span class="string">Show </span><span class="string">known </span><span class="string">time </span><span class="string">zones</span></span><br><span class="line"><span class="string"> </span> <span class="built_in">set-local-rtc</span> <span class="string">BOOL </span>      <span class="string">Control </span><span class="string">whether </span><span class="string">RTC </span><span class="string">is </span><span class="string">in </span><span class="string">local </span><span class="string">time</span></span><br><span class="line"><span class="string"> </span> <span class="built_in">set-ntp</span> <span class="string">BOOL </span>            <span class="string">Enable </span><span class="string">or </span><span class="string">disable </span><span class="string">network </span><span class="string">time </span><span class="string">synchronization</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>查看当前时间设置</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">root</span>@linux:~# timedatectl status</span><br><span class="line">                      <span class="attribute">Local</span> time: Sat <span class="number">2021</span>-<span class="number">07</span>-<span class="number">03</span> <span class="number">17</span>:<span class="number">26</span>:<span class="number">02</span> CST</span><br><span class="line">                  <span class="attribute">Universal</span> time: Sat <span class="number">2021</span>-<span class="number">07</span>-<span class="number">03</span> <span class="number">09</span>:<span class="number">26</span>:<span class="number">02</span> UTC</span><br><span class="line">                        <span class="attribute">RTC</span> time: Sat <span class="number">2021</span>-<span class="number">07</span>-<span class="number">03</span> <span class="number">09</span>:<span class="number">26</span>:<span class="number">06</span></span><br><span class="line">                       <span class="attribute">Time</span> zone: Asia/Shanghai (CST, +<span class="number">0800</span>)</span><br><span class="line">       <span class="attribute">System</span> clock synchronized: yes</span><br><span class="line"><span class="attribute">systemd</span>-timesyncd.service active: yes</span><br><span class="line">                 <span class="attribute">RTC</span> in local TZ: no</span><br></pre></td></tr></table></figure>
-
-<p>其中Local Time显示本地时区时间，Universal time显示世界协调时，RTC time为硬件时间，Time zone是指当前时区，System clock synchronized显示系统时间是否同步</p>
-<table>
-<thead>
-<tr>
-<th>name</th>
-<th>description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Local time</td>
-<td>本地时区时间</td>
-</tr>
-<tr>
-<td>Universal time</td>
-<td>世界协调时</td>
-</tr>
-<tr>
-<td>RTC time</td>
-<td>硬件时间（real-time clock）</td>
-</tr>
-<tr>
-<td>Time zone</td>
-<td>当前设置的时区</td>
-</tr>
-<tr>
-<td>System clock synchronized</td>
-<td>如果和远程NTP服务器成功同步，显示为yes</td>
-</tr>
-<tr>
-<td>systemd-timesyncd.service active</td>
-<td>NTP时间同步是否开启，yes表示是，systemd-timesyncd服务为活动也就是开启了NTP时间同步</td>
-</tr>
-<tr>
-<td>RTC in local TZ</td>
-<td>no表示硬件时钟设置为协调世界时（UTC），yes表示硬件时钟设置为本地时间</td>
-</tr>
-</tbody></table>
-</li>
-<li><p>设置系统时间</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">timedatectl set-time 15:58:30  #只设置时间</span><br><span class="line">timedatectl set-time 20151120  #只设置日期</span><br><span class="line">timedatectl set-time &#x27;16:10:40 2015-11-20&#x27; #同时设置日期和时间</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>显示可用时区</p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">timedatectl list-timezones</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>设置系统时区</p>
-<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">timedatectl </span><span class="built_in">set-timezone</span> <span class="string">&quot;Asia/Shanghai&quot;</span></span><br><span class="line"><span class="string">timedatectl </span><span class="built_in">set-timezone</span> <span class="string">UTC</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>设置硬件时钟时区</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">timedatectl set-local-rtc 0 #将硬件时钟设置为协调世界时</span><br><span class="line">timedatectl set-local-rtc 1 #将硬件时钟设置为本地时区</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>设置系统时间同步到远程NTP服务器</p>
-<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">timedatectl </span><span class="built_in">set-ntp</span> <span class="string">true </span><span class="comment"># 开启同步</span></span><br><span class="line"><span class="string">timedatectl </span><span class="built_in">set-ntp</span> <span class="string">false </span><span class="comment"># 关闭同步</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="ntpdate"><a href="#ntpdate" class="headerlink" title="ntpdate"></a>ntpdate</h1><blockquote>
-<p>NTP即Network Time Protocol（网络时间协议），是一个互联网协议，用于同步计算机之间的系统时钟。</p>
-</blockquote>
-<p>为了避免主机时间因为长期运行下所导致的时间偏差，进行时间同步（synchronize）的工作是非常必要的。</p>
-<p>Linux系统下，一般使用ntp服务器来同步不同机器的时间。一台机器，可以同时是ntp服务端和ntp客户端。在生产系统中，推荐使用像DNS服务器一样分层的时间服务器来同步时间。</p>
-<p>不同机器间同步时间，可以使用<code>ntpdate</code>命令，也可以使用<code>ntpd</code>服务。</p>
-<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@node1</span> ~]<span class="meta"># ntpdate [NTP IP/hostname]</span></span><br><span class="line">[root<span class="symbol">@node1</span> ~]<span class="meta"># ntpdate 192.168.0.1</span></span><br><span class="line">[root<span class="symbol">@node1</span> ~]<span class="meta"># ntpdate time.ntp.org</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="参考博客"><a href="#参考博客" class="headerlink" title="参考博客"></a>参考博客</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhi-leaf/p/6282301.html">https://www.cnblogs.com/zhi-leaf/p/6282301.html</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/da8f9b6e832f">https://www.jianshu.com/p/da8f9b6e832f</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/williamjie/p/10768657.html">https://www.cnblogs.com/williamjie/p/10768657.html</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/pipci/p/12833228.html">https://www.cnblogs.com/pipci/p/12833228.html</a></li>
-</ol>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/posts/linuxtime/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
